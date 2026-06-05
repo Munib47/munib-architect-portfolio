@@ -5,6 +5,7 @@ import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Skills from '@/components/Skills';
 import Portfolio from '@/components/Portfolio/index';
+import ExperienceTimeline from '@/components/Portfolio/ExperienceTimeline';
 import SwiperShowcase from '@/components/SwiperShowcase';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
@@ -32,6 +33,7 @@ export default function Home() {
         <About />
         <Skills />
         <Portfolio />
+        <ExperienceTimeline />
         <SwiperShowcase />
         <Contact />
       </main>
