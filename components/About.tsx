@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 // ── SVG Icon Components ──────────────────────────────────────────────────────
 
@@ -363,23 +364,27 @@ export default function About(): JSX.Element {
             flexWrap: 'wrap',
           }}
         >
+          {/* Avatar — circular image with emerald neon ring */}
           <div
             style={{
               width: '56px',
               height: '56px',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10B981, #06B6D4)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 800,
-              color: '#0A0A0C',
-              fontSize: '20px',
+              border: '2px solid #10B981',
+              boxShadow:
+                '0 0 14px rgba(16,185,129,0.5), 0 0 0 1px rgba(16,185,129,0.15), 0 4px 18px rgba(0,0,0,0.4)',
+              overflow: 'hidden',
+              position: 'relative',
               flexShrink: 0,
             }}
           >
-            MA
+            <Image
+              src="/images/profile/avatar.png"
+              alt="Munib Ahmad"
+              fill
+              sizes="56px"
+              style={{ objectFit: 'cover' }}
+            />
           </div>
 
           <div style={{ flex: 1, minWidth: '220px' }}>
@@ -388,8 +393,31 @@ export default function About(): JSX.Element {
               storefront serving thousands of customers daily or a landing funnel converting a
               prospect into a client in under 8 seconds.&rdquo;
             </p>
-            <p style={{ marginTop: '0.6rem', fontSize: '13px', color: '#10B981', fontWeight: 600 }}>
-              — Munib Ahmad · munibahmad47@gmail.com
+            <p style={{ marginTop: '0.6rem', fontSize: '13px', fontWeight: 600, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.25rem' }}>
+              <span style={{ color: '#10B981' }}>— Munib Ahmad</span>
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>·</span>
+              <a
+                href="mailto:munibahmad47@gmail.com"
+                style={{
+                  color: '#22D3EE',
+                  textDecoration: 'none',
+                  transition: 'color 0.25s ease, text-decoration-color 0.25s ease',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.color = '#67E8F9';
+                  el.style.textDecoration = 'underline';
+                  el.style.textUnderlineOffset = '3px';
+                  el.style.textDecorationColor = 'rgba(103,232,249,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.color = '#22D3EE';
+                  el.style.textDecoration = 'none';
+                }}
+              >
+                munibahmad47@gmail.com
+              </a>
             </p>
           </div>
         </div>
