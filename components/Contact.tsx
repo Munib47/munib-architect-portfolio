@@ -29,7 +29,7 @@ const CONTACT_LINKS = [
     label: 'GitHub',
     value: 'github.com/Munib47',
     href: 'https://github.com/Munib47/',
-    color: 'rgba(255,255,255,0.82)',
+    color: '#ffffff',
   },
 ];
 
@@ -38,8 +38,8 @@ const INPUT_STYLE: React.CSSProperties = {
   padding: '0.72rem 1rem',
   borderRadius: '8px',
   background: '#161B27',
-  border: '1px solid rgba(255,255,255,0.07)',
-  color: '#F0F4F8',
+  border: '1px solid rgba(255,255,255,0.12)',
+  color: '#ffffff',
   fontSize: '14px',
   outline: 'none',
   transition: 'border-color 0.25s',
@@ -51,7 +51,7 @@ const LABEL_STYLE: React.CSSProperties = {
   display: 'block',
   fontSize: '12px',
   fontWeight: 600,
-  color: 'rgba(255,255,255,0.55)',
+  color: '#ffffff',
   letterSpacing: '0.05em',
   textTransform: 'uppercase',
   marginBottom: '0.4rem',
@@ -107,7 +107,7 @@ export default function Contact() {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: 800,
-              color: '#F0F4F8',
+              color: '#ffffff',
               lineHeight: 1.1,
               letterSpacing: '-0.02em',
               marginBottom: '1rem',
@@ -125,7 +125,7 @@ export default function Contact() {
               Together
             </span>
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
+          <p style={{ color: '#ffffff', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
             Whether you need a high-performance Shopify store, a converting GHL funnel, or a
             custom Next.js web application — let&apos;s talk.
           </p>
@@ -145,14 +145,14 @@ export default function Contact() {
                 style={{
                   fontSize: '18px',
                   fontWeight: 700,
-                  color: '#F0F4F8',
+                  color: '#ffffff',
                   marginBottom: '0.5rem',
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
                 }}
               >
                 Munib Ahmad
               </h3>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.62)', lineHeight: 1.65 }}>
+              <p style={{ fontSize: '14px', color: '#ffffff', lineHeight: 1.65 }}>
                 Son of Nadeem Sadiq · Based in Lahore, Pakistan
                 <br />
                 BSc Computer Science, University of the Punjab
@@ -228,7 +228,7 @@ export default function Contact() {
                     <p
                       style={{
                         fontSize: '13px',
-                        color: '#B0BBC8',
+                        color: '#ffffff',
                         fontWeight: 500,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -283,7 +283,7 @@ export default function Contact() {
               onSubmit={handleSubmit}
               style={{
                 background: '#0F1117',
-                border: '1px solid rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '16px',
                 padding: '2rem',
                 display: 'flex',
@@ -295,7 +295,7 @@ export default function Contact() {
                 style={{
                   fontSize: '16px',
                   fontWeight: 700,
-                  color: '#F0F4F8',
+                  color: '#ffffff',
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
                 }}
               >
@@ -313,7 +313,7 @@ export default function Contact() {
                   required
                   style={INPUT_STYLE}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = 'rgba(255,255,255,0.07)')}
+                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
                 />
               </div>
 
@@ -328,7 +328,7 @@ export default function Contact() {
                   required
                   style={INPUT_STYLE}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = 'rgba(255,255,255,0.07)')}
+                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
                 />
               </div>
 
@@ -343,7 +343,7 @@ export default function Contact() {
                   required
                   style={INPUT_STYLE}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = 'rgba(255,255,255,0.07)')}
+                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
                 />
               </div>
 
@@ -362,7 +362,7 @@ export default function Contact() {
                     minHeight: '110px',
                   }}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = 'rgba(255,255,255,0.07)')}
+                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
                 />
               </div>
 

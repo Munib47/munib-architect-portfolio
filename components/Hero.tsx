@@ -71,7 +71,6 @@ export default function Hero() {
         });
       }
 
-      // Eternal floating glow blob
       gsap.to(glowRef.current, {
         y: -14,
         duration: 3.2,
@@ -81,7 +80,6 @@ export default function Hero() {
         delay: 2.2,
       });
 
-      // Gentle floating animation for profile image
       gsap.to(imageRef.current, {
         y: -14,
         duration: 3.8,
@@ -213,7 +211,7 @@ export default function Hero() {
                   fontWeight: 900,
                   lineHeight: 1.04,
                   letterSpacing: '-0.03em',
-                  color: '#F0F4F8',
+                  color: '#ffffff',
                 }}
               >
                 Munib{' '}
@@ -237,7 +235,7 @@ export default function Hero() {
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
                   fontSize: 'clamp(1rem, 2.2vw, 1.35rem)',
                   fontWeight: 600,
-                  color: 'rgba(255,255,255,0.88)',
+                  color: '#ffffff',
                   letterSpacing: '0.01em',
                   lineHeight: 1.5,
                 }}
@@ -256,7 +254,7 @@ export default function Hero() {
               style={{
                 fontSize: '1rem',
                 lineHeight: 1.85,
-                color: 'rgba(255,255,255,0.65)',
+                color: '#ffffff',
                 maxWidth: '580px',
                 marginBottom: '2rem',
               }}
@@ -292,8 +290,6 @@ export default function Hero() {
                     whiteSpace: 'nowrap',
                     transition: 'all 0.25s',
                     cursor: 'default',
-                    opacity: 1,
-                    visibility: 'visible',
                   }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLSpanElement;
@@ -352,7 +348,7 @@ export default function Hero() {
                   padding: '0.8rem 2rem',
                   borderRadius: '10px',
                   border: '1px solid rgba(16,185,129,0.3)',
-                  color: '#FFFFFF',
+                  color: '#ffffff',
                   fontSize: '15px',
                   fontWeight: 600,
                   textDecoration: 'none',
@@ -364,8 +360,8 @@ export default function Hero() {
                 }}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.background   = 'rgba(16,185,129,0.08)';
-                  el.style.borderColor  = 'rgba(16,185,129,0.6)';
+                  el.style.background  = 'rgba(16,185,129,0.08)';
+                  el.style.borderColor = 'rgba(16,185,129,0.6)';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLAnchorElement;
@@ -408,7 +404,7 @@ export default function Hero() {
                   <div
                     style={{
                       fontSize: '12px',
-                      color: 'rgba(255,255,255,0.55)',
+                      color: '#ffffff',
                       marginTop: '0.25rem',
                       fontWeight: 500,
                       letterSpacing: '0.04em',
@@ -502,7 +498,7 @@ export default function Hero() {
                         fontFamily: "'Plus Jakarta Sans', sans-serif",
                         fontSize: '15px',
                         fontWeight: 700,
-                        color: '#FFFFFF',
+                        color: '#ffffff',
                         letterSpacing: '0.01em',
                         marginBottom: '0.2rem',
                       }}
@@ -561,76 +557,6 @@ export default function Hero() {
         </div>
         {/* ── End two-column layout ─────────────────────────────── */}
 
-        {/* ── Fixed Social Sidebar ────────────────────────────────── */}
-        <div
-          className="hero-social"
-          style={{
-            position: 'fixed',
-            left: '1.5rem',
-            bottom: '120px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.75rem',
-            zIndex: 10,
-          }}
-        >
-          {[
-            { href: 'https://github.com/Munib47/',                        label: 'GitHub',   icon: 'GH' },
-            { href: 'https://www.linkedin.com/in/munib-ahmad-294524237', label: 'LinkedIn', icon: 'in' },
-            { href: 'mailto:munibahmad47@gmail.com',                     label: 'Email',    icon: '@'  },
-          ].map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              target={s.href.startsWith('mailto') ? undefined : '_blank'}
-              rel="noopener noreferrer"
-              title={s.label}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                border: '1px solid rgba(16,185,129,0.2)',
-                background: 'rgba(10,10,12,0.8)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'rgba(255,255,255,0.6)',
-                fontSize: '11px',
-                fontWeight: 700,
-                textDecoration: 'none',
-                transition: 'all 0.25s',
-                letterSpacing: '0',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLAnchorElement;
-                el.style.color        = '#10B981';
-                el.style.borderColor  = 'rgba(16,185,129,0.5)';
-                el.style.background   = 'rgba(16,185,129,0.1)';
-                el.style.transform    = 'scale(1.08)';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLAnchorElement;
-                el.style.color        = 'rgba(255,255,255,0.6)';
-                el.style.borderColor  = 'rgba(16,185,129,0.2)';
-                el.style.background   = 'rgba(10,10,12,0.8)';
-                el.style.transform    = 'none';
-              }}
-            >
-              {s.icon}
-            </a>
-          ))}
-          {/* Connector line */}
-          <div
-            style={{
-              width: '1px',
-              height: '60px',
-              background: 'linear-gradient(to bottom, rgba(16,185,129,0.4), transparent)',
-              marginTop: '0.25rem',
-            }}
-          />
-        </div>
-
         {/* ── Scroll Indicator ─────────────────────────────────────── */}
         <div
           style={{
@@ -642,10 +568,10 @@ export default function Hero() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: '0.5rem',
-            opacity: 0.5,
+            opacity: 0.55,
           }}
         >
-          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '10px', color: '#ffffff', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Scroll
           </span>
           <div
@@ -703,10 +629,6 @@ export default function Hero() {
         }
         @media (max-width: 767px) {
           .hero-profile-card { display: none !important; }
-          .hero-social        { display: none !important; }
-        }
-        @media (min-width: 768px) {
-          .hero-social { display: flex !important; }
         }
       `}</style>
     </section>

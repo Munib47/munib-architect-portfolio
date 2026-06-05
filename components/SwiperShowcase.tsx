@@ -43,7 +43,7 @@ export default function SwiperShowcase() {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: 800,
-              color: '#F0F4F8',
+              color: '#ffffff',
               letterSpacing: '-0.02em',
               lineHeight: 1.1,
               marginBottom: '1rem',
@@ -61,7 +61,7 @@ export default function SwiperShowcase() {
               Showcase
             </span>
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
+          <p style={{ color: '#ffffff', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
             Swipe through hand-picked highlights — stores, funnels, and digital experiences
             built from the ground up.
           </p>
@@ -201,7 +201,7 @@ export default function SwiperShowcase() {
                               fontFamily: "'Plus Jakarta Sans', sans-serif",
                               fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)',
                               fontWeight: 800,
-                              color: '#F0F4F8',
+                              color: '#ffffff',
                               letterSpacing: '-0.02em',
                               lineHeight: 1.2,
                             }}
@@ -272,7 +272,7 @@ export default function SwiperShowcase() {
                           style={{
                             fontSize: '14px',
                             fontWeight: 600,
-                            color: '#D1D9E6',
+                            color: '#ffffff',
                             marginBottom: '1.25rem',
                             lineHeight: 1.45,
                           }}
@@ -282,7 +282,7 @@ export default function SwiperShowcase() {
                         <p
                           style={{
                             fontSize: '13px',
-                            color: 'rgba(255,255,255,0.72)',
+                            color: '#ffffff',
                             lineHeight: 1.75,
                           }}
                         >
@@ -331,7 +331,7 @@ export default function SwiperShowcase() {
                             padding: '0.6rem 0.9rem',
                             borderRadius: '8px',
                             background: 'rgba(0,0,0,0.35)',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(255,255,255,0.1)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.55rem',
@@ -350,7 +350,7 @@ export default function SwiperShowcase() {
                           <span
                             style={{
                               fontSize: '12px',
-                              color: 'rgba(255,255,255,0.5)',
+                              color: '#ffffff',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',

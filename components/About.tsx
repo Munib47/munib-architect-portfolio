@@ -78,7 +78,7 @@ export default function About() {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: 800,
-              color: '#F0F4F8',
+              color: '#ffffff',
               lineHeight: 1.1,
               letterSpacing: '-0.02em',
               marginBottom: '1.25rem',
@@ -100,7 +100,7 @@ export default function About() {
             style={{
               fontSize: '1rem',
               lineHeight: 1.85,
-              color: 'rgba(255,255,255,0.65)',
+              color: '#ffffff',
             }}
           >
             I&apos;m Munib Ahmad, a frontend architect and digital commerce specialist from
@@ -185,7 +185,7 @@ export default function About() {
                     key={item}
                     style={{
                       fontSize: '14px',
-                      color: 'rgba(255,255,255,0.7)',
+                      color: '#ffffff',
                       paddingBottom: '0.4rem',
                       display: 'flex',
                       alignItems: 'center',
@@ -241,7 +241,7 @@ export default function About() {
             <p
               style={{
                 fontSize: '15px',
-                color: '#B0BBC8',
+                color: '#ffffff',
                 lineHeight: 1.75,
                 fontStyle: 'italic',
               }}

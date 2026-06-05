@@ -34,7 +34,7 @@ function SkillBar({
         <span
           style={{
             fontSize: '13px',
-            color: '#B0BBC8',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             gap: '0.4rem',
@@ -54,7 +54,7 @@ function SkillBar({
         style={{
           height: '4px',
           borderRadius: '4px',
-          background: 'rgba(255,255,255,0.05)',
+          background: 'rgba(255,255,255,0.06)',
           overflow: 'hidden',
         }}
       >
@@ -107,7 +107,7 @@ export default function Skills() {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: 800,
-              color: '#F0F4F8',
+              color: '#ffffff',
               lineHeight: 1.1,
               letterSpacing: '-0.02em',
               marginBottom: '1rem',
@@ -125,7 +125,7 @@ export default function Skills() {
               Expertise
             </span>
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
+          <p style={{ color: '#ffffff', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
             A curated stack built through real-world delivery — from pixel-perfect storefronts
             to high-converting automation pipelines.
           </p>
@@ -198,7 +198,7 @@ export default function Skills() {
                   style={{
                     fontSize: '15px',
                     fontWeight: 700,
-                    color: '#F0F4F8',
+                    color: '#ffffff',
                     letterSpacing: '-0.01em',
                   }}
                 >
@@ -226,7 +226,7 @@ export default function Skills() {
               textAlign: 'center',
               fontSize: '12px',
               fontWeight: 700,
-              color: 'rgba(255,255,255,0.38)',
+              color: '#ffffff',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               marginBottom: '1.5rem',
@@ -250,9 +250,9 @@ export default function Skills() {
                 style={{
                   padding: '0.3rem 0.8rem',
                   borderRadius: '100px',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  background: 'rgba(255,255,255,0.03)',
-                  color: 'rgba(255,255,255,0.62)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: '#ffffff',
                   fontSize: '12px',
                   fontWeight: 500,
                   letterSpacing: '0.02em',
@@ -268,9 +268,9 @@ export default function Skills() {
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLSpanElement;
-                  el.style.borderColor = 'rgba(255,255,255,0.07)';
-                  el.style.color       = 'rgba(255,255,255,0.62)';
-                  el.style.background  = 'rgba(255,255,255,0.03)';
+                  el.style.borderColor = 'rgba(255,255,255,0.1)';
+                  el.style.color       = '#ffffff';
+                  el.style.background  = 'rgba(255,255,255,0.04)';
                 }}
               >
                 {badge}

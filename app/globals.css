@@ -35,9 +35,25 @@ html {
 
 body {
   background-color: #0A0A0C;
-  color: #F0F4F8;
+  color: #ffffff;
   font-family: 'Inter', system-ui, sans-serif;
   overflow-x: hidden;
+}
+
+/* ── Input / textarea placeholder ───────────────────────────── */
+input::placeholder,
+textarea::placeholder {
+  color: #ffffff;
+  opacity: 1;
+}
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #ffffff;
+}
+
+/* ── Social sidebar — hidden on mobile ───────────────────────── */
+@media (max-width: 767px) {
+  .social-sidebar { display: none !important; }
 }
 
 /* ── Custom Scrollbar ────────────────────────────────────────── */

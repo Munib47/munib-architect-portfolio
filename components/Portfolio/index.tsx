@@ -98,7 +98,7 @@ export default function Portfolio() {
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: 'clamp(2rem, 4vw, 3rem)',
                 fontWeight: 800,
-                color: '#F0F4F8',
+                color: '#ffffff',
                 lineHeight: 1.1,
                 letterSpacing: '-0.02em',
               }}
@@ -146,7 +146,7 @@ export default function Portfolio() {
             padding: '0.35rem',
             background: '#0F1117',
             borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.08)',
             width: 'fit-content',
           }}
         >
@@ -163,7 +163,7 @@ export default function Portfolio() {
                   cursor: 'pointer',
                   fontSize: '13px',
                   fontWeight: isActive ? 700 : 500,
-                  color: isActive ? '#0A0A0C' : 'rgba(255,255,255,0.65)',
+                  color: isActive ? '#0A0A0C' : '#ffffff',
                   background: isActive
                     ? 'linear-gradient(135deg, #10B981, #06B6D4)'
                     : 'transparent',
@@ -179,14 +179,14 @@ export default function Portfolio() {
                 onMouseEnter={(e) => {
                   if (!isActive) {
                     const el = e.currentTarget as HTMLButtonElement;
-                    el.style.color      = '#F0F4F8';
-                    el.style.background = 'rgba(255,255,255,0.05)';
+                    el.style.color      = '#ffffff';
+                    el.style.background = 'rgba(255,255,255,0.08)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
                     const el = e.currentTarget as HTMLButtonElement;
-                    el.style.color      = 'rgba(255,255,255,0.65)';
+                    el.style.color      = '#ffffff';
                     el.style.background = 'transparent';
                   }
                 }}
@@ -196,7 +196,7 @@ export default function Portfolio() {
                   style={{
                     padding: '0.1rem 0.4rem',
                     borderRadius: '4px',
-                    background: isActive ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.06)',
+                    background: isActive ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.1)',
                     fontSize: '11px',
                     fontWeight: 700,
                     minWidth: '20px',
@@ -237,9 +237,9 @@ export default function Portfolio() {
             textAlign: 'center',
           }}
         >
-          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', marginBottom: '1.25rem', lineHeight: 1.65 }}>
+          <p style={{ fontSize: '15px', color: '#ffffff', marginBottom: '1.25rem', lineHeight: 1.65 }}>
             Each project is live and deployed. View them in production or{' '}
-            <strong style={{ color: '#F0F4F8' }}>reach out to discuss your next build.</strong>
+            <strong style={{ color: '#ffffff' }}>reach out to discuss your next build.</strong>
           </p>
           <a
             href="mailto:munibahmad47@gmail.com"

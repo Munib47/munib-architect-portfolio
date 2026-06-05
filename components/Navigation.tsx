@@ -118,7 +118,7 @@ export default function Navigation() {
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontWeight: 700,
                 fontSize: '16px',
-                color: '#F0F4F8',
+                color: '#ffffff',
                 letterSpacing: '-0.3px',
               }}
             >
@@ -146,7 +146,7 @@ export default function Navigation() {
                     padding: '0.5rem 0.9rem',
                     fontSize: '14px',
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#10B981' : 'rgba(255,255,255,0.62)',
+                    color: isActive ? '#10B981' : '#ffffff',
                     transition: 'color 0.25s',
                     letterSpacing: '0.02em',
                     fontFamily: "'Inter', sans-serif",
@@ -214,7 +214,7 @@ export default function Navigation() {
                   display: 'block',
                   width: '22px',
                   height: '2px',
-                  background: menuOpen ? '#10B981' : '#F0F4F8',
+                  background: menuOpen ? '#10B981' : '#ffffff',
                   borderRadius: '2px',
                   transition: 'all 0.3s ease',
                   transformOrigin: 'center',

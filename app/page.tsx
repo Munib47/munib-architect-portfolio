@@ -1,5 +1,6 @@
 import ThreeBackgroundWrapper from '@/components/ThreeBackgroundWrapper';
 import Navigation from '@/components/Navigation';
+import SocialSidebar from '@/components/SocialSidebar';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Skills from '@/components/Skills';
@@ -16,6 +17,14 @@ export default function Home() {
 
       {/* Sticky navigation — z-index 100 */}
       <Navigation />
+
+      {/*
+       * Social sidebar lives here at the root — OUTSIDE <main> — so the hero
+       * section's overflow:hidden and the main stacking context (zIndex 1) can
+       * never clip or bury it. It remains clickable across every page fold.
+       * z-index 50: above all sections, below the nav bar.
+       */}
+      <SocialSidebar />
 
       {/* All page sections — z-index 1, sits above the canvas */}
       <main style={{ position: 'relative', zIndex: 1 }}>

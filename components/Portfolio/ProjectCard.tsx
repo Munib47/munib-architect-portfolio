@@ -115,7 +115,7 @@ export default function ProjectCard({ project, index }: Props) {
           style={{
             ...FACE_BASE,
             background: '#0F1117',
-            border: '1px solid rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.08)',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -180,7 +180,7 @@ export default function ProjectCard({ project, index }: Props) {
                   flex: 1,
                   textAlign: 'center',
                   fontSize: '9.5px',
-                  color: 'rgba(255,255,255,0.38)',
+                  color: '#ffffff',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -268,7 +268,7 @@ export default function ProjectCard({ project, index }: Props) {
                 style={{
                   fontSize: '14.5px',
                   fontWeight: 700,
-                  color: '#F0F4F8',
+                  color: '#ffffff',
                   lineHeight: 1.28,
                   letterSpacing: '-0.015em',
                 }}
@@ -294,7 +294,7 @@ export default function ProjectCard({ project, index }: Props) {
             <p
               style={{
                 fontSize: '12.5px',
-                color: '#5E6E82',
+                color: '#ffffff',
                 lineHeight: 1.65,
                 flex: 1,
                 marginBottom: '0.85rem',
@@ -315,9 +315,9 @@ export default function ProjectCard({ project, index }: Props) {
                   style={{
                     padding: '0.14rem 0.48rem',
                     borderRadius: '4px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    color: '#5E6E82',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#ffffff',
                     fontSize: '10.5px',
                     fontWeight: 500,
                     whiteSpace: 'nowrap',
@@ -350,7 +350,7 @@ export default function ProjectCard({ project, index }: Props) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.38rem',
-                color: 'rgba(255,255,255,0.16)',
+                color: '#ffffff',
                 fontSize: '10.5px',
                 fontWeight: 500,
                 letterSpacing: '0.01em',
@@ -410,7 +410,7 @@ export default function ProjectCard({ project, index }: Props) {
               position: 'absolute',
               inset: 0,
               backgroundImage: `
-                radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)
+                radial-gradient(#ffffff 1px, transparent 1px)
               `,
               backgroundSize: '22px 22px',
               maskImage: 'radial-gradient(ellipse at 50% 50%, black 30%, transparent 78%)',
@@ -461,7 +461,7 @@ export default function ProjectCard({ project, index }: Props) {
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
                   fontSize: '16.5px',
                   fontWeight: 800,
-                  color: '#F0F4F8',
+                  color: '#ffffff',
                   lineHeight: 1.22,
                   letterSpacing: '-0.02em',
                 }}
@@ -602,9 +602,9 @@ export default function ProjectCard({ project, index }: Props) {
                   style={{
                     padding: '0.14rem 0.48rem',
                     borderRadius: '4px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: 'rgba(255,255,255,0.38)',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#ffffff',
                     fontSize: '10.5px',
                     fontWeight: 500,
                     whiteSpace: 'nowrap',
