@@ -158,28 +158,6 @@ textarea:-ms-input-placeholder {
   width: 24px !important;
   border-radius: 4px !important;
 }
-.swiper-button-next,
-.swiper-button-prev {
-  color: #10B981 !important;
-  --swiper-navigation-size: 18px;
-  background: rgba(10,10,12,0.7);
-  border: 1px solid rgba(16,185,129,0.25);
-  border-radius: 50%;
-  width: 42px !important;
-  height: 42px !important;
-  backdrop-filter: blur(10px);
-  transition: all 0.25s;
-}
-.swiper-button-next:hover,
-.swiper-button-prev:hover {
-  background: rgba(16,185,129,0.15) !important;
-  border-color: rgba(16,185,129,0.5) !important;
-}
-.swiper-button-next::after,
-.swiper-button-prev::after {
-  font-size: 15px !important;
-  font-weight: 800 !important;
-}
 
 /* ── Section spacing ─────────────────────────────────────────── */
 .section-padding {
