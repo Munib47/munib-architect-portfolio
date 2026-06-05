@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { JSX } from 'react';
 import Image from 'next/image';
 
 // ── SVG Icon Components ──────────────────────────────────────────────────────
