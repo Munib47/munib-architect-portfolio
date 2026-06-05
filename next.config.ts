@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [],
     formats: ['image/avif', 'image/webp'],
   },
+  serverExternalPackages: ['@react-pdf/renderer'],
   experimental: {
     optimizePackageImports: ['gsap', 'three', 'swiper'],
   },
