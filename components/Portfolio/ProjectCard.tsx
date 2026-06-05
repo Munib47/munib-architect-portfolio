@@ -343,28 +343,6 @@ export default function ProjectCard({ project, index }: Props) {
               )}
             </div>
 
-            {/* Hover cue — very subtle, ghost text */}
-            <div
-              aria-hidden="true"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.38rem',
-                color: '#ffffff',
-                fontSize: '10.5px',
-                fontWeight: 500,
-                letterSpacing: '0.01em',
-                userSelect: 'none',
-              }}
-            >
-              {/* Rotation icon */}
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <path d="M1.5 6A4.5 4.5 0 0 1 6 1.5c1.24 0 2.36.5 3.18 1.32" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                <path d="M10.5 6A4.5 4.5 0 0 1 6 10.5c-1.24 0-2.36-.5-3.18-1.32" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                <path d="M8.5 1v2.5H6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Hover to flip
-            </div>
           </div>
         </div>
 
