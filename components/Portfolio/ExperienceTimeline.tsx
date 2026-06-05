@@ -113,7 +113,9 @@ export default function ExperienceTimeline(): JSX.Element {
   const spineFillRef = useRef<HTMLDivElement>(null);
   const cardRefs     = useRef<(HTMLDivElement | null)[]>([]);
   const dotRefs      = useRef<(HTMLDivElement | null)[]>([]);
+  const backToTopRef = useRef<HTMLButtonElement>(null);
 
+  // ── GSAP scroll animations ─────────────────────────────────────────────────
   useEffect(() => {
     if (!sectionRef.current || !spineFillRef.current) return;
 
@@ -122,7 +124,8 @@ export default function ExperienceTimeline(): JSX.Element {
       window.matchMedia('(max-width: 767px)').matches;
 
     const ctx = gsap.context(() => {
-      // ── Spine fill: scrubs linearly with scroll progress ──
+
+      // ── 1. Spine fill: scrubs linearly with scroll progress (unchanged) ──
       gsap.fromTo(
         spineFillRef.current,
         { scaleY: 0 },
@@ -138,7 +141,9 @@ export default function ExperienceTimeline(): JSX.Element {
         },
       );
 
-      // ── Card reveals: slide + fade + scale pop ──
+      // ── 2. Card reveals: bi-directional slide + fade + scale ──
+      //    toggleActions replaces `once: true` — plays forward on enter,
+      //    reverses on scroll-up, replays on re-enter.
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
         const isLeft  = i % 2 === 0;
@@ -156,527 +161,658 @@ export default function ExperienceTimeline(): JSX.Element {
             scrollTrigger: {
               trigger: card,
               start: 'top 84%',
-              once: true,
+              toggleActions: 'play reverse play reverse',
             },
           },
         );
       });
 
-      // ── Node dot reveals: scale pop ──
-      dotRefs.current.forEach((dot) => {
+      // ── 3. Node dots: dim → accent-glow (bi-directional) ──
+      //    Dots start in a neutral "off" state (grey border, no shadow).
+      //    Each dot lights up ONLY when the fill line reaches its Y position,
+      //    approximated by `top 78%` — roughly matching the fill progress at
+      //    that entry's scroll depth. Reverses back to dim on upward scroll.
+      dotRefs.current.forEach((dot, i) => {
         if (!dot) return;
+        const exp      = EXPERIENCES[i];
+        const innerDot = dot.children[0] as HTMLElement;
+
+        // Outer ring: grey → accent border + multi-layer glow
         gsap.fromTo(
           dot,
-          { scale: 0, opacity: 0 },
           {
-            scale: 1,
-            opacity: 1,
-            duration: 0.45,
-            ease: 'back.out(2.2)',
+            borderColor: 'rgba(255,255,255,0.18)',
+            boxShadow: 'none',
+          },
+          {
+            borderColor: exp.accent,
+            boxShadow: `0 0 14px ${exp.accent}65, 0 0 0 5px ${exp.accent}12`,
+            duration: 0.35,
+            ease: 'power2.out',
             scrollTrigger: {
               trigger: dot,
-              start: 'top 86%',
-              once: true,
+              start: 'top 78%',
+              toggleActions: 'play reverse play reverse',
             },
           },
         );
+
+        // Inner fill: dim white → accent solid + inner glow
+        if (innerDot) {
+          gsap.fromTo(
+            innerDot,
+            {
+              background: 'rgba(255,255,255,0.18)',
+              boxShadow: 'none',
+            },
+            {
+              background: exp.accent,
+              boxShadow: `0 0 8px ${exp.accent}`,
+              duration: 0.35,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: dot,
+                start: 'top 78%',
+                toggleActions: 'play reverse play reverse',
+              },
+            },
+          );
+        }
       });
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
+  // ── Hero visibility observer → Back to Top button ─────────────────────────
+  //    Uses IntersectionObserver on #hero. When hero is fully scrolled out of
+  //    view, the button fades in. When user scrolls back to hero, it hides.
+  useEffect(() => {
+    const heroEl = document.getElementById('hero');
+    const btn    = backToTopRef.current;
+    if (!heroEl || !btn) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Hero in viewport — hide button
+          btn.style.opacity       = '0';
+          btn.style.pointerEvents = 'none';
+        } else {
+          // Hero scrolled away — reveal button
+          btn.style.opacity       = '1';
+          btn.style.pointerEvents = 'auto';
+        }
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(heroEl);
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToTop = (): void => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   return (
-    <section
-      id="experience"
-      className="section-padding"
-      style={{ position: 'relative', zIndex: 1 }}
-    >
-      <div className="section-divider" style={{ marginBottom: '5rem' }} />
+    <>
+      <section
+        id="experience"
+        className="section-padding"
+        style={{ position: 'relative', zIndex: 1 }}
+      >
+        <div className="section-divider" style={{ marginBottom: '5rem' }} />
 
-      <div style={{ maxWidth: '1250px', margin: '0 auto', padding: '0 1.5rem' }}>
+        <div style={{ maxWidth: '1250px', margin: '0 auto', padding: '0 1.5rem' }}>
 
-        {/* ── Section Header ── */}
-        <div
-          style={{ marginBottom: '4.5rem', textAlign: 'center' }}
-          data-aos="fade-up"
-        >
-          <span
-            style={{
-              display: 'inline-block',
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#10B981',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              marginBottom: '0.75rem',
-            }}
+          {/* ── Section Header ── */}
+          <div
+            style={{ marginBottom: '4.5rem', textAlign: 'center' }}
+            data-aos="fade-up"
           >
-            ◈ Career Journey
-          </span>
-          <h2
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontSize: 'clamp(2rem, 4vw, 3rem)',
-              fontWeight: 800,
-              color: '#ffffff',
-              lineHeight: 1.1,
-              letterSpacing: '-0.02em',
-              marginBottom: '1rem',
-            }}
-          >
-            Professional{' '}
             <span
               style={{
-                background: 'linear-gradient(135deg, #10B981, #06B6D4)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                display: 'inline-block',
+                fontSize: '12px',
+                fontWeight: 700,
+                color: '#10B981',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                marginBottom: '0.75rem',
               }}
             >
-              Experience
+              ◈ Career Journey
             </span>
-          </h2>
-          <p
-            style={{
-              color: '#ffffff',
-              fontSize: '15px',
-              maxWidth: '520px',
-              margin: '0 auto',
-              lineHeight: 1.7,
-            }}
-          >
-            A chronological record of every role, company, and impact — from first-year
-            trainee to engineering manager across 4+ years of continuous delivery.
-          </p>
-        </div>
-
-        {/* ── Timeline ── */}
-        <div ref={sectionRef} style={{ position: 'relative' }}>
-
-          {/* Spine */}
-          <div className="et-spine">
-            {/* Top cap dot */}
-            <div
-              aria-hidden="true"
+            <h2
               style={{
-                position: 'absolute',
-                top: '-5px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #10B981, #06B6D4)',
-                boxShadow: '0 0 10px rgba(16,185,129,0.7)',
-                zIndex: 3,
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 'clamp(2rem, 4vw, 3rem)',
+                fontWeight: 800,
+                color: '#ffffff',
+                lineHeight: 1.1,
+                letterSpacing: '-0.02em',
+                marginBottom: '1rem',
               }}
-            />
-            {/* Ghost track */}
-            <div
+            >
+              Professional{' '}
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #10B981, #06B6D4)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Experience
+              </span>
+            </h2>
+            <p
               style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '2px',
-                background: 'rgba(255,255,255,0.06)',
+                color: '#ffffff',
+                fontSize: '15px',
+                maxWidth: '520px',
+                margin: '0 auto',
+                lineHeight: 1.7,
               }}
-            />
-            {/* Gradient fill — scaleY-animated by GSAP */}
-            <div
-              ref={spineFillRef}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                borderRadius: '2px',
-                background: 'linear-gradient(to bottom, #10B981 0%, #06B6D4 100%)',
-                transform: 'scaleY(0)',
-                transformOrigin: 'top center',
-                boxShadow: '0 0 8px rgba(16,185,129,0.35)',
-              }}
-            />
+            >
+              A chronological record of every role, company, and impact — from first-year
+              trainee to engineering manager across 4+ years of continuous delivery.
+            </p>
           </div>
 
-          {/* Experience rows */}
-          {EXPERIENCES.map((exp, i) => {
-            const isLeft = i % 2 === 0;
+          {/* ── Timeline ── */}
+          <div ref={sectionRef} style={{ position: 'relative' }}>
 
-            return (
+            {/* Spine */}
+            <div className="et-spine">
+              {/* Top cap dot */}
               <div
-                key={`${exp.company}-${i}`}
-                className={`et-row ${isLeft ? 'et-row--left' : 'et-row--right'}`}
-              >
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #10B981, #06B6D4)',
+                  boxShadow: '0 0 10px rgba(16,185,129,0.7)',
+                  zIndex: 3,
+                }}
+              />
+              {/* Ghost track */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '2px',
+                  background: 'rgba(255,255,255,0.06)',
+                }}
+              />
+              {/* Gradient fill — scaleY-animated by GSAP ScrollTrigger scrub */}
+              <div
+                ref={spineFillRef}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  borderRadius: '2px',
+                  background: 'linear-gradient(to bottom, #10B981 0%, #06B6D4 100%)',
+                  transform: 'scaleY(0)',
+                  transformOrigin: 'top center',
+                  boxShadow: '0 0 8px rgba(16,185,129,0.35)',
+                }}
+              />
+            </div>
 
-                {/* ── Experience Card ── */}
+            {/* Experience rows */}
+            {EXPERIENCES.map((exp, i) => {
+              const isLeft = i % 2 === 0;
+
+              return (
                 <div
-                  className="et-card-wrapper"
-                  ref={(el) => { cardRefs.current[i] = el; }}
+                  key={`${exp.company}-${i}`}
+                  className={`et-row ${isLeft ? 'et-row--left' : 'et-row--right'}`}
                 >
-                  <div
-                    className="et-card"
-                    style={{
-                      background: '#0F1117',
-                      border: `1px solid ${exp.accent}25`,
-                      borderRadius: '16px',
-                      padding: '1.6rem',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      transition:
-                        'border-color 0.3s ease, box-shadow 0.4s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLDivElement;
-                      el.style.borderColor = `${exp.accent}55`;
-                      el.style.boxShadow   = `0 8px 32px ${exp.accent}22, 0 20px 64px ${exp.accent}0e`;
-                      el.style.transform   = 'translateY(-3px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLDivElement;
-                      el.style.borderColor = `${exp.accent}25`;
-                      el.style.boxShadow   = 'none';
-                      el.style.transform   = 'translateY(0)';
-                    }}
-                  >
-                    {/* Corner glow */}
-                    <div
-                      aria-hidden="true"
-                      style={{
-                        position: 'absolute',
-                        top: '-35px',
-                        right: '-35px',
-                        width: '130px',
-                        height: '130px',
-                        borderRadius: '50%',
-                        background: `radial-gradient(circle, ${exp.accent}28 0%, transparent 70%)`,
-                        pointerEvents: 'none',
-                      }}
-                    />
 
-                    {/* CURRENT badge */}
-                    {exp.isCurrent && (
-                      <span
+                  {/* ── Experience Card ── */}
+                  <div
+                    className="et-card-wrapper"
+                    ref={(el) => { cardRefs.current[i] = el; }}
+                  >
+                    <div
+                      className="et-card"
+                      style={{
+                        background: '#0F1117',
+                        border: `1px solid ${exp.accent}25`,
+                        borderRadius: '16px',
+                        padding: '1.6rem',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        transition:
+                          'border-color 0.3s ease, box-shadow 0.4s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.borderColor = `${exp.accent}55`;
+                        el.style.boxShadow   = `0 8px 32px ${exp.accent}22, 0 20px 64px ${exp.accent}0e`;
+                        el.style.transform   = 'translateY(-3px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget as HTMLDivElement;
+                        el.style.borderColor = `${exp.accent}25`;
+                        el.style.boxShadow   = 'none';
+                        el.style.transform   = 'translateY(0)';
+                      }}
+                    >
+                      {/* Corner glow */}
+                      <div
+                        aria-hidden="true"
                         style={{
                           position: 'absolute',
-                          top: '1rem',
-                          right: '1rem',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.3rem',
-                          padding: '0.18rem 0.55rem',
-                          borderRadius: '100px',
-                          background: `${exp.accent}16`,
-                          border: `1px solid ${exp.accent}45`,
-                          fontSize: '10px',
+                          top: '-35px',
+                          right: '-35px',
+                          width: '130px',
+                          height: '130px',
+                          borderRadius: '50%',
+                          background: `radial-gradient(circle, ${exp.accent}28 0%, transparent 70%)`,
+                          pointerEvents: 'none',
+                        }}
+                      />
+
+                      {/* CURRENT badge */}
+                      {exp.isCurrent && (
+                        <span
+                          style={{
+                            position: 'absolute',
+                            top: '1rem',
+                            right: '1rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            padding: '0.18rem 0.55rem',
+                            borderRadius: '100px',
+                            background: `${exp.accent}16`,
+                            border: `1px solid ${exp.accent}45`,
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            color: exp.accent,
+                            letterSpacing: '0.08em',
+                            textTransform: 'uppercase',
+                            zIndex: 1,
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: '5px',
+                              height: '5px',
+                              borderRadius: '50%',
+                              background: exp.accent,
+                              boxShadow: `0 0 5px ${exp.accent}`,
+                              flexShrink: 0,
+                              animation: 'et-pulse 2s ease-in-out infinite',
+                            }}
+                          />
+                          Current
+                        </span>
+                      )}
+
+                      {/* Company link */}
+                      <a
+                        href={exp.companyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-block',
+                          fontSize: '11px',
                           fontWeight: 700,
                           color: exp.accent,
-                          letterSpacing: '0.08em',
+                          letterSpacing: '0.1em',
                           textTransform: 'uppercase',
+                          textDecoration: 'none',
+                          marginBottom: '0.4rem',
+                          position: 'relative',
+                          zIndex: 1,
+                          transition: 'opacity 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          const el = e.currentTarget as HTMLAnchorElement;
+                          el.style.textDecoration      = 'underline';
+                          el.style.textUnderlineOffset = '3px';
+                        }}
+                        onMouseLeave={(e) => {
+                          const el = e.currentTarget as HTMLAnchorElement;
+                          el.style.textDecoration = 'none';
+                        }}
+                      >
+                        {exp.company} ↗
+                      </a>
+
+                      {/* Role title */}
+                      <h3
+                        style={{
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: '1rem',
+                          fontWeight: 700,
+                          color: '#ffffff',
+                          lineHeight: 1.3,
+                          marginBottom: '0.75rem',
+                          paddingRight: exp.isCurrent ? '5.5rem' : 0,
+                          position: 'relative',
+                          zIndex: 1,
+                        }}
+                      >
+                        {exp.role}
+                      </h3>
+
+                      {/* Period + duration pill */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: '0.5rem',
+                          marginBottom: '1.1rem',
+                          position: 'relative',
                           zIndex: 1,
                         }}
                       >
                         <span
                           style={{
-                            width: '5px',
-                            height: '5px',
-                            borderRadius: '50%',
-                            background: exp.accent,
-                            boxShadow: `0 0 5px ${exp.accent}`,
-                            flexShrink: 0,
-                            animation: 'et-pulse 2s ease-in-out infinite',
-                          }}
-                        />
-                        Current
-                      </span>
-                    )}
-
-                    {/* Company link */}
-                    <a
-                      href={exp.companyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'inline-block',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        color: exp.accent,
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        textDecoration: 'none',
-                        marginBottom: '0.4rem',
-                        position: 'relative',
-                        zIndex: 1,
-                        transition: 'opacity 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        const el = e.currentTarget as HTMLAnchorElement;
-                        el.style.textDecoration      = 'underline';
-                        el.style.textUnderlineOffset = '3px';
-                      }}
-                      onMouseLeave={(e) => {
-                        const el = e.currentTarget as HTMLAnchorElement;
-                        el.style.textDecoration = 'none';
-                      }}
-                    >
-                      {exp.company} ↗
-                    </a>
-
-                    {/* Role title */}
-                    <h3
-                      style={{
-                        fontFamily: "'Plus Jakarta Sans', sans-serif",
-                        fontSize: '1rem',
-                        fontWeight: 700,
-                        color: '#ffffff',
-                        lineHeight: 1.3,
-                        marginBottom: '0.75rem',
-                        paddingRight: exp.isCurrent ? '5.5rem' : 0,
-                        position: 'relative',
-                        zIndex: 1,
-                      }}
-                    >
-                      {exp.role}
-                    </h3>
-
-                    {/* Period + duration pill */}
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: '0.5rem',
-                        marginBottom: '1.1rem',
-                        position: 'relative',
-                        zIndex: 1,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color: exp.accent,
-                          letterSpacing: '0.02em',
-                        }}
-                      >
-                        {exp.period}
-                      </span>
-                      <span
-                        style={{
-                          padding: '0.12rem 0.48rem',
-                          borderRadius: '100px',
-                          background: `${exp.accent}14`,
-                          border: `1px solid ${exp.accent}32`,
-                          fontSize: '10px',
-                          fontWeight: 600,
-                          color: exp.accent,
-                          letterSpacing: '0.04em',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {exp.duration}
-                      </span>
-                    </div>
-
-                    {/* Impact bullets */}
-                    <ul
-                      style={{
-                        listStyle: 'none',
-                        margin: 0,
-                        padding: 0,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.55rem',
-                        position: 'relative',
-                        zIndex: 1,
-                      }}
-                    >
-                      {exp.impacts.map((impact, ii) => (
-                        <li
-                          key={ii}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: '0.5rem',
-                            fontSize: '13px',
-                            color: '#ffffff',
-                            lineHeight: 1.65,
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: exp.accent,
+                            letterSpacing: '0.02em',
                           }}
                         >
-                          <span
+                          {exp.period}
+                        </span>
+                        <span
+                          style={{
+                            padding: '0.12rem 0.48rem',
+                            borderRadius: '100px',
+                            background: `${exp.accent}14`,
+                            border: `1px solid ${exp.accent}32`,
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            color: exp.accent,
+                            letterSpacing: '0.04em',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {exp.duration}
+                        </span>
+                      </div>
+
+                      {/* Impact bullets */}
+                      <ul
+                        style={{
+                          listStyle: 'none',
+                          margin: 0,
+                          padding: 0,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.55rem',
+                          position: 'relative',
+                          zIndex: 1,
+                        }}
+                      >
+                        {exp.impacts.map((impact, ii) => (
+                          <li
+                            key={ii}
                             style={{
-                              color: exp.accent,
-                              fontSize: '9px',
-                              marginTop: '0.38rem',
-                              flexShrink: 0,
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '0.5rem',
+                              fontSize: '13px',
+                              color: '#ffffff',
+                              lineHeight: 1.65,
                             }}
                           >
-                            ▸
-                          </span>
-                          {impact}
-                        </li>
-                      ))}
-                    </ul>
+                            <span
+                              style={{
+                                color: exp.accent,
+                                fontSize: '9px',
+                                marginTop: '0.38rem',
+                                flexShrink: 0,
+                              }}
+                            >
+                              ▸
+                            </span>
+                            {impact}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                </div>
 
-                {/* ── Node Dot ── */}
-                <div className="et-center-col">
-                  <div
-                    ref={(el) => { dotRefs.current[i] = el; }}
-                    style={{
-                      width: '22px',
-                      height: '22px',
-                      borderRadius: '50%',
-                      border: `2px solid ${exp.accent}`,
-                      background: '#0A0A0C',
-                      boxShadow: `0 0 14px ${exp.accent}65, 0 0 0 5px ${exp.accent}12`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      position: 'relative',
-                      zIndex: 2,
-                    }}
-                  >
+                  {/* ── Node Dot ── */}
+                  {/* Initial state is intentionally DIM (grey border, no glow).  */}
+                  {/* GSAP ScrollTrigger animates these to their accent color     */}
+                  {/* only when the spine fill line reaches each node's position. */}
+                  <div className="et-center-col">
                     <div
+                      ref={(el) => { dotRefs.current[i] = el; }}
                       style={{
-                        width: '8px',
-                        height: '8px',
+                        width: '22px',
+                        height: '22px',
                         borderRadius: '50%',
-                        background: exp.accent,
-                        boxShadow: `0 0 8px ${exp.accent}`,
+                        border: '2px solid rgba(255,255,255,0.18)',
+                        background: '#0A0A0C',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        position: 'relative',
+                        zIndex: 2,
                       }}
-                    />
+                    >
+                      <div
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: 'rgba(255,255,255,0.18)',
+                        }}
+                      />
+                    </div>
                   </div>
+
                 </div>
-
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* ── Responsive + animation styles ── */}
-      <style>{`
+        {/* ── Responsive + animation styles ── */}
+        <style>{`
 
-        /* ── Spine ── */
-        .et-spine {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          z-index: 0;
-        }
-
-        /* ── Row base ── */
-        .et-row {
-          position: relative;
-          display: grid;
-          grid-template-columns: 1fr 80px 1fr;
-          margin-bottom: 3.25rem;
-          z-index: 1;
-        }
-
-        /* ── Desktop: left card → column 1 ── */
-        .et-row--left .et-card-wrapper {
-          grid-column: 1;
-          grid-row: 1;
-          padding-right: 2.75rem;
-          display: flex;
-          justify-content: flex-end;
-          align-items: flex-start;
-        }
-
-        /* ── Desktop: right card → column 3 ── */
-        .et-row--right .et-card-wrapper {
-          grid-column: 3;
-          grid-row: 1;
-          padding-left: 2.75rem;
-          display: flex;
-          justify-content: flex-start;
-          align-items: flex-start;
-        }
-
-        /* ── Center dot column ── */
-        .et-center-col {
-          grid-column: 2;
-          grid-row: 1;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          padding-top: 1.4rem;
-        }
-
-        /* ── Card fills its wrapper ── */
-        .et-card {
-          width: 100%;
-        }
-
-        /* ── Tablet ── */
-        @media (max-width: 1023px) {
-          .et-row {
-            grid-template-columns: 1fr 64px 1fr;
-            margin-bottom: 2.75rem;
-          }
-          .et-row--left .et-card-wrapper {
-            padding-right: 2rem;
-          }
-          .et-row--right .et-card-wrapper {
-            padding-left: 2rem;
-          }
-        }
-
-        /* ── Mobile: spine shifts left, all cards stack right ── */
-        @media (max-width: 767px) {
+          /* ── Spine ── */
           .et-spine {
-            left: 20px;
-            transform: none;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            z-index: 0;
           }
 
+          /* ── Row base ── */
           .et-row {
-            grid-template-columns: 48px 1fr;
-            margin-bottom: 2.25rem;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 80px 1fr;
+            margin-bottom: 3.25rem;
+            z-index: 1;
           }
 
-          /* Both left and right cards go to column 2 on mobile */
-          .et-row--left .et-card-wrapper,
-          .et-row--right .et-card-wrapper {
-            grid-column: 2;
-            grid-row: 1;
-            padding-left: 1rem;
-            padding-right: 0;
-            justify-content: flex-start;
-          }
-
-          /* Dot column 1 on mobile */
-          .et-row--left .et-center-col,
-          .et-row--right .et-center-col {
+          /* ── Desktop: left card → column 1 ── */
+          .et-row--left .et-card-wrapper {
             grid-column: 1;
             grid-row: 1;
-            padding-top: 1.4rem;
+            padding-right: 2.75rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+          }
+
+          /* ── Desktop: right card → column 3 ── */
+          .et-row--right .et-card-wrapper {
+            grid-column: 3;
+            grid-row: 1;
+            padding-left: 2.75rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+          }
+
+          /* ── Center dot column ── */
+          .et-center-col {
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
             justify-content: center;
+            align-items: flex-start;
+            padding-top: 1.4rem;
           }
-        }
 
-        /* ── Small mobile ── */
-        @media (max-width: 479px) {
-          .et-row {
-            grid-template-columns: 40px 1fr;
+          /* ── Card fills its wrapper ── */
+          .et-card {
+            width: 100%;
           }
-          .et-spine {
-            left: 16px;
-          }
-        }
 
-        /* ── Current badge pulse ── */
-        @keyframes et-pulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.4; }
-        }
-      `}</style>
-    </section>
+          /* ── Tablet ── */
+          @media (max-width: 1023px) {
+            .et-row {
+              grid-template-columns: 1fr 64px 1fr;
+              margin-bottom: 2.75rem;
+            }
+            .et-row--left .et-card-wrapper {
+              padding-right: 2rem;
+            }
+            .et-row--right .et-card-wrapper {
+              padding-left: 2rem;
+            }
+          }
+
+          /* ── Mobile: spine shifts left, all cards stack right ── */
+          @media (max-width: 767px) {
+            .et-spine {
+              left: 20px;
+              transform: none;
+            }
+
+            .et-row {
+              grid-template-columns: 48px 1fr;
+              margin-bottom: 2.25rem;
+            }
+
+            /* Both left and right cards go to column 2 on mobile */
+            .et-row--left .et-card-wrapper,
+            .et-row--right .et-card-wrapper {
+              grid-column: 2;
+              grid-row: 1;
+              padding-left: 1rem;
+              padding-right: 0;
+              justify-content: flex-start;
+            }
+
+            /* Dot column 1 on mobile */
+            .et-row--left .et-center-col,
+            .et-row--right .et-center-col {
+              grid-column: 1;
+              grid-row: 1;
+              padding-top: 1.4rem;
+              justify-content: center;
+            }
+          }
+
+          /* ── Small mobile ── */
+          @media (max-width: 479px) {
+            .et-row {
+              grid-template-columns: 40px 1fr;
+            }
+            .et-spine {
+              left: 16px;
+            }
+          }
+
+          /* ── Current badge pulse ── */
+          @keyframes et-pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+          }
+        `}</style>
+      </section>
+
+      {/* ── Back to Top Button ────────────────────────────────────────────────
+           Fixed bottom-right. Starts hidden (opacity 0, pointer-events none).
+           IntersectionObserver on #hero fades it in once the hero scrolls out.
+           Smooth-scrolls to top on click. Glassmorphic ring with emerald glow.
+      ─────────────────────────────────────────────────────────────────────── */}
+      <button
+        ref={backToTopRef}
+        onClick={scrollToTop}
+        aria-label="Scroll back to top"
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          zIndex: 50,
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          background: 'rgba(10,10,12,0.75)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: '1.5px solid rgba(16,185,129,0.45)',
+          boxShadow: '0 0 18px rgba(16,185,129,0.28), 0 4px 28px rgba(0,0,0,0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          opacity: 0,
+          pointerEvents: 'none',
+          transition:
+            'opacity 0.5s ease, transform 0.25s ease, box-shadow 0.3s ease, border-color 0.3s ease',
+        }}
+        onMouseEnter={(e) => {
+          const el = e.currentTarget as HTMLButtonElement;
+          el.style.transform   = 'translateY(-3px)';
+          el.style.boxShadow   = '0 0 28px rgba(16,185,129,0.55), 0 6px 36px rgba(0,0,0,0.55)';
+          el.style.borderColor = 'rgba(16,185,129,0.78)';
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget as HTMLButtonElement;
+          el.style.transform   = 'translateY(0)';
+          el.style.boxShadow   = '0 0 18px rgba(16,185,129,0.28), 0 4px 28px rgba(0,0,0,0.45)';
+          el.style.borderColor = 'rgba(16,185,129,0.45)';
+        }}
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M9 14V4M9 4L4.5 8.5M9 4L13.5 8.5"
+            stroke="#10B981"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+    </>
   );
 }
