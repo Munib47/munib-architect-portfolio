@@ -290,6 +290,8 @@ export default function Hero() {
                     whiteSpace: 'nowrap',
                     transition: 'all 0.25s',
                     cursor: 'default',
+                    opacity: 1,
+                    visibility: 'visible',
                   }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget as HTMLSpanElement;
@@ -568,7 +570,7 @@ export default function Hero() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: '0.5rem',
-            opacity: 0.55,
+            opacity: 1,
           }}
         >
           <span style={{ fontSize: '10px', color: '#ffffff', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
