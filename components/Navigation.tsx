@@ -165,10 +165,11 @@ export default function Navigation() {
       const [reactMod, pdfMod, resumeMod] = await Promise.all([
         import('react'),
         import('@react-pdf/renderer'),
-        import('@/components/ResumePDF'),
+        import('@/components/DynamicResumeEngine'),
       ]);
+      const profileImageUrl = `${window.location.origin}/images/profile/my-profile.jpg`;
       const blob = await (pdfMod.pdf as (d: unknown) => { toBlob(): Promise<Blob> })(
-        reactMod.createElement(resumeMod.ResumePDF),
+        reactMod.createElement(resumeMod.DynamicResumeEngine, { profileImageUrl }),
       ).toBlob();
       const url = URL.createObjectURL(blob);
       window.clearInterval(timer);
