@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 
 const NAV_LINKS = [
   { label: 'Home',     href: '#hero'      },
@@ -33,7 +34,6 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  // Close mobile menu on resize above 768px
   useEffect(() => {
     const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
     window.addEventListener('resize', onResize);
@@ -86,27 +86,32 @@ export default function Navigation() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
+              gap: '0.6rem',
               padding: 0,
             }}
           >
+            {/* Circular avatar with emerald neon ring */}
             <span
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #10B981, #06B6D4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: '14px',
-                color: '#0A0A0C',
-                letterSpacing: '-0.5px',
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                border: '2px solid #10B981',
+                boxShadow: '0 0 12px rgba(16,185,129,0.55), 0 0 0 1px rgba(16,185,129,0.18)',
+                overflow: 'hidden',
                 flexShrink: 0,
+                display: 'block',
+                position: 'relative',
               }}
             >
-              MA
+              <Image
+                src="/images/profile/avatar.png"
+                alt="Munib Ahmad"
+                fill
+                sizes="38px"
+                style={{ objectFit: 'cover' }}
+                priority
+              />
             </span>
             <span
               style={{
@@ -141,7 +146,7 @@ export default function Navigation() {
                     padding: '0.5rem 0.9rem',
                     fontSize: '14px',
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#10B981' : '#8892A4',
+                    color: isActive ? '#10B981' : 'rgba(255,255,255,0.62)',
                     transition: 'color 0.25s',
                     letterSpacing: '0.02em',
                     fontFamily: "'Inter', sans-serif",
@@ -242,8 +247,7 @@ export default function Navigation() {
             gap: '1.75rem',
           }}
         >
-          {/* Close hint */}
-          <p style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', fontSize: '12px', color: '#4B5563', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          <p style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', fontSize: '12px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             tap anywhere to close
           </p>
 
@@ -258,7 +262,7 @@ export default function Navigation() {
                 fontSize: '2.2rem',
                 fontWeight: 800,
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
-                color: active === link.href.slice(1) ? '#10B981' : '#F0F4F8',
+                color: active === link.href.slice(1) ? '#10B981' : '#FFFFFF',
                 letterSpacing: '-0.5px',
                 transition: 'color 0.2s',
                 opacity: 0,

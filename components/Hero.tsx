@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import Image from 'next/image';
 
 const TECH_BADGES = [
   { label: 'Next.js',      color: '#ffffff' },
@@ -29,35 +30,35 @@ export default function Hero() {
   const badgesRef   = useRef<HTMLDivElement>(null);
   const ctaRef      = useRef<HTMLDivElement>(null);
   const statsRef    = useRef<HTMLDivElement>(null);
+  const imageRef    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      // Initial hidden state
       gsap.set(
         [greetRef.current, nameRef.current, subtitleRef.current,
          descRef.current, badgesRef.current, ctaRef.current, statsRef.current],
         { autoAlpha: 0, y: 20 },
       );
-      gsap.set(glowRef.current, { scale: 0.6, autoAlpha: 0 });
+      gsap.set(glowRef.current,  { scale: 0.6, autoAlpha: 0 });
+      gsap.set(imageRef.current, { autoAlpha: 0, x: 60 });
 
-      // Entrance timeline
       tl
-        .to(glowRef.current,    { scale: 1, autoAlpha: 1, duration: 1.8, ease: 'power2.out' }, 0)
-        .to(greetRef.current,   { autoAlpha: 1, y: 0, duration: 0.65 }, 0.3)
+        .to(glowRef.current,     { scale: 1, autoAlpha: 1, duration: 1.8, ease: 'power2.out' }, 0)
+        .to(greetRef.current,    { autoAlpha: 1, y: 0, duration: 0.65 }, 0.3)
         .fromTo(nameRef.current,
           { autoAlpha: 0, y: 50, skewY: 4 },
           { autoAlpha: 1, y: 0,  skewY: 0, duration: 1.0 },
           0.6,
         )
+        .to(imageRef.current,    { autoAlpha: 1, x: 0, duration: 0.9, ease: 'power2.out' }, 0.75)
         .to(subtitleRef.current, { autoAlpha: 1, y: 0, duration: 0.65 }, 0.95)
         .to(descRef.current,     { autoAlpha: 1, y: 0, duration: 0.65 }, 1.1)
         .to(badgesRef.current,   { autoAlpha: 1, y: 0, duration: 0.55 }, 1.25)
         .to(ctaRef.current,      { autoAlpha: 1, y: 0, duration: 0.55 }, 1.4)
         .to(statsRef.current,    { autoAlpha: 1, y: 0, duration: 0.55 }, 1.55);
 
-      // Stagger individual badge pills
       if (badgesRef.current) {
         gsap.from(badgesRef.current.children, {
           autoAlpha: 0,
@@ -70,7 +71,7 @@ export default function Hero() {
         });
       }
 
-      // Eternal floating glow
+      // Eternal floating glow blob
       gsap.to(glowRef.current, {
         y: -14,
         duration: 3.2,
@@ -78,6 +79,16 @@ export default function Hero() {
         repeat: -1,
         yoyo: true,
         delay: 2.2,
+      });
+
+      // Gentle floating animation for profile image
+      gsap.to(imageRef.current, {
+        y: -14,
+        duration: 3.8,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+        delay: 2.3,
       });
     }, sectionRef);
 
@@ -149,264 +160,406 @@ export default function Hero() {
           zIndex: 1,
         }}
       >
-        {/* ── Text Block ─────────────────────────────────────────── */}
-        <div style={{ maxWidth: '800px' }}>
+        {/* ── Two-column hero layout ──────────────────────────────── */}
+        <div className="hero-layout">
 
-          {/* Availability tag */}
-          <div
-            ref={greetRef}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.35rem 0.9rem',
-              borderRadius: '100px',
-              border: '1px solid rgba(16,185,129,0.3)',
-              background: 'rgba(16,185,129,0.07)',
-              marginBottom: '1.75rem',
-            }}
-          >
-            <span
-              style={{
-                width: '7px',
-                height: '7px',
-                borderRadius: '50%',
-                background: '#10B981',
-                boxShadow: '0 0 8px #10B981',
-                animation: 'hero-pulse 2s ease-in-out infinite',
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                fontSize: '13px',
-                color: '#10B981',
-                fontWeight: 600,
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-              }}
-            >
-              Available for New Projects
-            </span>
-          </div>
+          {/* ── Left: Text Block ─────────────────────────────────── */}
+          <div style={{ flex: '1 1 0%', minWidth: 0 }}>
 
-          {/* Name heading */}
-          <div
-            ref={nameRef}
-            style={{ marginBottom: '1.25rem' }}
-          >
-            <h1
+            {/* Availability tag */}
+            <div
+              ref={greetRef}
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontSize: 'clamp(3rem, 7.5vw, 5.75rem)',
-                fontWeight: 900,
-                lineHeight: 1.04,
-                letterSpacing: '-0.03em',
-                color: '#F0F4F8',
-              }}
-            >
-              Munib{' '}
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #10B981 0%, #06B6D4 55%, #14B8A6 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                Ahmad
-              </span>
-            </h1>
-          </div>
-
-          {/* Subtitle */}
-          <div ref={subtitleRef} style={{ marginBottom: '1.5rem' }}>
-            <p
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontSize: 'clamp(1rem, 2.2vw, 1.35rem)',
-                fontWeight: 600,
-                color: '#8892A4',
-                letterSpacing: '0.01em',
-                lineHeight: 1.5,
-              }}
-            >
-              Frontend Architect
-              <span style={{ color: 'rgba(16,185,129,0.5)', margin: '0 0.45rem', fontWeight: 300 }}>/</span>
-              Shopify Theme Engineer
-              <span style={{ color: 'rgba(16,185,129,0.5)', margin: '0 0.45rem', fontWeight: 300 }}>/</span>
-              GHL Automation Specialist
-            </p>
-          </div>
-
-          {/* Description */}
-          <p
-            ref={descRef}
-            style={{
-              fontSize: '1rem',
-              lineHeight: 1.85,
-              color: '#6B7A8D',
-              maxWidth: '620px',
-              marginBottom: '2rem',
-            }}
-          >
-            BSCS graduate from the University of the Punjab, Lahore — building
-            high-performance digital storefronts, premium landing funnels, and
-            cinematic web experiences. 27+ live projects across Shopify,
-            GoHighLevel, Next.js, and modern animation stacks.
-          </p>
-
-          {/* Tech badges */}
-          <div
-            ref={badgesRef}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '0.55rem',
-              marginBottom: '2.5rem',
-            }}
-          >
-            {TECH_BADGES.map((b) => (
-              <span
-                key={b.label}
-                style={{
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: '6px',
-                  border: `1px solid ${b.color}30`,
-                  background: `${b.color}0D`,
-                  color: b.color,
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  letterSpacing: '0.03em',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.25s',
-                  cursor: 'default',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLSpanElement;
-                  el.style.background  = `${b.color}22`;
-                  el.style.boxShadow   = `0 0 16px ${b.color}30`;
-                  el.style.borderColor = `${b.color}60`;
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLSpanElement;
-                  el.style.background  = `${b.color}0D`;
-                  el.style.boxShadow   = 'none';
-                  el.style.borderColor = `${b.color}30`;
-                }}
-              >
-                {b.label}
-              </span>
-            ))}
-          </div>
-
-          {/* CTA buttons */}
-          <div
-            ref={ctaRef}
-            style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}
-          >
-            <button
-              onClick={() => scrollTo('portfolio')}
-              style={{
-                padding: '0.8rem 2rem',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #10B981, #06B6D4)',
-                color: '#0A0A0C',
-                fontSize: '15px',
-                fontWeight: 700,
-                border: 'none',
-                cursor: 'pointer',
-                letterSpacing: '0.02em',
-                transition: 'all 0.3s',
-                boxShadow: '0 4px 24px rgba(16,185,129,0.35)',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.transform  = 'translateY(-2px)';
-                el.style.boxShadow  = '0 8px 32px rgba(16,185,129,0.5)';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.transform = 'none';
-                el.style.boxShadow = '0 4px 24px rgba(16,185,129,0.35)';
-              }}
-            >
-              View My Work →
-            </button>
-            <a
-              href="mailto:munibahmad47@gmail.com"
-              style={{
-                padding: '0.8rem 2rem',
-                borderRadius: '10px',
-                border: '1px solid rgba(16,185,129,0.3)',
-                color: '#F0F4F8',
-                fontSize: '15px',
-                fontWeight: 600,
-                textDecoration: 'none',
-                transition: 'all 0.3s',
-                background: 'transparent',
-                letterSpacing: '0.02em',
                 display: 'inline-flex',
                 alignItems: 'center',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLAnchorElement;
-                el.style.background   = 'rgba(16,185,129,0.08)';
-                el.style.borderColor  = 'rgba(16,185,129,0.6)';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLAnchorElement;
-                el.style.background  = 'transparent';
-                el.style.borderColor = 'rgba(16,185,129,0.3)';
+                gap: '0.5rem',
+                padding: '0.35rem 0.9rem',
+                borderRadius: '100px',
+                border: '1px solid rgba(16,185,129,0.3)',
+                background: 'rgba(16,185,129,0.07)',
+                marginBottom: '1.75rem',
               }}
             >
-              Get In Touch
-            </a>
-          </div>
+              <span
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: '#10B981',
+                  boxShadow: '0 0 8px #10B981',
+                  animation: 'hero-pulse 2s ease-in-out infinite',
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: '13px',
+                  color: '#10B981',
+                  fontWeight: 600,
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Available for New Projects
+              </span>
+            </div>
 
-          {/* Stats row */}
-          <div
-            ref={statsRef}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '2.5rem',
-              marginTop: '3rem',
-              paddingTop: '2rem',
-              borderTop: '1px solid rgba(16,185,129,0.1)',
-            }}
-          >
-            {STATS.map((s) => (
-              <div key={s.label}>
-                <div
+            {/* Name heading */}
+            <div ref={nameRef} style={{ marginBottom: '1.25rem' }}>
+              <h1
+                style={{
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontSize: 'clamp(3rem, 7.5vw, 5.75rem)',
+                  fontWeight: 900,
+                  lineHeight: 1.04,
+                  letterSpacing: '-0.03em',
+                  color: '#F0F4F8',
+                }}
+              >
+                Munib{' '}
+                <span
                   style={{
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
-                    fontSize: '2.1rem',
-                    fontWeight: 900,
-                    background: 'linear-gradient(135deg, #10B981, #06B6D4)',
+                    background: 'linear-gradient(135deg, #10B981 0%, #06B6D4 55%, #14B8A6 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
-                    lineHeight: 1.1,
                   }}
                 >
-                  {s.value}
+                  Ahmad
+                </span>
+              </h1>
+            </div>
+
+            {/* Subtitle */}
+            <div ref={subtitleRef} style={{ marginBottom: '1.5rem' }}>
+              <p
+                style={{
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontSize: 'clamp(1rem, 2.2vw, 1.35rem)',
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.88)',
+                  letterSpacing: '0.01em',
+                  lineHeight: 1.5,
+                }}
+              >
+                Frontend Architect
+                <span style={{ color: 'rgba(16,185,129,0.5)', margin: '0 0.45rem', fontWeight: 300 }}>/</span>
+                Shopify Theme Engineer
+                <span style={{ color: 'rgba(16,185,129,0.5)', margin: '0 0.45rem', fontWeight: 300 }}>/</span>
+                GHL Automation Specialist
+              </p>
+            </div>
+
+            {/* Description */}
+            <p
+              ref={descRef}
+              style={{
+                fontSize: '1rem',
+                lineHeight: 1.85,
+                color: 'rgba(255,255,255,0.65)',
+                maxWidth: '580px',
+                marginBottom: '2rem',
+              }}
+            >
+              BSCS graduate from the University of the Punjab, Lahore — building
+              high-performance digital storefronts, premium landing funnels, and
+              cinematic web experiences. 27+ live projects across Shopify,
+              GoHighLevel, Next.js, and modern animation stacks.
+            </p>
+
+            {/* Tech badges */}
+            <div
+              ref={badgesRef}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.55rem',
+                marginBottom: '2.5rem',
+              }}
+            >
+              {TECH_BADGES.map((b) => (
+                <span
+                  key={b.label}
+                  style={{
+                    padding: '0.3rem 0.75rem',
+                    borderRadius: '6px',
+                    border: `1px solid ${b.color}30`,
+                    background: `${b.color}0D`,
+                    color: b.color,
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    letterSpacing: '0.03em',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.25s',
+                    cursor: 'default',
+                    opacity: 1,
+                    visibility: 'visible',
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLSpanElement;
+                    el.style.background  = `${b.color}22`;
+                    el.style.boxShadow   = `0 0 16px ${b.color}30`;
+                    el.style.borderColor = `${b.color}60`;
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLSpanElement;
+                    el.style.background  = `${b.color}0D`;
+                    el.style.boxShadow   = 'none';
+                    el.style.borderColor = `${b.color}30`;
+                  }}
+                >
+                  {b.label}
+                </span>
+              ))}
+            </div>
+
+            {/* CTA buttons */}
+            <div
+              ref={ctaRef}
+              style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}
+            >
+              <button
+                onClick={() => scrollTo('portfolio')}
+                style={{
+                  padding: '0.8rem 2rem',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #10B981, #06B6D4)',
+                  color: '#0A0A0C',
+                  fontSize: '15px',
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  letterSpacing: '0.02em',
+                  transition: 'all 0.3s',
+                  boxShadow: '0 4px 24px rgba(16,185,129,0.35)',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLButtonElement;
+                  el.style.transform  = 'translateY(-2px)';
+                  el.style.boxShadow  = '0 8px 32px rgba(16,185,129,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLButtonElement;
+                  el.style.transform = 'none';
+                  el.style.boxShadow = '0 4px 24px rgba(16,185,129,0.35)';
+                }}
+              >
+                View My Work →
+              </button>
+              <a
+                href="mailto:munibahmad47@gmail.com"
+                style={{
+                  padding: '0.8rem 2rem',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(16,185,129,0.3)',
+                  color: '#FFFFFF',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  transition: 'all 0.3s',
+                  background: 'transparent',
+                  letterSpacing: '0.02em',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background   = 'rgba(16,185,129,0.08)';
+                  el.style.borderColor  = 'rgba(16,185,129,0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background  = 'transparent';
+                  el.style.borderColor = 'rgba(16,185,129,0.3)';
+                }}
+              >
+                Get In Touch
+              </a>
+            </div>
+
+            {/* Stats row */}
+            <div
+              ref={statsRef}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '2.5rem',
+                marginTop: '3rem',
+                paddingTop: '2rem',
+                borderTop: '1px solid rgba(16,185,129,0.1)',
+              }}
+            >
+              {STATS.map((s) => (
+                <div key={s.label}>
+                  <div
+                    style={{
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontSize: '2.1rem',
+                      fontWeight: 900,
+                      background: 'linear-gradient(135deg, #10B981, #06B6D4)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {s.value}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '12px',
+                      color: 'rgba(255,255,255,0.55)',
+                      marginTop: '0.25rem',
+                      fontWeight: 500,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {s.label}
+                  </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Right: Profile Image Card ─────────────────────────── */}
+          <div
+            ref={imageRef}
+            className="hero-profile-card"
+            style={{ willChange: 'transform' }}
+          >
+            <div style={{ position: 'relative' }}>
+
+              {/* Glow aura behind the card */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: '-28px',
+                  borderRadius: '56px',
+                  background: 'radial-gradient(circle at 50% 55%, rgba(16,185,129,0.2) 0%, rgba(6,182,212,0.09) 45%, transparent 70%)',
+                  filter: 'blur(28px)',
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                }}
+              />
+
+              {/* Gradient border ring */}
+              <div
+                style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  padding: '3px',
+                  borderRadius: '28px',
+                  background: 'linear-gradient(160deg, rgba(16,185,129,0.75) 0%, rgba(6,182,212,0.4) 45%, rgba(16,185,129,0.12) 100%)',
+                  boxShadow: '0 32px 72px rgba(0,0,0,0.55), 0 0 0 1px rgba(16,185,129,0.08)',
+                }}
+              >
+                {/* Glassmorphism inner card */}
                 <div
                   style={{
-                    fontSize: '12px',
-                    color: '#6B7A8D',
-                    marginTop: '0.25rem',
-                    fontWeight: 500,
-                    letterSpacing: '0.04em',
+                    borderRadius: '26px',
+                    overflow: 'hidden',
+                    background: '#0F1117',
+                    position: 'relative',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
                   }}
                 >
-                  {s.label}
+                  <Image
+                    src="/images/profile/my-profile.jpg"
+                    alt="Munib Ahmad — Frontend Architect"
+                    width={380}
+                    height={460}
+                    priority
+                    style={{ objectFit: 'cover', display: 'block', width: '100%', height: 'auto' }}
+                  />
+
+                  {/* Bottom gradient overlay */}
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: '48%',
+                      background: 'linear-gradient(to top, rgba(10,10,12,0.88) 0%, rgba(16,185,129,0.05) 60%, transparent 100%)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+
+                  {/* Name label overlay */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '1.5rem',
+                      left: '1.5rem',
+                      right: '1.5rem',
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: '15px',
+                        fontWeight: 700,
+                        color: '#FFFFFF',
+                        letterSpacing: '0.01em',
+                        marginBottom: '0.2rem',
+                      }}
+                    >
+                      Munib Ahmad
+                    </p>
+                    <p
+                      style={{
+                        fontSize: '11px',
+                        color: '#10B981',
+                        fontWeight: 600,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      Frontend Architect
+                    </p>
+                  </div>
                 </div>
               </div>
-            ))}
+
+              {/* Top-right accent dot */}
+              <span
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  top: '-10px',
+                  right: '-10px',
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  background: '#10B981',
+                  boxShadow: '0 0 14px #10B981, 0 0 28px rgba(16,185,129,0.4)',
+                  zIndex: 2,
+                }}
+              />
+
+              {/* Bottom-left accent dot */}
+              <span
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  bottom: '-8px',
+                  left: '-8px',
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  background: '#06B6D4',
+                  boxShadow: '0 0 10px #06B6D4, 0 0 20px rgba(6,182,212,0.4)',
+                  zIndex: 2,
+                }}
+              />
+            </div>
           </div>
+
         </div>
+        {/* ── End two-column layout ─────────────────────────────── */}
 
         {/* ── Fixed Social Sidebar ────────────────────────────────── */}
         <div
@@ -442,7 +595,7 @@ export default function Hero() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#8892A4',
+                color: 'rgba(255,255,255,0.6)',
                 fontSize: '11px',
                 fontWeight: 700,
                 textDecoration: 'none',
@@ -458,7 +611,7 @@ export default function Hero() {
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLAnchorElement;
-                el.style.color        = '#8892A4';
+                el.style.color        = 'rgba(255,255,255,0.6)';
                 el.style.borderColor  = 'rgba(16,185,129,0.2)';
                 el.style.background   = 'rgba(10,10,12,0.8)';
                 el.style.transform    = 'none';
@@ -492,7 +645,7 @@ export default function Hero() {
             opacity: 0.5,
           }}
         >
-          <span style={{ fontSize: '10px', color: '#6B7A8D', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Scroll
           </span>
           <div
@@ -530,11 +683,30 @@ export default function Hero() {
           75%  { transform: translateY(10px); opacity: 0; }
           100% { transform: translateY(0);    opacity: 0; }
         }
-        @media (min-width: 768px) {
-          .hero-social { display: flex !important; }
+        .hero-layout {
+          display: flex;
+          align-items: center;
+          gap: 4rem;
+        }
+        .hero-profile-card {
+          flex-shrink: 0;
+          width: 380px;
+        }
+        @media (max-width: 1023px) {
+          .hero-layout {
+            flex-direction: column-reverse;
+            gap: 2.5rem;
+          }
+          .hero-profile-card {
+            width: 260px;
+          }
         }
         @media (max-width: 767px) {
-          .hero-social { display: none !important; }
+          .hero-profile-card { display: none !important; }
+          .hero-social        { display: none !important; }
+        }
+        @media (min-width: 768px) {
+          .hero-social { display: flex !important; }
         }
       `}</style>
     </section>

@@ -125,7 +125,7 @@ export default function Skills() {
               Expertise
             </span>
           </h2>
-          <p style={{ color: '#6B7A8D', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
             A curated stack built through real-world delivery — from pixel-perfect storefronts
             to high-converting automation pipelines.
           </p>
@@ -226,7 +226,7 @@ export default function Skills() {
               textAlign: 'center',
               fontSize: '12px',
               fontWeight: 700,
-              color: '#4B5563',
+              color: 'rgba(255,255,255,0.38)',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               marginBottom: '1.5rem',
@@ -252,7 +252,7 @@ export default function Skills() {
                   borderRadius: '100px',
                   border: '1px solid rgba(255,255,255,0.07)',
                   background: 'rgba(255,255,255,0.03)',
-                  color: '#8892A4',
+                  color: 'rgba(255,255,255,0.62)',
                   fontSize: '12px',
                   fontWeight: 500,
                   letterSpacing: '0.02em',
@@ -269,7 +269,7 @@ export default function Skills() {
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLSpanElement;
                   el.style.borderColor = 'rgba(255,255,255,0.07)';
-                  el.style.color       = '#8892A4';
+                  el.style.color       = 'rgba(255,255,255,0.62)';
                   el.style.background  = 'rgba(255,255,255,0.03)';
                 }}
               >

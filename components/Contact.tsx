@@ -29,7 +29,7 @@ const CONTACT_LINKS = [
     label: 'GitHub',
     value: 'github.com/Munib47',
     href: 'https://github.com/Munib47/',
-    color: '#8892A4',
+    color: 'rgba(255,255,255,0.82)',
   },
 ];
 
@@ -51,7 +51,7 @@ const LABEL_STYLE: React.CSSProperties = {
   display: 'block',
   fontSize: '12px',
   fontWeight: 600,
-  color: '#8892A4',
+  color: 'rgba(255,255,255,0.55)',
   letterSpacing: '0.05em',
   textTransform: 'uppercase',
   marginBottom: '0.4rem',
@@ -125,7 +125,7 @@ export default function Contact() {
               Together
             </span>
           </h2>
-          <p style={{ color: '#6B7A8D', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
             Whether you need a high-performance Shopify store, a converting GHL funnel, or a
             custom Next.js web application — let&apos;s talk.
           </p>
@@ -152,7 +152,7 @@ export default function Contact() {
               >
                 Munib Ahmad
               </h3>
-              <p style={{ fontSize: '14px', color: '#6B7A8D', lineHeight: 1.65 }}>
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.62)', lineHeight: 1.65 }}>
                 Son of Nadeem Sadiq · Based in Lahore, Pakistan
                 <br />
                 BSc Computer Science, University of the Punjab

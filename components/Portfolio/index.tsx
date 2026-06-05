@@ -163,7 +163,7 @@ export default function Portfolio() {
                   cursor: 'pointer',
                   fontSize: '13px',
                   fontWeight: isActive ? 700 : 500,
-                  color: isActive ? '#0A0A0C' : '#8892A4',
+                  color: isActive ? '#0A0A0C' : 'rgba(255,255,255,0.65)',
                   background: isActive
                     ? 'linear-gradient(135deg, #10B981, #06B6D4)'
                     : 'transparent',
@@ -186,7 +186,7 @@ export default function Portfolio() {
                 onMouseLeave={(e) => {
                   if (!isActive) {
                     const el = e.currentTarget as HTMLButtonElement;
-                    el.style.color      = '#8892A4';
+                    el.style.color      = 'rgba(255,255,255,0.65)';
                     el.style.background = 'transparent';
                   }
                 }}
@@ -237,7 +237,7 @@ export default function Portfolio() {
             textAlign: 'center',
           }}
         >
-          <p style={{ fontSize: '15px', color: '#8892A4', marginBottom: '1.25rem', lineHeight: 1.65 }}>
+          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', marginBottom: '1.25rem', lineHeight: 1.65 }}>
             Each project is live and deployed. View them in production or{' '}
             <strong style={{ color: '#F0F4F8' }}>reach out to discuss your next build.</strong>
           </p>

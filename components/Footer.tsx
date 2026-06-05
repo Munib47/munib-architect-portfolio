@@ -82,7 +82,7 @@ export default function Footer() {
                 padding: '0.4rem 0.8rem',
                 borderRadius: '6px',
                 border: '1px solid rgba(255,255,255,0.07)',
-                color: '#6B7A8D',
+                color: 'rgba(255,255,255,0.55)',
                 fontSize: '12px',
                 fontWeight: 600,
                 textDecoration: 'none',
@@ -97,7 +97,7 @@ export default function Footer() {
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLAnchorElement;
-                el.style.color       = '#6B7A8D';
+                el.style.color       = 'rgba(255,255,255,0.55)';
                 el.style.borderColor = 'rgba(255,255,255,0.07)';
                 el.style.background  = 'transparent';
               }}

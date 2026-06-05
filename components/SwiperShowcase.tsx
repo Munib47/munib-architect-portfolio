@@ -61,7 +61,7 @@ export default function SwiperShowcase() {
               Showcase
             </span>
           </h2>
-          <p style={{ color: '#6B7A8D', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
             Swipe through hand-picked highlights — stores, funnels, and digital experiences
             built from the ground up.
           </p>
@@ -282,7 +282,7 @@ export default function SwiperShowcase() {
                         <p
                           style={{
                             fontSize: '13px',
-                            color: '#8892A4',
+                            color: 'rgba(255,255,255,0.72)',
                             lineHeight: 1.75,
                           }}
                         >
@@ -350,7 +350,7 @@ export default function SwiperShowcase() {
                           <span
                             style={{
                               fontSize: '12px',
-                              color: '#6B7A8D',
+                              color: 'rgba(255,255,255,0.5)',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',

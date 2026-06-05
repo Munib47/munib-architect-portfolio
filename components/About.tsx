@@ -100,7 +100,7 @@ export default function About() {
             style={{
               fontSize: '1rem',
               lineHeight: 1.85,
-              color: '#6B7A8D',
+              color: 'rgba(255,255,255,0.65)',
             }}
           >
             I&apos;m Munib Ahmad, a frontend architect and digital commerce specialist from
@@ -185,7 +185,7 @@ export default function About() {
                     key={item}
                     style={{
                       fontSize: '14px',
-                      color: '#8892A4',
+                      color: 'rgba(255,255,255,0.7)',
                       paddingBottom: '0.4rem',
                       display: 'flex',
                       alignItems: 'center',
