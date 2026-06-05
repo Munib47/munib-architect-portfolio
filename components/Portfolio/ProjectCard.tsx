@@ -35,6 +35,7 @@ const FACE_BASE: CSSProp = {
 
 export default function ProjectCard({ project, index }: Props) {
   const router     = useRouter();
+  const articleRef = useRef<HTMLElement>(null);
   const innerRef   = useRef<HTMLDivElement>(null);
   const flipTween  = useRef<gsap.core.Tween | null>(null);
   const [imgError, setImgError] = useState(false);
@@ -55,6 +56,9 @@ export default function ProjectCard({ project, index }: Props) {
       duration: 0.55,
       ease: 'power2.out',
     });
+    if (articleRef.current) {
+      articleRef.current.style.boxShadow = `0 0 0 1px ${project.accentHex}60, 0 8px 32px ${project.accentHex}55, 0 24px 80px ${project.accentHex}35`;
+    }
   };
 
   const handleMouseLeave = () => {
@@ -64,6 +68,9 @@ export default function ProjectCard({ project, index }: Props) {
       duration: 0.55,
       ease: 'power2.out',
     });
+    if (articleRef.current) {
+      articleRef.current.style.boxShadow = '0 0 0 1px transparent, 0 8px 32px transparent, 0 24px 80px transparent';
+    }
   };
 
   return (
@@ -77,6 +84,7 @@ export default function ProjectCard({ project, index }: Props) {
      * element and the GSAP rotationY on the child are completely independent.
      */
     <article
+      ref={articleRef}
       className="card-lift"
       data-aos="fade-up"
       data-aos-delay={(index % 3) * 80}
