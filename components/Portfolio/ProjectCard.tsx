@@ -191,23 +191,26 @@ export default function ProjectCard({ project, index }: Props) {
               </span>
             </div>
 
-            {/* Category badge */}
+            {/* Category badge — brand logo image */}
             <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 3 }}>
-              <span
+              <div
                 style={{
-                  padding: '0.2rem 0.5rem',
-                  borderRadius: '6px',
-                  background: categoryColor + '22',
-                  border: `1px solid ${categoryColor}44`,
-                  color: categoryColor,
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  border: `1px solid ${categoryColor}35`,
+                  flexShrink: 0,
                 }}
               >
-                {categoryLabel}
-              </span>
+                <Image
+                  src={isShopify ? '/images/portfolio/shopify.webp' : '/images/portfolio/ghl.jpg'}
+                  alt={categoryLabel}
+                  width={28}
+                  height={28}
+                  style={{ objectFit: 'cover', display: 'block', width: '100%', height: '100%' }}
+                />
+              </div>
             </div>
 
             {/* Ambient accent glow */}
@@ -494,24 +497,28 @@ export default function ProjectCard({ project, index }: Props) {
                   gap: '0.5rem',
                   padding: '0.82rem 1.5rem',
                   borderRadius: '10px',
-                  background: project.accentHex,
+                  backgroundImage: `linear-gradient(90deg, ${project.accentHex} 0%, ${project.accentHex} 35%, rgba(255,255,255,0.32) 50%, ${project.accentHex} 65%, ${project.accentHex} 100%)`,
+                  backgroundSize: '300% 100%',
+                  backgroundPosition: 'right center',
                   color: '#0A0A0C',
                   fontWeight: 700,
                   fontSize: '13.5px',
                   textDecoration: 'none',
                   letterSpacing: '0.01em',
-                  boxShadow: `0 6px 22px ${project.accentHex}55`,
-                  transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+                  boxShadow: 'none',
+                  transition: 'background-position 0.55s ease, box-shadow 0.25s ease, transform 0.18s ease',
                 }}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.transform  = 'translateY(-2px)';
-                  el.style.boxShadow  = `0 10px 32px ${project.accentHex}70`;
+                  el.style.backgroundPosition = 'left center';
+                  el.style.boxShadow          = `0 10px 32px ${project.accentHex}70`;
+                  el.style.transform          = 'translateY(-2px)';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLAnchorElement;
-                  el.style.transform  = 'translateY(0)';
-                  el.style.boxShadow  = `0 6px 22px ${project.accentHex}55`;
+                  el.style.backgroundPosition = 'right center';
+                  el.style.boxShadow          = 'none';
+                  el.style.transform          = 'translateY(0)';
                 }}
               >
                 View Case Study

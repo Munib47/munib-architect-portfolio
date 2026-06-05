@@ -7,6 +7,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-creative';
 
+import Image from 'next/image';
 import { featuredProjects } from '@/data/projects';
 
 export default function SwiperShowcase() {
@@ -154,34 +155,24 @@ export default function SwiperShowcase() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                        <span
+                        <div
                           style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
                             width: '44px',
                             height: '44px',
                             borderRadius: '12px',
-                            background: project.accentHex + '18',
                             border: `1px solid ${project.accentHex}35`,
                             flexShrink: 0,
+                            overflow: 'hidden',
                           }}
                         >
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                            {project.category === 'shopify' ? (
-                              /* Shopify bag icon */
-                              <>
-                                <path d="M6.5 8.5V6.5C6.5 4.567 8.067 3 10 3s3.5 1.567 3.5 3.5V8.5" stroke={project.accentHex} strokeWidth="1.5" strokeLinecap="round" />
-                                <rect x="3.5" y="8" width="13" height="9" rx="2" stroke={project.accentHex} strokeWidth="1.5" />
-                              </>
-                            ) : (
-                              /* GHL funnel icon */
-                              <>
-                                <path d="M3 4h14l-5.5 7v5l-3-1.5V11L3 4z" stroke={project.accentHex} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                              </>
-                            )}
-                          </svg>
-                        </span>
+                          <Image
+                            src={project.category === 'shopify' ? '/images/portfolio/shopify.webp' : '/images/portfolio/ghl.jpg'}
+                            alt={project.category === 'shopify' ? 'Shopify' : 'GoHighLevel'}
+                            width={44}
+                            height={44}
+                            style={{ objectFit: 'cover', display: 'block', width: '100%', height: '100%' }}
+                          />
+                        </div>
                         <div>
                           <p
                             style={{
