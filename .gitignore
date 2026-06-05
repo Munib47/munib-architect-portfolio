@@ -34,3 +34,6 @@ yarn-error.log*
 # ── IDE folders ───────────────────────────────────────────────────
 .vscode/
 .idea/
+
+# AI Context Bundles
+repomix-output.xml

@@ -149,7 +149,8 @@ export default function Hero() {
 
       <div
         style={{
-          maxWidth: '1280px',
+          // maxWidth: '1280px',
+          maxWidth: '1235px',
           margin: '0 auto',
           width: '100%',
           paddingTop: '110px',

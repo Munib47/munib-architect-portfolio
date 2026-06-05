@@ -22,7 +22,6 @@ function SkillBar({
 
   return (
     <div ref={barRef} style={{ marginBottom: '0.85rem' }}>
-      {/* Label + percentage */}
       <div
         style={{
           display: 'flex',
@@ -49,7 +48,6 @@ function SkillBar({
         </span>
       </div>
 
-      {/* Bar track */}
       <div
         style={{
           height: '4px',
@@ -131,15 +129,8 @@ export default function Skills() {
           </p>
         </div>
 
-        {/* ── Skill Groups Grid ── */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '1.5rem',
-            marginBottom: '4rem',
-          }}
-        >
+        {/* ── Skill Groups Grid — 4-column single row on desktop ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ marginBottom: '4rem' }}>
           {skillGroups.map((group, gi) => (
             <div
               key={group.category}
@@ -153,6 +144,17 @@ export default function Skills() {
                 padding: '1.75rem',
                 position: 'relative',
                 overflow: 'hidden',
+                transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease, border-color 0.35s ease',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLDivElement;
+                el.style.boxShadow   = `0 20px 60px ${group.color}30, 0 4px 20px rgba(0,0,0,0.5)`;
+                el.style.borderColor = `${group.color}50`;
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLDivElement;
+                el.style.boxShadow   = '';
+                el.style.borderColor = `${group.color}18`;
               }}
             >
               {/* Corner glow */}
@@ -198,7 +200,7 @@ export default function Skills() {
                   style={{
                     fontSize: '15px',
                     fontWeight: 700,
-                    color: '#ffffff',
+                    color: group.color,
                     letterSpacing: '-0.01em',
                   }}
                 >
