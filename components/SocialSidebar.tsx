@@ -108,7 +108,7 @@ export default function SocialSidebar() {
         aria-label="Social profile links"
         style={{
           position:       'fixed',
-          left:           '1.5rem',
+          left:           '0.5rem',
           top:            0,
           bottom:         0,
           zIndex:         50,
