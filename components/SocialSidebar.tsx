@@ -152,7 +152,7 @@ export default function SocialSidebar() {
               aria-label={label}
               className={[
                 'sidebar-link group',
-                'flex items-center justify-start',
+                'flex items-center justify-center',
                 'px-3.5 w-12 h-12 rounded-xl overflow-hidden',
                 'transition-all duration-300 ease-in-out',
                 'hover:w-36',
@@ -167,23 +167,18 @@ export default function SocialSidebar() {
               <Icon className="w-5 h-5 shrink-0" />
 
               {/*
-               * Text label — starts opacity-0 so it's invisible while
-               * the pill is narrow (overflow-hidden also hides it).
-               * delay-150 means the fade begins only after the pill has
-               * already expanded ~50 % of the way, preventing the text
-               * from being visible while still clipped.
+               * Text label — display:none keeps it fully out of layout
+               * and inaccessible while the pill is collapsed.
+               * .sidebar-link:hover triggers display:block + a keyframe
+               * that slides the text in from the left after 150 ms
+               * (letting the pill expand ~half-way first so the text
+               * is never clipped mid-entrance).
                *
-               * whitespace-nowrap is mandatory: without it, text wraps
-               * inside the narrow pill mid-animation → the "inkedIn"
-               * artefact the user reported.
+               * whitespace-nowrap is mandatory — without it text wraps
+               * inside the narrow pill mid-animation.
                */}
               <span
-                className={[
-                  'opacity-0 ml-3 whitespace-nowrap',
-                  'text-xs font-semibold',
-                  'transition-opacity duration-200 delay-150',
-                  'group-hover:opacity-100',
-                ].join(' ')}
+                className="sidebar-label ml-3 whitespace-nowrap text-xs font-semibold"
                 style={{ letterSpacing: '0.02em', fontFamily: "'Inter', sans-serif" }}
               >
                 {label}
@@ -241,6 +236,19 @@ export default function SocialSidebar() {
             0 0 20px rgba(16,185,129,0.15),
             inset 0 0 14px rgba(16,185,129,0.05);
           color: #10B981;
+        }
+
+        /* Label: hidden by default, revealed via keyframe on hover */
+        .sidebar-label {
+          display: none;
+        }
+        .sidebar-link:hover .sidebar-label {
+          display: block;
+          animation: labelSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+        }
+        @keyframes labelSlideIn {
+          from { transform: translateX(-8px); opacity: 0; }
+          to   { transform: translateX(0);    opacity: 1; }
         }
       `}</style>
     </>
