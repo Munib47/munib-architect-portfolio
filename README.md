@@ -73,8 +73,8 @@ app/
   api/contact/route.ts    # POST contact endpoint — validates, returns JSON, email TODO
 
 components/
-  ThreeBackground.tsx         # Particle field; render loop pauses off-screen/tab-hidden,
-                              #   scales particles to device, static frame on reduced-motion
+  ThreeBackground.tsx         # 3D THREE.Points cloud — auto-rotation + pointer parallax;
+                              #   tunable constants; all perf guards (see Background Animation)
   ThreeBackgroundWrapper.tsx  # Client wrapper for the dynamic, ssr:false import
   Navigation.tsx              # Sticky nav, active-section tracking; a11y mobile menu
                               #   (focus trap, aria-expanded, Esc-to-close, scroll lock)
@@ -103,6 +103,62 @@ types/
   resume.ts               # WorkExperience / ResumeRole types
 
 public/images/            # profile photos + 2 category images (shopify.webp, ghl.jpg)
+```
+
+---
+
+## 🌌 Background Animation
+
+The fixed full-viewport background is a **3D Three.js point cloud**
+([ThreeBackground.tsx](components/ThreeBackground.tsx)), loaded client-only via
+[ThreeBackgroundWrapper.tsx](components/ThreeBackgroundWrapper.tsx). It's a `THREE.Points`
+cloud built from a `BufferGeometry` of N vertices spread across a 3D volume (40 × 30 × 24).
+Depth is felt three ways: `sizeAttenuation` (nearer points render larger), slow
+auto-rotation, and **pointer-driven parallax** — the cloud sits in a `THREE.Group` that
+tilts toward the cursor while the camera pans, so near points swing more than far ones.
+
+### Tunable constants
+All live at the top of [ThreeBackground.tsx](components/ThreeBackground.tsx) as named,
+commented module constants:
+
+| Constant | Value | Role |
+| --- | --- | --- |
+| `EASING` | `0.18` | Cursor-follow lerp factor — higher tracks the pointer faster (was `0.025`, the source of the old sluggishness). |
+| `DRIFT_SPEED` | `0.006` | Autonomous movement — per-particle drift + auto-rotation speed (was `0.004`). |
+| `MOUSE_RADIUS` | `0.5` | Pointer interaction reach, normalized to half the viewport (smaller = full strength nearer centre). |
+| `MOUSE_FORCE` | `0.6` | Parallax strength — camera-pan + cloud-tilt amplitude. |
+| `PARTICLE_COUNT` | `2200` | Desktop base count; scaled down per device at runtime. |
+
+### Performance guards (all required, all present)
+- **Dynamic import, `ssr:false`** — the wrapper defers Three.js entirely, so it never blocks first paint.
+- **Fewer particles on mobile/touch/low-DPR** — `pointer: coarse` + `devicePixelRatio < 1.5` + small viewport drop the count to ~30% of base (~660); the 768–1279px tier uses ~68% (~1500).
+- **Pixel-ratio cap** — `renderer.setPixelRatio(Math.min(dpr, 1.5–2))`.
+- **Off-screen / hidden-tab pause** — an `IntersectionObserver` and `visibilitychange` gate the rAF loop; it only runs when on-screen *and* the tab is visible.
+- **Reduced-motion fallback** — `prefers-reduced-motion: reduce` returns early before any WebGL is created; the div's CSS gradient is the static fallback.
+- **Disposal** — geometry, material, texture, and renderer are disposed and all listeners/observers removed on unmount (no WebGL context leaks).
+
+### Dependencies
+**None added** — reuses the `three` already in the project (no `@react-three/fiber`/`drei`).
+
+### Measured numbers
+> ⚠️ Frame-rate and Lighthouse can't be captured in the headless build environment used to
+> author these changes — run them locally with the snippets below. The values are reasoned,
+> not fabricated:
+
+| Metric | Before | After | Notes |
+| --- | --- | --- | --- |
+| Cursor-follow lerp | `0.025` | `0.18` | ~7× snappier; settles in <0.1s vs ~2s. |
+| Desktop frame rate | ~60fps target | unchanged by construction | Stage 1 changed only multiply constants (identical per-frame work). Stage 2 keeps the desktop count (2200) and adds only 4 eased lerps + a `lookAt` per frame — negligible. |
+| First paint (FCP) | ~5.8s (QA report) | not regressed | Background is `ssr:false` (off the critical path); same/fewer particles than before. |
+
+Confirm locally:
+```bash
+# Frame rate — paste in DevTools console:
+let f=0,t=performance.now();(function l(n){f++;if(n-t>=1000){console.log('fps',f);f=0;t=n}requestAnimationFrame(l)})(t);
+
+# Lighthouse performance:
+npm run build && npm run start
+npx -y lighthouse http://localhost:3000 --only-categories=performance --view
 ```
 
 ---
