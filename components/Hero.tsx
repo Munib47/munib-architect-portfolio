@@ -229,9 +229,15 @@ export default function Hero() {
               </h1>
             </div>
 
-            {/* Subtitle */}
+            {/* Subtitle — visual `/` separators are hidden from the a11y tree;
+                screen readers get a clean, comma-separated static label instead
+                (avoids the run-on "Frontend ArchitectShopify Theme Engineer…"). */}
             <div ref={subtitleRef} style={{ marginBottom: '1.5rem' }}>
+              <span className="sr-only">
+                Frontend Architect, Shopify Theme Engineer, GHL Automation Specialist
+              </span>
               <p
+                aria-hidden="true"
                 style={{
                   fontFamily: "'Plus Jakarta Sans', sans-serif",
                   fontSize: 'clamp(1rem, 2.2vw, 1.35rem)',
@@ -622,12 +628,18 @@ export default function Hero() {
           width: 380px;
         }
         @media (max-width: 1023px) {
+          /* Stack with the TEXT BLOCK FIRST (it's first in the DOM), image below.
+             column-reverse previously hoisted the image above the headline and
+             pushed the primary CTA below the fold on tablet. */
           .hero-layout {
-            flex-direction: column-reverse;
-            gap: 2.5rem;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.25rem;
           }
+          .hero-layout > div:first-child { width: 100%; }
           .hero-profile-card {
-            width: 260px;
+            width: 240px;
+            order: 2;
           }
         }
         @media (max-width: 767px) {

@@ -10,6 +10,20 @@ export default function ThreeBackground() {
     const mount = mountRef.current;
     if (!mount) return;
 
+    const viewportW = window.innerWidth;
+    const isMobile  = viewportW < 768;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Scale particle work to the device: far fewer on phones, fewer still when
+    // the user prefers reduced motion (we render a single static frame then).
+    const PARTICLE_COUNT = reducedMotion
+      ? 600
+      : isMobile
+        ? 900
+        : viewportW < 1280
+          ? 1500
+          : 2200;
+
     // ── Scene ─────────────────────────────────────────────────────
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
@@ -20,8 +34,9 @@ export default function ThreeBackground() {
     );
     camera.position.z = 5;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true });
+    // Cap DPR harder on mobile — the biggest GPU fill-rate cost on phones.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
@@ -40,7 +55,6 @@ export default function ThreeBackground() {
     const texture = new THREE.CanvasTexture(canvas);
 
     // ── Particle System ───────────────────────────────────────────
-    const PARTICLE_COUNT = 2200;
     const positions  = new Float32Array(PARTICLE_COUNT * 3);
     const colors     = new Float32Array(PARTICLE_COUNT * 3);
     const velocities: { vx: number; vy: number; vz: number }[] = [];
@@ -108,13 +122,14 @@ export default function ThreeBackground() {
     };
     window.addEventListener('resize', onResize);
 
-    // ── Animation Loop ────────────────────────────────────────────
-    let frameId: number;
+    // ── Animation Loop (pausable) ─────────────────────────────────
+    let cleanupExtras = () => {};
+    let frameId = 0;
+    let running = false;
     let t = 0;
     const posAttr = geometry.attributes.position as THREE.BufferAttribute;
 
-    const animate = () => {
-      frameId = requestAnimationFrame(animate);
+    const renderFrame = () => {
       t += 0.004;
 
       const pos = posAttr.array as Float32Array;
@@ -145,10 +160,58 @@ export default function ThreeBackground() {
 
       renderer.render(scene, camera);
     };
-    animate();
+
+    const loop = () => {
+      if (!running) return;
+      renderFrame();
+      frameId = requestAnimationFrame(loop);
+    };
+
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      frameId = requestAnimationFrame(loop);
+    };
+    const stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(frameId);
+    };
+
+    // Render only when the tab is visible AND the canvas is on-screen.
+    let onScreen = true;
+    const syncRunning = () => {
+      if (!document.hidden && onScreen) startLoop();
+      else stopLoop();
+    };
+
+    if (reducedMotion) {
+      // Reduced motion: draw one static frame, never start the rAF loop.
+      renderFrame();
+    } else {
+      // Pause when the tab is backgrounded.
+      const onVisibility = () => syncRunning();
+      document.addEventListener('visibilitychange', onVisibility);
+
+      // Pause when the canvas leaves the viewport (e.g. display:none, or a
+      // future non-fixed layout). Harmless no-op while it's a fixed bg.
+      const io = new IntersectionObserver(
+        ([entry]) => { onScreen = entry.isIntersecting; syncRunning(); },
+        { threshold: 0 },
+      );
+      io.observe(mount);
+
+      syncRunning();
+
+      // Stash teardown for these listeners on the cleanup closure below.
+      cleanupExtras = () => {
+        document.removeEventListener('visibilitychange', onVisibility);
+        io.disconnect();
+      };
+    }
 
     return () => {
-      cancelAnimationFrame(frameId);
+      stopLoop();
+      cleanupExtras();
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('resize', onResize);
       renderer.dispose();

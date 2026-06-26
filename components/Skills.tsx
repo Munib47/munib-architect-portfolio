@@ -3,22 +3,72 @@
 import { useEffect, useRef, useState } from 'react';
 import { skillGroups, techBadges } from '@/data/skills';
 
+// Tracks the user's reduced-motion preference (reactively).
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
+}
+
 function SkillBar({
   name, level, icon, color, index,
 }: {
   name: string; level: number; icon: string; color: string; index: number;
 }) {
-  const [animated, setAnimated] = useState(false);
+  const reduced = usePrefersReducedMotion();
   const barRef = useRef<HTMLDivElement>(null);
+  // `shown` gates the reveal; once true the bar/label rest at the REAL value.
+  const [shown, setShown] = useState(false);
+  const [display, setDisplay] = useState(0);
 
+  // Reveal when the bar scrolls into view (per-element, one-shot). With
+  // reduced motion or no IntersectionObserver support, reveal immediately.
   useEffect(() => {
+    if (reduced || typeof IntersectionObserver === 'undefined') {
+      setShown(true);
+      return;
+    }
+    const el = barRef.current;
+    if (!el) return;
+
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setAnimated(true); },
-      { threshold: 0.3 },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShown(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.25, rootMargin: '0px 0px -10% 0px' },
     );
-    if (barRef.current) obs.observe(barRef.current);
+    obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [reduced]);
+
+  // Count the percentage label up to the real value, guaranteeing the
+  // final number is exactly `level`. Reduced motion jumps straight there.
+  useEffect(() => {
+    if (!shown) return;
+    if (reduced) { setDisplay(level); return; }
+
+    let raf = 0;
+    const DURATION = 1100;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / DURATION, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      setDisplay(Math.round(level * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else setDisplay(level); // exact final value
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [shown, reduced, level]);
 
   return (
     <div ref={barRef} style={{ marginBottom: '0.85rem' }}>
@@ -44,7 +94,7 @@ function SkillBar({
           {name}
         </span>
         <span style={{ fontSize: '12px', fontWeight: 700, color }}>
-          {animated ? level : 0}%
+          {display}%
         </span>
       </div>
 
@@ -61,8 +111,11 @@ function SkillBar({
             height: '100%',
             borderRadius: '4px',
             background: `linear-gradient(90deg, ${color}, ${color}88)`,
-            width: animated ? `${level}%` : '0%',
-            transition: `width 1.2s cubic-bezier(0.34,1.56,0.64,1) ${index * 60}ms`,
+            // Resting width is always the real level once revealed; never 0%.
+            width: shown ? `${level}%` : '0%',
+            transition: reduced
+              ? 'none'
+              : `width 1.2s cubic-bezier(0.34,1.56,0.64,1) ${index * 60}ms`,
             boxShadow: `0 0 8px ${color}60`,
           }}
         />

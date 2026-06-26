@@ -31,6 +31,9 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Belt-and-suspenders with body below — kills page-level horizontal scroll
+     even if a transform/animation briefly extends past the viewport edge. */
+  overflow-x: hidden;
 }
 
 body {
@@ -38,6 +41,39 @@ body {
   color: #ffffff;
   font-family: 'Inter', system-ui, sans-serif;
   overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Clip any horizontal transform overflow (AOS, GSAP slide-ins, decorative
+   glows) at the content edge. `clip` (not `hidden`) keeps vertical scroll
+   visible and never creates a scroll container. */
+main {
+  overflow-x: clip;
+}
+
+/* Respect reduced-motion: neutralize long/looping animations globally. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Screen-reader-only (defensive copy of Tailwind's sr-only) ─── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 /* ── Input / textarea placeholder ───────────────────────────── */
@@ -51,8 +87,10 @@ textarea:-ms-input-placeholder {
   color: #ffffff;
 }
 
-/* ── Social sidebar — hidden on mobile ───────────────────────── */
-@media (max-width: 767px) {
+/* ── Social sidebar — desktop (lg+) only ─────────────────────────
+   Hidden below 1024px: on narrow/medium screens the fixed rail (left:8px)
+   overlapped card content. The same links live in the footer/contact. */
+@media (max-width: 1023px) {
   .social-sidebar { display: none !important; }
 }
 

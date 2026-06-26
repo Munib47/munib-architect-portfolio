@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 const CONTACT_LINKS = [
   {
@@ -57,31 +57,79 @@ const LABEL_STYLE: React.CSSProperties = {
   marginBottom: '0.4rem',
 };
 
-export default function Contact() {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [status, setStatus] = useState<'idle' | 'sent'>('idle');
+const ERROR_TEXT_STYLE: React.CSSProperties = {
+  display: 'block',
+  marginTop: '0.35rem',
+  fontSize: '12px',
+  color: '#f87171',
+  fontWeight: 500,
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
+type Status = 'idle' | 'submitting' | 'success' | 'error';
+type Fields = { name: string; email: string; subject: string; message: string };
+
+const EMPTY: Fields = { name: '', email: '', subject: '', message: '' };
+
+export default function Contact() {
+  const [fields, setFields] = useState<Fields>(EMPTY);
+  const [company, setCompany] = useState('');              // honeypot
+  const [status, setStatus] = useState<Status>('idle');
+  const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof Fields, string>>>({});
+
+  const submitting = status === 'submitting';
+
+  const update =
+    (key: keyof Fields) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFields((prev) => ({ ...prev, [key]: e.target.value }));
+      // Clear a field's error as soon as the user edits it.
+      setFieldErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+    };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const form = formRef.current;
-    if (!form) return;
-    const data = new FormData(form);
-    const mailto =
-      `mailto:munibahmad47@gmail.com` +
-      `?subject=${encodeURIComponent((data.get('subject') as string) || 'Project Inquiry')}` +
-      `&body=${encodeURIComponent(
-        `Name: ${data.get('name')}\nEmail: ${data.get('email')}\n\n${data.get('message')}`,
-      )}`;
-    window.location.href = mailto;
-    setStatus('sent');
-    setTimeout(() => setStatus('idle'), 4500);
+    if (submitting) return;
+
+    setStatus('submitting');
+    setFormError('');
+    setFieldErrors({});
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...fields, company }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data?.ok) {
+        setStatus('success');
+        setFields(EMPTY);
+        setCompany('');
+      } else {
+        setStatus('error');
+        setFieldErrors(data?.fields ?? {});
+        setFormError(data?.error ?? 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setStatus('error');
+      setFormError(
+        'Network error — please check your connection, or email me directly at munibahmad47@gmail.com.',
+      );
+    }
   };
+
+  const fieldBorder = (key: keyof Fields): React.CSSProperties =>
+    fieldErrors[key]
+      ? { ...INPUT_STYLE, borderColor: 'rgba(248,113,113,0.65)' }
+      : INPUT_STYLE;
 
   return (
     <section
       id="contact"
       className="section-padding"
-      style={{ position: 'relative', zIndex: 1 }}
+      style={{ position: 'relative', zIndex: 1, overflowX: 'hidden' }}
     >
       <div className="section-divider" style={{ marginBottom: '5rem' }} />
 
@@ -139,7 +187,7 @@ export default function Contact() {
           }}
         >
           {/* ── Left: contact info ── */}
-          <div data-aos="fade-right">
+          <div data-aos="fade-up">
             <div style={{ marginBottom: '2.5rem' }}>
               <h3
                 style={{
@@ -277,10 +325,11 @@ export default function Contact() {
           </div>
 
           {/* ── Right: contact form ── */}
-          <div data-aos="fade-left">
+          <div data-aos="fade-up" data-aos-delay="100">
             <form
-              ref={formRef}
               onSubmit={handleSubmit}
+              noValidate
+              aria-busy={submitting}
               style={{
                 background: '#0F1117',
                 border: '1px solid rgba(255,255,255,0.08)',
@@ -302,6 +351,27 @@ export default function Contact() {
                 Send a Message
               </h3>
 
+              {/* Honeypot — visually hidden, off the a11y tree, not tab-reachable */}
+              <input
+                type="text"
+                name="company"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  width: '1px',
+                  height: '1px',
+                  padding: 0,
+                  margin: '-1px',
+                  overflow: 'hidden',
+                  clip: 'rect(0,0,0,0)',
+                  border: 0,
+                }}
+              />
+
               {/* Name */}
               <div>
                 <label htmlFor="name" style={LABEL_STYLE}>Full Name</label>
@@ -311,10 +381,16 @@ export default function Contact() {
                   type="text"
                   placeholder="Your name"
                   required
-                  style={INPUT_STYLE}
+                  value={fields.name}
+                  onChange={update('name')}
+                  disabled={submitting}
+                  aria-invalid={!!fieldErrors.name}
+                  aria-describedby={fieldErrors.name ? 'name-error' : undefined}
+                  style={fieldBorder('name')}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
+                  onBlur={(e)  => (e.target.style.borderColor = fieldErrors.name ? 'rgba(248,113,113,0.65)' : 'rgba(255,255,255,0.12)')}
                 />
+                {fieldErrors.name && <span id="name-error" style={ERROR_TEXT_STYLE}>{fieldErrors.name}</span>}
               </div>
 
               {/* Email */}
@@ -326,10 +402,16 @@ export default function Contact() {
                   type="email"
                   placeholder="you@example.com"
                   required
-                  style={INPUT_STYLE}
+                  value={fields.email}
+                  onChange={update('email')}
+                  disabled={submitting}
+                  aria-invalid={!!fieldErrors.email}
+                  aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+                  style={fieldBorder('email')}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
+                  onBlur={(e)  => (e.target.style.borderColor = fieldErrors.email ? 'rgba(248,113,113,0.65)' : 'rgba(255,255,255,0.12)')}
                 />
+                {fieldErrors.email && <span id="email-error" style={ERROR_TEXT_STYLE}>{fieldErrors.email}</span>}
               </div>
 
               {/* Subject */}
@@ -341,10 +423,16 @@ export default function Contact() {
                   type="text"
                   placeholder="Project Inquiry"
                   required
-                  style={INPUT_STYLE}
+                  value={fields.subject}
+                  onChange={update('subject')}
+                  disabled={submitting}
+                  aria-invalid={!!fieldErrors.subject}
+                  aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
+                  style={fieldBorder('subject')}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
+                  onBlur={(e)  => (e.target.style.borderColor = fieldErrors.subject ? 'rgba(248,113,113,0.65)' : 'rgba(255,255,255,0.12)')}
                 />
+                {fieldErrors.subject && <span id="subject-error" style={ERROR_TEXT_STYLE}>{fieldErrors.subject}</span>}
               </div>
 
               {/* Message */}
@@ -356,37 +444,79 @@ export default function Contact() {
                   rows={4}
                   required
                   placeholder="Tell me about your project..."
-                  style={{
-                    ...INPUT_STYLE,
-                    resize: 'vertical',
-                    minHeight: '110px',
-                  }}
+                  value={fields.message}
+                  onChange={update('message')}
+                  disabled={submitting}
+                  aria-invalid={!!fieldErrors.message}
+                  aria-describedby={fieldErrors.message ? 'message-error' : undefined}
+                  style={{ ...fieldBorder('message'), resize: 'vertical', minHeight: '110px' }}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(16,185,129,0.5)')}
-                  onBlur={(e)  => (e.target.style.borderColor = '#ffffff')}
+                  onBlur={(e)  => (e.target.style.borderColor = fieldErrors.message ? 'rgba(248,113,113,0.65)' : 'rgba(255,255,255,0.12)')}
                 />
+                {fieldErrors.message && <span id="message-error" style={ERROR_TEXT_STYLE}>{fieldErrors.message}</span>}
+              </div>
+
+              {/* Live status region for screen readers + visible feedback */}
+              <div aria-live="polite" role="status">
+                {status === 'success' && (
+                  <div
+                    style={{
+                      padding: '0.8rem 1rem',
+                      borderRadius: '10px',
+                      background: 'rgba(16,185,129,0.1)',
+                      border: '1px solid rgba(16,185,129,0.3)',
+                      color: '#10B981',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    ✓ Thanks — your message has been sent. I&apos;ll get back to you shortly.
+                  </div>
+                )}
+                {status === 'error' && formError && (
+                  <div
+                    style={{
+                      padding: '0.8rem 1rem',
+                      borderRadius: '10px',
+                      background: 'rgba(248,113,113,0.1)',
+                      border: '1px solid rgba(248,113,113,0.35)',
+                      color: '#f87171',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {formError}
+                  </div>
+                )}
               </div>
 
               {/* Submit */}
               <button
                 type="submit"
+                disabled={submitting}
                 style={{
                   padding: '0.8rem',
                   borderRadius: '10px',
                   background:
-                    status === 'sent'
+                    status === 'success'
                       ? 'linear-gradient(135deg, #059669, #0891b2)'
                       : 'linear-gradient(135deg, #10B981, #06B6D4)',
                   color: '#0A0A0C',
                   fontSize: '14px',
                   fontWeight: 700,
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  opacity: submitting ? 0.7 : 1,
                   letterSpacing: '0.02em',
                   transition: 'all 0.3s',
                   boxShadow: '0 4px 20px rgba(16,185,129,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
                 }}
                 onMouseEnter={(e) => {
-                  if (status === 'idle') {
+                  if (!submitting) {
                     const el = e.currentTarget as HTMLButtonElement;
                     el.style.boxShadow = '0 6px 28px rgba(16,185,129,0.5)';
                     el.style.transform = 'translateY(-1px)';
@@ -398,7 +528,25 @@ export default function Contact() {
                   el.style.transform = 'none';
                 }}
               >
-                {status === 'sent' ? '✓ Message Ready — Opening Mail Client' : 'Send Message →'}
+                {submitting && (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      border: '2px solid rgba(10,10,12,0.35)',
+                      borderTopColor: '#0A0A0C',
+                      display: 'inline-block',
+                      animation: 'contact-spin 0.7s linear infinite',
+                    }}
+                  />
+                )}
+                {submitting
+                  ? 'Sending…'
+                  : status === 'success'
+                    ? '✓ Message Sent'
+                    : 'Send Message →'}
               </button>
             </form>
           </div>
@@ -409,6 +557,9 @@ export default function Contact() {
         @keyframes contact-pulse {
           0%, 100% { opacity: 1; box-shadow: 0 0 8px #10B981; }
           50%       { opacity: 0.55; box-shadow: 0 0 4px #10B981; }
+        }
+        @keyframes contact-spin {
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </section>

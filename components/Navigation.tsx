@@ -86,6 +86,8 @@ export default function Navigation() {
   const [menuOpen,    setMenuOpen]    = useState(false);
   const [hireMeOpen,  setHireMeOpen]  = useState(false);
   const hireMeRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
@@ -120,6 +122,54 @@ export default function Navigation() {
     document.addEventListener('mousedown', onClickOutside);
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
+
+  // ── Mobile menu: focus trap + Escape + scroll lock + focus restore ──
+  useEffect(() => {
+    if (!menuOpen) return;
+    const menuEl = menuRef.current;
+    if (!menuEl) return;
+
+    const focusable = () =>
+      Array.from(
+        menuEl.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el.offsetParent !== null);
+
+    // Move focus into the dialog.
+    focusable()[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMenuOpen(false);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const items = focusable();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last  = items[items.length - 1];
+      const current = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (current === first || !menuEl.contains(current))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (current === last || !menuEl.contains(current))) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = prevOverflow;
+      hamburgerRef.current?.focus();   // restore focus to the trigger
+    };
+  }, [menuOpen]);
 
   const scrollTo = (href: string) => {
     const id = href.slice(1);
@@ -340,9 +390,12 @@ export default function Navigation() {
 
           {/* ── Mobile Hamburger ── */}
           <button
+            ref={hamburgerRef}
             className="nav-mobile"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '5px',
@@ -372,6 +425,12 @@ export default function Navigation() {
       {/* ── Mobile Fullscreen Menu ── */}
       {menuOpen && (
         <div
+          id="mobile-menu"
+          ref={menuRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site navigation"
+          onClick={(e) => { if (e.target === e.currentTarget) setMenuOpen(false); }}
           style={{
             position: 'fixed', inset: 0, zIndex: 99,
             background: 'rgba(10,10,12,0.97)',
