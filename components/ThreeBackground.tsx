@@ -3,6 +3,24 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
+// ── Tunable particle constants ─────────────────────────────────────
+// Tweak these to change how the background feels. Kept at module scope
+// so they're easy to find and adjust.
+//
+//   EASING        — cursor-follow lerp factor. Higher = the camera/cloud
+//                   tracks the pointer faster (snappier). 0..1.
+//   DRIFT_SPEED   — autonomous per-particle drift speed (movement with
+//                   no pointer input).
+//   MOUSE_RADIUS  — pointer interaction reach, normalized to half the
+//                   viewport. Smaller = full strength nearer the centre.
+//   MOUSE_FORCE   — mouse parallax push strength (camera offset amplitude).
+//   PARTICLE_COUNT— desktop base count; scaled down per device at runtime.
+const EASING         = 0.18;   // was 0.025 — much more responsive
+const DRIFT_SPEED    = 0.006;  // was 0.004 — a touch livelier
+const MOUSE_RADIUS   = 0.5;    // half-viewport reach
+const MOUSE_FORCE    = 0.6;    // parallax amplitude
+const PARTICLE_COUNT = 2200;   // desktop base
+
 export default function ThreeBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -14,15 +32,15 @@ export default function ThreeBackground() {
     const isMobile  = viewportW < 768;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Scale particle work to the device: far fewer on phones, fewer still when
-    // the user prefers reduced motion (we render a single static frame then).
-    const PARTICLE_COUNT = reducedMotion
-      ? 600
+    // Scale particle work to the device from the PARTICLE_COUNT base: far
+    // fewer on phones, fewer still when the user prefers reduced motion.
+    const particleCount = reducedMotion
+      ? Math.round(PARTICLE_COUNT * 0.27)   // ~600
       : isMobile
-        ? 900
+        ? Math.round(PARTICLE_COUNT * 0.41) // ~900
         : viewportW < 1280
-          ? 1500
-          : 2200;
+          ? Math.round(PARTICLE_COUNT * 0.68) // ~1500
+          : PARTICLE_COUNT;                   // 2200
 
     // ── Scene ─────────────────────────────────────────────────────
     const scene = new THREE.Scene();
@@ -55,8 +73,8 @@ export default function ThreeBackground() {
     const texture = new THREE.CanvasTexture(canvas);
 
     // ── Particle System ───────────────────────────────────────────
-    const positions  = new Float32Array(PARTICLE_COUNT * 3);
-    const colors     = new Float32Array(PARTICLE_COUNT * 3);
+    const positions  = new Float32Array(particleCount * 3);
+    const colors     = new Float32Array(particleCount * 3);
     const velocities: { vx: number; vy: number; vz: number }[] = [];
 
     const palette = [
@@ -68,7 +86,7 @@ export default function ThreeBackground() {
       new THREE.Color('#8892A4'), // muted blue-grey
     ];
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
+    for (let i = 0; i < particleCount; i++) {
       const i3 = i * 3;
       positions[i3]     = (Math.random() - 0.5) * 40;
       positions[i3 + 1] = (Math.random() - 0.5) * 30;
@@ -80,9 +98,9 @@ export default function ThreeBackground() {
       colors[i3 + 2] = col.b;
 
       velocities.push({
-        vx: (Math.random() - 0.5) * 0.004,
-        vy: (Math.random() - 0.5) * 0.004,
-        vz: (Math.random() - 0.5) * 0.002,
+        vx: (Math.random() - 0.5) * DRIFT_SPEED,
+        vy: (Math.random() - 0.5) * DRIFT_SPEED,
+        vz: (Math.random() - 0.5) * DRIFT_SPEED * 0.5,
       });
     }
 
@@ -108,9 +126,12 @@ export default function ThreeBackground() {
     // ── Mouse parallax ────────────────────────────────────────────
     let mouseX = 0;
     let mouseY = 0;
+    const clamp = (v: number) => Math.max(-1, Math.min(1, v));
     const onMouseMove = (e: MouseEvent) => {
-      mouseX = (e.clientX / window.innerWidth  - 0.5) * 0.6;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 0.6;
+      // Pointer offset from centre, normalized by MOUSE_RADIUS (interaction
+      // reach), then scaled by MOUSE_FORCE (parallax strength).
+      mouseX = clamp((e.clientX / window.innerWidth  - 0.5) / MOUSE_RADIUS) * MOUSE_FORCE;
+      mouseY = clamp((e.clientY / window.innerHeight - 0.5) / MOUSE_RADIUS) * MOUSE_FORCE;
     };
     window.addEventListener('mousemove', onMouseMove);
 
@@ -133,7 +154,7 @@ export default function ThreeBackground() {
       t += 0.004;
 
       const pos = posAttr.array as Float32Array;
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
+      for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
         const v  = velocities[i];
         pos[i3]     += v.vx;
@@ -150,9 +171,9 @@ export default function ThreeBackground() {
       }
       posAttr.needsUpdate = true;
 
-      // Smooth camera follow
-      camera.position.x += (mouseX  - camera.position.x) * 0.025;
-      camera.position.y += (-mouseY - camera.position.y) * 0.025;
+      // Smooth camera follow — EASING controls how fast it tracks the pointer.
+      camera.position.x += (mouseX  - camera.position.x) * EASING;
+      camera.position.y += (-mouseY - camera.position.y) * EASING;
 
       // Slow global rotation
       particles.rotation.y = t * 0.04;
