@@ -214,21 +214,6 @@ export const projects: Project[] = [
   },
   {
     id: 14,
-    slug: 'manifest-rafa',
-    title: 'Manifest Rafa',
-    url: 'https://shop.manifestrafa.com/',
-    category: 'shopify',
-    role: 'DTC Lifestyle Brand Developer',
-    description:
-      'Developed a premium, artsy direct-to-consumer lifestyle merchandise store featuring customized subdomains, clean minimal checkout pages, and crisp typographic spacing.',
-    tags: ['Shopify', 'DTC', 'Typography', 'Subdomain', 'Minimal Design'],
-    gradientFrom: '#0a0f14',
-    gradientVia: '#141e2d',
-    gradientTo: '#0a0f12',
-    accentHex: '#38bdf8',
-  },
-  {
-    id: 15,
     slug: 'qoffah',
     title: 'Qoffah',
     url: 'https://www.qoffah.com/',
@@ -243,7 +228,7 @@ export const projects: Project[] = [
     accentHex: '#fb923c',
   },
   {
-    id: 16,
+    id: 15,
     slug: 'mercer-retail',
     title: 'Mercer Retail',
     url: 'https://mercer-retail.com/',
@@ -258,7 +243,7 @@ export const projects: Project[] = [
     accentHex: '#6366f1',
   },
   {
-    id: 17,
+    id: 16,
     slug: 'mizyanny',
     title: 'Mizyanny',
     url: 'https://www.mizyanny.com/',
@@ -273,7 +258,7 @@ export const projects: Project[] = [
     accentHex: '#e879f9',
   },
   {
-    id: 18,
+    id: 17,
     slug: 'north-naturals',
     title: 'North Naturals',
     url: 'https://northnaturals.com/',
@@ -289,7 +274,7 @@ export const projects: Project[] = [
   },
   // ── Category B: GHL ───────────────────────────────────────────
   {
-    id: 19,
+    id: 18,
     slug: 'strong-refuge-pool-community',
     title: 'Strong Refuge Pool — Community',
     url: 'https://comm.strongrefugepool.com/',
@@ -304,7 +289,7 @@ export const projects: Project[] = [
     accentHex: '#60a5fa',
   },
   {
-    id: 20,
+    id: 19,
     slug: 'strong-refuge-pool-funnel',
     title: 'Strong Refuge Pool — Funnel',
     url: 'https://go.strongrefugepool.com/',
@@ -319,7 +304,7 @@ export const projects: Project[] = [
     accentHex: '#34d399',
   },
   {
-    id: 21,
+    id: 20,
     slug: 'strong-refuge-pool-compliance',
     title: 'Strong Refuge Pool — Compliance',
     url: 'https://comp.strongrefugepool.com/',
@@ -334,7 +319,7 @@ export const projects: Project[] = [
     accentHex: '#fbbf24',
   },
   {
-    id: 22,
+    id: 21,
     slug: 'strong-refuge-pool-equipment',
     title: 'Strong Refuge Pool — Equipment',
     url: 'https://equip.strongrefugepool.com/',
@@ -349,7 +334,7 @@ export const projects: Project[] = [
     accentHex: '#22d3ee',
   },
   {
-    id: 23,
+    id: 22,
     slug: 'wingman-aero-uft',
     title: 'Wingman Aero — UFT System',
     url: 'https://uft.wingmanaero.com/',
@@ -364,7 +349,7 @@ export const projects: Project[] = [
     accentHex: '#818cf8',
   },
   {
-    id: 24,
+    id: 23,
     slug: 'beyond-remedy-ny-injectables',
     title: 'Beyond Remedy NY — Injectables',
     url: 'https://go.beyondremedyny.com/brinjectablespromo',
@@ -379,7 +364,7 @@ export const projects: Project[] = [
     accentHex: '#f472b6',
   },
   {
-    id: 25,
+    id: 24,
     slug: 'beyond-remedy-co-main',
     title: 'Beyond Remedy Co — Main Funnel',
     url: 'https://go.beyondremedyco.com/',
@@ -394,7 +379,7 @@ export const projects: Project[] = [
     accentHex: '#2dd4bf',
   },
   {
-    id: 26,
+    id: 25,
     slug: 'swoon-learning-start',
     title: 'Swoon Learning — Start Portal',
     url: 'https://start.swoonlearning.com/',
@@ -409,7 +394,7 @@ export const projects: Project[] = [
     accentHex: '#a78bfa',
   },
   {
-    id: 27,
+    id: 26,
     slug: 'my-injury-case-help',
     title: 'My Injury Case Help',
     url: 'https://myinjurycasehelp.com/',
@@ -425,6 +410,6 @@ export const projects: Project[] = [
   },
 ];
 
-export const featuredProjects = [1, 9, 13, 23, 24, 27].map(
+export const featuredProjects = [1, 9, 13, 22, 23, 26].map(
   (id) => projects.find((p) => p.id === id)!,
 );

@@ -398,7 +398,7 @@ export default async function ProjectCasePage({ params }: PageProps) {
                 { label: 'Platform', value: categoryLabel },
                 { label: 'Status', value: 'Live' },
                 { label: 'Category', value: isShopify ? 'E-Commerce' : 'Marketing Funnel' },
-                { label: 'Project', value: `#${String(project.id).padStart(2, '0')} of 27` },
+                { label: 'Project', value: `#${String(project.id).padStart(2, '0')} of ${projects.length}` },
               ].map(({ label, value }) => (
                 <div
                   key={label}

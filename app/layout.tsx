@@ -5,7 +5,7 @@ import AOSProvider from '@/components/AOSProvider';
 export const metadata: Metadata = {
   title: 'Munib Ahmad — Frontend Architect & Shopify Developer',
   description:
-    'Premium portfolio of Munib Ahmad — Next.js developer, Shopify theme engineer, and GoHighLevel automation specialist with 27+ live projects.',
+    'Premium portfolio of Munib Ahmad — Next.js developer, Shopify theme engineer, and GoHighLevel automation specialist with 26+ live projects.',
   keywords: [
     'Munib Ahmad',
     'Next.js developer',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Munib Ahmad — Frontend Architect',
     description:
-      'Premium portfolio showcasing 27+ live Shopify stores & GoHighLevel funnels by Munib Ahmad.',
+      'Premium portfolio showcasing 26+ live Shopify stores & GoHighLevel funnels by Munib Ahmad.',
     type: 'website',
   },
 };

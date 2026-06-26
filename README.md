@@ -1,8 +1,8 @@
 # Munib Ahmad — Portfolio
 
 A premium, animated developer portfolio for **Munib Ahmad** — Frontend Architect, Shopify
-theme engineer, and GoHighLevel automation specialist. Showcases **27 live projects**
-(18 Shopify storefronts + 9 GoHighLevel funnels) with a 3D particle background, GSAP
+theme engineer, and GoHighLevel automation specialist. Showcases **26 live projects**
+(17 Shopify storefronts + 9 GoHighLevel funnels) with a 3D particle background, GSAP
 motion, per-project case-study pages, and a working contact form.
 
 > **Status:** Active build. `tsc --noEmit` **and** `next build` both pass clean.
@@ -95,7 +95,7 @@ components/
   ResumePDF.tsx               # ⚠️ Unused — legacy résumé version
 
 data/
-  projects.ts             # All 27 projects (slug, url, tags, gradients, accent colors)
+  projects.ts             # All 26 projects (slug, url, tags, gradients, accent colors)
   skills.ts               # Skill groups + tech badge cloud
   experience.ts           # Work history (feeds timeline)
 
@@ -174,13 +174,13 @@ npx -y lighthouse http://localhost:3000 --only-categories=performance --view
 - [x] **Contact** section (working form + link cards) and branded **Footer**.
 
 ### Per-Project Case Studies
-- [x] Dynamic route `/projects/[id]` statically generated for all 27 projects via `generateStaticParams`.
+- [x] Dynamic route `/projects/[id]` statically generated for all 26 projects via `generateStaticParams`.
 - [x] Per-project `generateMetadata` (title, description, OpenGraph).
 - [x] Hero, overview, derived feature bullets, full tech-stack tags, prev/next navigation, CTA.
 - [x] `AbstractMockup` generates a unique gradient "browser preview" per project.
 
 ### Data & Content
-- [x] All 27 projects modeled in [data/projects.ts](data/projects.ts) with slugs, live URLs, roles, tags, and per-project gradient/accent tokens.
+- [x] All 26 projects modeled in [data/projects.ts](data/projects.ts) with slugs, live URLs, roles, tags, and per-project gradient/accent tokens.
 - [x] Skills ([data/skills.ts](data/skills.ts)) and work experience ([data/experience.ts](data/experience.ts)) centralized.
 
 ### Foundation
@@ -230,10 +230,10 @@ the contact API was exercised live (200 / 422 / 405).
 ### 🟠 Content & Assets
 - [ ] Replace `AbstractMockup` placeholders with **real project screenshots** (or OG thumbnails).
 - [ ] Add a proper **OpenGraph / Twitter share image** (currently OG has no `images`).
-- [ ] Verify all 27 project URLs, roles, and descriptions are accurate and up to date.
+- [ ] Verify all 26 project URLs, roles, and descriptions are accurate and up to date.
 
 ### 🟡 SEO & Performance
-- [ ] Add `sitemap.ts` and `robots.ts` (App Router conventions) — important for 27 indexable case-study pages.
+- [ ] Add `sitemap.ts` and `robots.ts` (App Router conventions) — important for 26 indexable case-study pages.
 - [ ] Add JSON-LD structured data (`Person` / `CreativeWork`).
 - [ ] **Confirm the Lighthouse number** — run `npx lighthouse http://localhost:3000 --only-categories=performance` after `npm run build && npm run start`. (Before this pass: FCP ~5.8s reported; the perf fixes target < 2s but the score still needs a real headless run.)
 
