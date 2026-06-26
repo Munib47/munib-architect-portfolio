@@ -87,11 +87,6 @@ export default function Navigation() {
   const [hireMeOpen,  setHireMeOpen]  = useState(false);
   const hireMeRef = useRef<HTMLDivElement>(null);
 
-  type ResumeStage = 'idle' | 'generating' | 'ready';
-  const [resumeStage, setResumeStage] = useState<ResumeStage>('idle');
-  const [progress,    setProgress]    = useState(0);
-  const [pdfUrl,      setPdfUrl]      = useState<string | null>(null);
-
   const handleScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);
     const sections = NAV_LINKS.map((l) => l.href.slice(1));
@@ -126,63 +121,11 @@ export default function Navigation() {
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setResumeStage('idle');
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, []);
-
   const scrollTo = (href: string) => {
     const id = href.slice(1);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setMenuOpen(false);
   };
-
-  function getProgressCopy(p: number) {
-    if (p < 34) return 'Compiling fresh portfolio assets...';
-    if (p < 68) return 'Formatting PDF structure...';
-    return 'Finalizing downloadable document...';
-  }
-
-  const handleDownloadResume = async () => {
-    setResumeStage('generating');
-    setProgress(0);
-    setPdfUrl(null);
-
-    const TOTAL_MS = 3000;
-    const TICK_MS  = 80;
-    let elapsed = 0;
-
-    const timer = window.setInterval(() => {
-      elapsed += TICK_MS;
-      setProgress(Math.min((elapsed / TOTAL_MS) * 92, 92));
-      if (elapsed >= TOTAL_MS) window.clearInterval(timer);
-    }, TICK_MS);
-
-    try {
-      const [reactMod, pdfMod, resumeMod] = await Promise.all([
-        import('react'),
-        import('@react-pdf/renderer'),
-        import('@/components/DynamicResumeEngine'),
-      ]);
-      const profileImageUrl = `${window.location.origin}/images/profile/my-profile.jpg`;
-      const blob = await (pdfMod.pdf as (d: unknown) => { toBlob(): Promise<Blob> })(
-        reactMod.createElement(resumeMod.DynamicResumeEngine, { profileImageUrl }),
-      ).toBlob();
-      const url = URL.createObjectURL(blob);
-      window.clearInterval(timer);
-      setProgress(100);
-      setPdfUrl(url);
-      setTimeout(() => setResumeStage('ready'), 380);
-    } catch {
-      window.clearInterval(timer);
-      setResumeStage('idle');
-    }
-  };
-
-  const closeResumeModal = () => setResumeStage('idle');
 
   return (
     <>
@@ -259,40 +202,8 @@ export default function Navigation() {
             })}
           </nav>
 
-          {/* ── Desktop CTAs — Download Résumé + Hire Me ── */}
+          {/* ── Desktop CTA — Hire Me ── */}
           <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-
-            {/* Download Résumé button */}
-            <button
-              onClick={handleDownloadResume}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.4rem',
-                padding: '0.45rem 0.95rem',
-                background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '8px',
-                color: 'rgba(255,255,255,0.65)',
-                fontSize: '13px', fontWeight: 500,
-                cursor: 'pointer',
-                fontFamily: "'Inter', sans-serif",
-                transition: 'border-color 0.2s, color 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget;
-                el.style.borderColor = 'rgba(16,185,129,0.4)';
-                el.style.color = '#10B981';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget;
-                el.style.borderColor = 'rgba(255,255,255,0.1)';
-                el.style.color = 'rgba(255,255,255,0.65)';
-              }}
-            >
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5.5 1v6.5M2.5 5l3 3 3-3M1 10h9"/>
-              </svg>
-              Résumé
-            </button>
 
             {/* Hire Me dropdown */}
             <div
@@ -491,29 +402,6 @@ export default function Navigation() {
             </button>
           ))}
 
-          {/* Mobile — Download Résumé */}
-          <button
-            onClick={() => { setMenuOpen(false); handleDownloadResume(); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.7rem 1.5rem',
-              background: 'rgba(16,185,129,0.07)',
-              border: '1px solid rgba(16,185,129,0.2)',
-              borderRadius: '12px',
-              color: '#10B981',
-              fontSize: '14px', fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif",
-              opacity: 0, animation: 'fadeSlideIn 0.35s ease forwards',
-              animationDelay: `${NAV_LINKS.length * 60 + 30}ms`,
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M6.5 1v8.5M3 6.5l3.5 3.5L10 6.5M1 12h11"/>
-            </svg>
-            Download Résumé
-          </button>
-
           {/* Mobile contact channels */}
           <div
             style={{
@@ -550,155 +438,6 @@ export default function Navigation() {
         </div>
       )}
 
-      {/* ── Resume Generation Modal ───────────────────────────────── */}
-      {resumeStage !== 'idle' && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 500,
-            background: 'rgba(0,0,0,0.72)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '1rem',
-          }}
-          onClick={(e) => { if (e.target === e.currentTarget) closeResumeModal(); }}
-        >
-          <div
-            style={{
-              width: '100%', maxWidth: '400px',
-              background: 'rgba(8,10,16,0.98)',
-              border: '1px solid rgba(16,185,129,0.18)',
-              borderRadius: '20px',
-              padding: '2rem',
-              boxShadow: '0 40px 120px rgba(0,0,0,0.85), 0 0 0 1px rgba(16,185,129,0.05)',
-              position: 'relative',
-            }}
-          >
-            {/* Close button */}
-            <button
-              onClick={closeResumeModal}
-              aria-label="Close"
-              style={{
-                position: 'absolute', top: '1rem', right: '1rem',
-                width: '28px', height: '28px', borderRadius: '50%',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.5)', fontSize: '13px',
-                cursor: 'pointer', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                lineHeight: 1,
-              }}
-            >✕</button>
-
-            {resumeStage === 'generating' ? (
-
-              /* ── Generating state ── */
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '1.5rem' }}>
-                  Preparing Document
-                </p>
-
-                {/* Spinner ring */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                  <svg width="64" height="64" viewBox="0 0 64 64" style={{ animation: 'resume-spin 1s linear infinite' }} aria-hidden="true">
-                    <circle cx="32" cy="32" r="27" stroke="rgba(16,185,129,0.1)" strokeWidth="3.5" fill="none"/>
-                    <path d="M 32 5 A 27 27 0 0 1 59 32" stroke="#10B981" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
-                  </svg>
-                </div>
-
-                <p style={{ fontSize: '15px', fontWeight: 600, color: '#ffffff', marginBottom: '0.35rem', letterSpacing: '-0.01em' }}>
-                  {getProgressCopy(progress)}
-                </p>
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginBottom: '1.75rem' }}>
-                  Building a fresh, text-selectable PDF resume
-                </p>
-
-                {/* Progress bar */}
-                <div style={{ height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.07)', overflow: 'hidden', marginBottom: '0.5rem' }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${progress}%`,
-                    background: 'linear-gradient(90deg, #10B981, #06B6D4)',
-                    borderRadius: '2px',
-                    transition: 'width 0.12s linear',
-                  }}/>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '11px', color: '#10B981', fontWeight: 700, fontFamily: 'monospace' }}>
-                    {Math.round(progress)}%
-                  </span>
-                </div>
-              </div>
-
-            ) : (
-
-              /* ── Ready state ── */
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#10B981', marginBottom: '1.5rem' }}>
-                  Resume Ready
-                </p>
-
-                {/* Animated checkmark */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                  <svg
-                    width="64" height="64" viewBox="0 0 64 64"
-                    style={{ animation: 'resume-scalein 0.45s cubic-bezier(0.34,1.56,0.64,1) both' }}
-                    aria-label="Ready"
-                  >
-                    <circle cx="32" cy="32" r="27" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.35)" strokeWidth="1.5"/>
-                    <path d="M 18 32 L 27 41 L 46 22" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                  </svg>
-                </div>
-
-                <p style={{ fontSize: '16px', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem', letterSpacing: '-0.02em' }}>
-                  Your Resume is Ready
-                </p>
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', marginBottom: '1.75rem' }}>
-                  Freshly compiled · All 27 projects included
-                </p>
-
-                {/* Download anchor */}
-                <a
-                  href={pdfUrl!}
-                  download="Munib_Ahmad_Resume.pdf"
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                    width: '100%', padding: '0.85rem 1.5rem',
-                    borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                    color: '#ffffff', fontSize: '14px', fontWeight: 700,
-                    textDecoration: 'none',
-                    boxShadow: '0 8px 32px rgba(16,185,129,0.4)',
-                    transition: 'transform 0.15s, box-shadow 0.15s',
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.transform = 'translateY(-1px)';
-                    el.style.boxShadow = '0 12px 40px rgba(16,185,129,0.5)';
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget as HTMLAnchorElement;
-                    el.style.transform = 'none';
-                    el.style.boxShadow = '0 8px 32px rgba(16,185,129,0.4)';
-                  }}
-                  onClick={() => setTimeout(closeResumeModal, 800)}
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M7 1v9M3.5 7l3.5 3.5L10.5 7M1 13h12"/>
-                  </svg>
-                  Download Munib_Ahmad_Resume.pdf
-                </a>
-
-                <p style={{ marginTop: '0.75rem', fontSize: '10px', color: 'rgba(255,255,255,0.2)' }}>
-                  PDF · A4 · Text-selectable · Client-side generated
-                </p>
-              </div>
-
-            )}
-          </div>
-        </div>
-      )}
-
       <style>{`
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateY(16px); }
@@ -715,14 +454,6 @@ export default function Navigation() {
         @media (max-width: 767px) {
           .nav-desktop { display: none  !important; }
           .nav-mobile  { display: flex  !important; }
-        }
-        @keyframes resume-spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        @keyframes resume-scalein {
-          from { opacity: 0; transform: scale(0.4); }
-          to   { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </>
