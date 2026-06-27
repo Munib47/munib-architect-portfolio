@@ -204,6 +204,7 @@ wired; the **9 GoHighLevel** funnels have no `image` and fall back to `AbstractM
 
 ### Pages & Sections
 - [x] **Home page** composing all sections over a fixed Three.js particle canvas.
+- [x] **3D background motion** — point cloud with per-particle 3D orbital motion layered on cursor parallax (see [Background Animation](#-background-animation)); all performance guards in place.
 - [x] **Hero** with GSAP timeline entrance animation and a live-stats row.
 - [x] **About**, **Skills** (per-element animated bars), **Experience Timeline**.
 - [x] **Portfolio grid** with GSAP-animated `All / Shopify / GoHighLevel` filtering.

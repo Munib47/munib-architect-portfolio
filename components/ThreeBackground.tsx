@@ -9,16 +9,29 @@ import * as THREE from 'three';
 //
 //   EASING        — cursor-follow lerp factor. Higher = the camera/cloud
 //                   tracks the pointer faster (snappier). 0..1.
-//   DRIFT_SPEED   — autonomous movement: per-particle drift + auto-rotation.
+//   DRIFT_SPEED   — slow auto-rotation speed of the whole cloud.
 //   MOUSE_RADIUS  — pointer interaction reach, normalized to half the
 //                   viewport. Smaller = full strength nearer the centre.
 //   MOUSE_FORCE   — parallax strength (camera pan + cloud-tilt amplitude).
 //   PARTICLE_COUNT— desktop base count; scaled down per device at runtime.
+//
+// Per-particle ORBITAL motion — each dot traces its own 3D elliptical path
+// around a fixed anchor, in its own randomly-tilted plane. Layered ON TOP of
+// the cursor parallax (both are felt at once).
+//   ORBIT_SPEED          — base angular velocity (radians per frame).
+//   ORBIT_RADIUS         — base orbit size in world units.
+//   ORBIT_RADIUS_VARIANCE— per-particle randomness in radius  (0..1 fraction).
+//   ORBIT_SPEED_VARIANCE — per-particle randomness in speed    (0..1 fraction).
 const EASING         = 0.18;
 const DRIFT_SPEED    = 0.006;
 const MOUSE_RADIUS   = 0.5;
 const MOUSE_FORCE    = 0.6;
 const PARTICLE_COUNT = 2200;
+
+const ORBIT_SPEED           = 0.012;
+const ORBIT_RADIUS          = 1.0;
+const ORBIT_RADIUS_VARIANCE = 0.6;
+const ORBIT_SPEED_VARIANCE  = 0.6;
 
 export default function ThreeBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -76,9 +89,19 @@ export default function ThreeBackground() {
     const texture = new THREE.CanvasTexture(sprite);
 
     // ── Build the point cloud (BufferGeometry of N 3D vertices) ───────
-    const positions  = new Float32Array(particleCount * 3);
-    const colors     = new Float32Array(particleCount * 3);
-    const velocities = new Float32Array(particleCount * 3);
+    const positions = new Float32Array(particleCount * 3);
+    const colors    = new Float32Array(particleCount * 3);
+
+    // ── Per-particle ORBITAL state (allocated ONCE, mutated in place) ──
+    // Each dot orbits its own fixed anchor inside a randomly-tilted plane
+    // spanned by the orthonormal vectors (orbitU, orbitV).
+    const anchors     = new Float32Array(particleCount * 3); // orbit centres
+    const orbitU      = new Float32Array(particleCount * 3); // plane basis vec 1
+    const orbitV      = new Float32Array(particleCount * 3); // plane basis vec 2
+    const orbitRadius = new Float32Array(particleCount);     // per-dot radius
+    const orbitSpeed  = new Float32Array(particleCount);     // signed ang. speed
+    const orbitAngle  = new Float32Array(particleCount);     // current angle
+    const TWO_PI = Math.PI * 2;
 
     // Span across X/Y and a deep Z range so perspective parallax is felt.
     const SPREAD_X = 40;
@@ -96,18 +119,46 @@ export default function ThreeBackground() {
 
     for (let i = 0; i < particleCount; i++) {
       const i3 = i * 3;
-      positions[i3]     = (Math.random() - 0.5) * SPREAD_X;
-      positions[i3 + 1] = (Math.random() - 0.5) * SPREAD_Y;
-      positions[i3 + 2] = (Math.random() - 0.5) * SPREAD_Z;
+      // Anchor = the dot's fixed orbit centre (initial spread position).
+      const ax = (Math.random() - 0.5) * SPREAD_X;
+      const ay = (Math.random() - 0.5) * SPREAD_Y;
+      const az = (Math.random() - 0.5) * SPREAD_Z;
+      anchors[i3] = ax;     anchors[i3 + 1] = ay;     anchors[i3 + 2] = az;
+      positions[i3] = ax;   positions[i3 + 1] = ay;   positions[i3 + 2] = az;
 
       const col = palette[(Math.random() * palette.length) | 0];
       colors[i3]     = col.r;
       colors[i3 + 1] = col.g;
       colors[i3 + 2] = col.b;
 
-      velocities[i3]     = (Math.random() - 0.5) * DRIFT_SPEED;
-      velocities[i3 + 1] = (Math.random() - 0.5) * DRIFT_SPEED;
-      velocities[i3 + 2] = (Math.random() - 0.5) * DRIFT_SPEED * 0.5;
+      // Per-dot orbit: radius, signed speed (random direction), random phase —
+      // varied so the field looks organic, not a uniform spinning ring.
+      orbitRadius[i] = ORBIT_RADIUS * (1 + (Math.random() * 2 - 1) * ORBIT_RADIUS_VARIANCE);
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      orbitSpeed[i]  = ORBIT_SPEED * (1 + (Math.random() * 2 - 1) * ORBIT_SPEED_VARIANCE) * dir;
+      orbitAngle[i]  = Math.random() * TWO_PI;
+
+      // Random orbital PLANE so the orbit is genuinely 3D (uses depth, not a
+      // flat 2D circle). Build an orthonormal basis (u, v) for a random plane:
+      //   pick a random unit normal n, then u ⟂ n and v = n × u.
+      let nx = Math.random() * 2 - 1;
+      let ny = Math.random() * 2 - 1;
+      let nz = Math.random() * 2 - 1;
+      const nl = Math.hypot(nx, ny, nz) || 1;
+      nx /= nl; ny /= nl; nz /= nl;
+      // Helper axis not parallel to n → cross product is well-defined.
+      const ex = Math.abs(nz) < 0.9 ? 0 : 1;
+      const ez = Math.abs(nz) < 0.9 ? 1 : 0;
+      let ux = ny * ez;            // u = n × helper
+      let uy = nz * ex - nx * ez;
+      let uz = -ny * ex;
+      const ul = Math.hypot(ux, uy, uz) || 1;
+      ux /= ul; uy /= ul; uz /= ul;
+      const vx = ny * uz - nz * uy; // v = n × u (already unit length)
+      const vy = nz * ux - nx * uz;
+      const vz = nx * uy - ny * ux;
+      orbitU[i3] = ux; orbitU[i3 + 1] = uy; orbitU[i3 + 2] = uz;
+      orbitV[i3] = vx; orbitV[i3 + 1] = vy; orbitV[i3 + 2] = vz;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -163,18 +214,22 @@ export default function ThreeBackground() {
     const AUTO_ROT = DRIFT_SPEED * 0.06;       // slow auto-spin, tied to drift
     const posAttr = geometry.attributes.position as THREE.BufferAttribute;
     const pos = posAttr.array as Float32Array;
-    const hx = SPREAD_X / 2, hy = SPREAD_Y / 2, hz = SPREAD_Z / 2;
-
     const renderFrame = () => {
-      // Autonomous per-particle drift with wrap-around.
+      // ── Per-particle ORBITAL motion ────────────────────────────────
+      // Each dot advances its own angle and traces a 3D ellipse around its
+      // fixed anchor, inside its own tilted plane. Buffers mutated in place
+      // (no per-frame allocation). Composes with the cursor parallax below.
       for (let i = 0; i < particleCount; i++) {
         const i3 = i * 3;
-        pos[i3]     += velocities[i3];
-        pos[i3 + 1] += velocities[i3 + 1];
-        pos[i3 + 2] += velocities[i3 + 2];
-        if (pos[i3]     >  hx) pos[i3]     = -hx; else if (pos[i3]     < -hx) pos[i3]     =  hx;
-        if (pos[i3 + 1] >  hy) pos[i3 + 1] = -hy; else if (pos[i3 + 1] < -hy) pos[i3 + 1] =  hy;
-        if (pos[i3 + 2] >  hz) pos[i3 + 2] = -hz; else if (pos[i3 + 2] < -hz) pos[i3 + 2] =  hz;
+        let a = orbitAngle[i] + orbitSpeed[i];
+        if (a > TWO_PI) a -= TWO_PI; else if (a < 0) a += TWO_PI;
+        orbitAngle[i] = a;
+        const r  = orbitRadius[i];
+        const rc = Math.cos(a) * r;
+        const rs = Math.sin(a) * r;
+        pos[i3]     = anchors[i3]     + rc * orbitU[i3]     + rs * orbitV[i3];
+        pos[i3 + 1] = anchors[i3 + 1] + rc * orbitU[i3 + 1] + rs * orbitV[i3 + 1];
+        pos[i3 + 2] = anchors[i3 + 2] + rc * orbitU[i3 + 2] + rs * orbitV[i3 + 2];
       }
       posAttr.needsUpdate = true;
 
