@@ -43,7 +43,10 @@ export default function ProjectCard({ project, index }: Props) {
   const isShopify     = project.category === 'shopify';
   const categoryLabel = isShopify ? 'Shopify' : 'GoHighLevel';
   const categoryColor = isShopify ? '#96BF48' : '#F97316';
-  const imgSrc        = `/images/portfolio/${imgSlug(project.title)}.jpg`;
+  // Prefer the explicit local hero screenshot when present; otherwise fall back
+  // to the title-derived portfolio image (which itself degrades to AbstractMockup
+  // via onError). Projects without `image` keep their exact prior behavior.
+  const imgSrc        = project.image ?? `/images/portfolio/${imgSlug(project.title)}.jpg`;
   const casePath      = `/projects/${project.slug}`;
 
   // Kill active tween on unmount to avoid state updates on dead element

@@ -11,8 +11,8 @@ export const workExperience: WorkExperience[] = [
         startDate: 'Jan 2022',
         endDate: 'Present',
         highlights: [
-          'Delivered 26 live production deployments across Shopify e-commerce and GoHighLevel CRM platforms for clients in Pakistan, USA, UAE, and the UK.',
-          'Architected 17 Shopify storefronts using Liquid templating, Dawn/Be Yours frameworks, AJAX cart mechanics, multi-currency support, and advanced CRO strategies.',
+          'Delivered 27 live production deployments across Shopify e-commerce and GoHighLevel CRM platforms for clients in Pakistan, USA, UAE, and the UK.',
+          'Architected 18 Shopify storefronts using Liquid templating, Dawn/Be Yours frameworks, AJAX cart mechanics, multi-currency support, and advanced CRO strategies.',
           'Built 9 GoHighLevel funnel systems with multi-step lead capture, CRM automation workflows, SMS/email triggers, booking calendar integrations, and webhook pipelines.',
           'Optimized Core Web Vitals (LCP, CLS) for high-traffic consumer electronics stores, achieving measurable search ranking improvements for clients like Mi Store Pakistan.',
           'Integrated third-party marketing stacks — Klaviyo, Meta Pixel, RTL Arabic layouts — while maintaining fast storefront loading speeds across all deployments.',

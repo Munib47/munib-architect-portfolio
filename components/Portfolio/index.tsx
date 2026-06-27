@@ -103,7 +103,7 @@ export default function Portfolio() {
                 letterSpacing: '-0.02em',
               }}
             >
-              26 Live{' '}
+              27 Live{' '}
               <span
                 style={{
                   background: 'linear-gradient(135deg, #10B981, #06B6D4)',

@@ -14,8 +14,8 @@ const TECH_BADGES = [
 ];
 
 const STATS = [
-  { value: '26+', label: 'Live Projects'  },
-  { value: '17',  label: 'Shopify Stores' },
+  { value: '27+', label: 'Live Projects'  },
+  { value: '18',  label: 'Shopify Stores' },
   { value: '9',   label: 'GHL Funnels'   },
   { value: '3+',  label: 'Years Exp.'    },
 ];
@@ -268,7 +268,7 @@ export default function Hero() {
             >
               BSCS graduate from the University of the Punjab, Lahore — building
               high-performance digital storefronts, premium landing funnels, and
-              cinematic web experiences. 26+ live projects across Shopify,
+              cinematic web experiences. 27+ live projects across Shopify,
               GoHighLevel, Next.js, and modern animation stacks.
             </p>
 

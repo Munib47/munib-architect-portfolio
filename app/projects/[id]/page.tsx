@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { projects } from '@/data/projects';
 import AbstractMockup from '@/components/Portfolio/AbstractMockup';
@@ -255,6 +256,66 @@ export default async function ProjectCasePage({ params }: PageProps) {
           </div>
         </div>
       </header>
+
+      {/* ── Full-width hero screenshot (only when project.image is set) ── */}
+      {project.image && (
+        <section
+          aria-label={`${project.title} live store preview`}
+          style={{ width: '100%', padding: '0 1.5rem', marginBottom: '4rem' }}
+        >
+          <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                aspectRatio: '980 / 577',
+                maxHeight: '420px',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                border: `1px solid ${project.accentHex}25`,
+                boxShadow: `0 24px 70px ${project.accentHex}22`,
+              }}
+            >
+              <Image
+                src={project.image}
+                alt={`${project.title} live store screenshot`}
+                fill
+                priority
+                sizes="(max-width: 1100px) 100vw, 1100px"
+                style={{ objectFit: 'cover', objectPosition: 'top center' }}
+              />
+            </div>
+
+            {/* Visit Live Store CTA */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+              <a
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.8rem 1.75rem',
+                  borderRadius: '10px',
+                  background: project.accentHex,
+                  color: '#0A0A0C',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                  boxShadow: `0 6px 28px ${project.accentHex}50`,
+                  letterSpacing: '0.01em',
+                }}
+              >
+                Visit Live Store
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <path d="M2 12L12 2M4 2h8v8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Main Content ─────────────────────────────────────────── */}
       <main style={{ maxWidth: '900px', margin: '0 auto', padding: '0 1.5rem 6rem' }}>

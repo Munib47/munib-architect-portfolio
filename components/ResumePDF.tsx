@@ -228,7 +228,7 @@ const s = StyleSheet.create({
 
 // ── Static data ────────────────────────────────────────────────────
 const HIGHLIGHTS = [
-  '26 Live Projects Delivered',
+  '27 Live Projects Delivered',
   'Shopify + GoHighLevel Expert',
   '4+ Years of Experience',
   'React / Next.js / Three.js',
@@ -271,7 +271,7 @@ export function ResumePDF() {
             Senior Frontend Engineer with 4+ years of expertise building high-performance digital
             experiences. Specialized in Shopify Liquid theme development, GoHighLevel funnel
             architecture, and modern React ecosystems — including Next.js, Three.js, and GSAP
-            animation systems. Delivered 26 live projects spanning e-commerce storefronts, CRM
+            animation systems. Delivered 27 live projects spanning e-commerce storefronts, CRM
             automation workflows, and conversion-optimized landing experiences for clients across
             Pakistan, USA, UAE, and the UK.
           </Text>
@@ -293,7 +293,7 @@ export function ResumePDF() {
         {/* ── Selected Projects ── */}
         <View style={s.section}>
           <Text style={s.sectionTitle}>
-            Selected Projects — 6 of 26 Live Deployments
+            Selected Projects — 6 of 27 Live Deployments
           </Text>
           <View style={s.projectsGrid}>
 
@@ -334,7 +334,7 @@ export function ResumePDF() {
           {/* Overflow note */}
           <View style={s.moreNote}>
             <Text style={s.moreNoteText}>
-              + 20 additional live projects — full portfolio available online
+              + 21 additional live projects — full portfolio available online
             </Text>
           </View>
         </View>

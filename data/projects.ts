@@ -9,6 +9,7 @@ export interface Project {
   role: string;
   description: string;
   tags: string[];
+  image?: string; // optional local hero screenshot, e.g. /images/projects/<slug>.jpg
   gradientFrom: string;
   gradientVia: string;
   gradientTo: string;
@@ -27,6 +28,7 @@ export const projects: Project[] = [
     description:
       'Advanced theme customization and regional performance optimization for a premium fashion retail brand. Configured complex regional variants, fast AJAX cart drawer mechanics, and local payment portal logic.',
     tags: ['Shopify', 'Liquid', 'AJAX Cart', 'Dawn', 'Regional Variants'],
+    image: '/images/projects/image-1993-pk.jpg',
     gradientFrom: '#1a0a1a',
     gradientVia: '#2d1030',
     gradientTo: '#0f0a1a',
@@ -42,6 +44,7 @@ export const projects: Project[] = [
     description:
       'Managed the localized US storefront deployment. Optimized cross-border CDN delivery, international shipping matrix integrations, and automated conversion workflows tailored for the North American market.',
     tags: ['Shopify', 'CDN Optimization', 'Multi-Currency', 'US Market'],
+    image: '/images/projects/image-1993.jpg',
     gradientFrom: '#0a0a1f',
     gradientVia: '#0e1a3d',
     gradientTo: '#0a1020',
@@ -57,6 +60,7 @@ export const projects: Project[] = [
     description:
       'Built and tuned the UK regional instance. Handled localized VAT calculation logic setups, multi-currency display formatting, and optimized rendering of high-resolution clothing lookbooks.',
     tags: ['Shopify', 'VAT Logic', 'Multi-Currency', 'Lookbook', 'UK Market'],
+    image: '/images/projects/image-1993-uk.jpg',
     gradientFrom: '#0f0a14',
     gradientVia: '#1f0a2a',
     gradientTo: '#0a0f14',
@@ -72,6 +76,7 @@ export const projects: Project[] = [
     description:
       'Custom Shopify storefront implementation using Liquid template engineering. Focused on local asset compression, structural speed configurations, and checkout Conversion Rate Optimization (CRO).',
     tags: ['Shopify', 'Liquid', 'CRO', 'Speed Optimization', 'Checkout'],
+    image: '/images/projects/panjnad.jpg',
     gradientFrom: '#0f1a0a',
     gradientVia: '#1a2f0a',
     gradientTo: '#0a1408',
@@ -87,6 +92,7 @@ export const projects: Project[] = [
     description:
       'Engineered an international e-commerce clothing storefront with modular product templates, global multi-currency integration, and high-performance collection filters.',
     tags: ['Shopify', 'International', 'Multi-Currency', 'Collection Filters'],
+    image: '/images/projects/saya-usa.jpg',
     gradientFrom: '#1a0f0a',
     gradientVia: '#2d1a10',
     gradientTo: '#140f0a',
@@ -102,6 +108,7 @@ export const projects: Project[] = [
     description:
       'Developed a minimal, high-end luxury streetwear apparel brand storefront. Built bespoke grid product layouts and integrated clean, editorial micro-interactions.',
     tags: ['Shopify', 'Luxury Brand', 'Micro-Interactions', 'Editorial Grid'],
+    image: '/images/projects/silent-luxury.jpg',
     gradientFrom: '#0f0f0f',
     gradientVia: '#1a1a1a',
     gradientTo: '#0a0a0a',
@@ -117,6 +124,7 @@ export const projects: Project[] = [
     description:
       'Scaled a cross-border boutique fashion catalog on Shopify, implementing dynamic size guides, cart drawers, and custom AJAX add-to-cart workflows.',
     tags: ['Shopify', 'Cross-Border', 'AJAX', 'Size Guide', 'Cart Drawer'],
+    image: '/images/projects/vera.jpg',
     gradientFrom: '#1a0a12',
     gradientVia: '#2d1020',
     gradientTo: '#140a0f',
@@ -132,6 +140,7 @@ export const projects: Project[] = [
     description:
       'Developed a trusted healthcare and wellness marketplace storefront. Engineered custom trust badge sections, detailed ingredient list accordions, and fully compliant checkout portals.',
     tags: ['Shopify', 'Healthcare', 'Trust Badges', 'Compliance', 'Wellness'],
+    image: '/images/projects/route2health.jpg',
     gradientFrom: '#0a1a12',
     gradientVia: '#0f2d1e',
     gradientTo: '#0a1510',
@@ -147,6 +156,7 @@ export const projects: Project[] = [
     description:
       'Frontend architecture and speed tuning for a massive, high-traffic consumer electronics store. Optimized Core Web Vitals, specifically targeting Largest Contentful Paint (LCP) and eliminating layout shifts.',
     tags: ['Shopify', 'Core Web Vitals', 'LCP', 'Electronics', 'High Traffic'],
+    image: '/images/projects/mistore.jpg',
     gradientFrom: '#0a0f1a',
     gradientVia: '#0f1a2d',
     gradientTo: '#0a0f18',
@@ -162,6 +172,7 @@ export const projects: Project[] = [
     description:
       'Developed a premium evening and party-wear gown boutique layout. Configured cinematic high-definition product lookbooks and interactive variant selectors.',
     tags: ['Shopify', 'Fashion', 'Lookbook', 'Variant Selectors', 'Boutique'],
+    image: '/images/projects/summat.jpg',
     gradientFrom: '#1a0a0f',
     gradientVia: '#2d1018',
     gradientTo: '#140a0c',
@@ -177,6 +188,7 @@ export const projects: Project[] = [
     description:
       'Customized an elegant storefront for a historic, high-end 145-year-old luxury leather goods manufacturer. Built custom gold-foiling and embossing preview logic fields on product forms.',
     tags: ['Shopify', 'Luxury Leather', 'Custom Forms', 'Heritage Brand', 'Gold Foil'],
+    image: '/images/projects/jaffer-jees-world.jpg',
     gradientFrom: '#1a1200',
     gradientVia: '#2d1f00',
     gradientTo: '#141000',
@@ -192,6 +204,7 @@ export const projects: Project[] = [
     description:
       'Programmed a heavy-duty tactical and protective gear e-commerce store with structured security spec matrices, durable UI grids, and high-volume wholesale checkout logic.',
     tags: ['Shopify', 'Tactical Gear', 'Spec Matrix', 'Wholesale', 'B2B'],
+    image: '/images/projects/easy-armour.jpg',
     gradientFrom: '#0a120a',
     gradientVia: '#0f1e0f',
     gradientTo: '#0a100a',
@@ -207,6 +220,7 @@ export const projects: Project[] = [
     description:
       'Performance architecture for a world-renowned luxury fashion label. Optimized render-blocking script behavior, lazy-loaded heavy banner structures, and handled complex third-party marketing integrations like Klaviyo without dropping storefront loading speeds.',
     tags: ['Shopify', 'Performance', 'Klaviyo', 'Luxury Fashion', 'Script Optimization'],
+    image: '/images/projects/afrozeh.jpg',
     gradientFrom: '#1a0f1a',
     gradientVia: '#281428',
     gradientTo: '#120f14',
@@ -222,6 +236,7 @@ export const projects: Project[] = [
     description:
       'Custom regional e-commerce storefront development. Designed intuitive RTL (Right-to-Left) multi-lingual layout handling, customized collection structures, and localized shipping API configurations.',
     tags: ['Shopify', 'RTL', 'Arabic', 'Multi-lingual', 'Shipping API'],
+    image: '/images/projects/qoffah.jpg',
     gradientFrom: '#1a0a00',
     gradientVia: '#2d1800',
     gradientTo: '#140f00',
@@ -231,12 +246,13 @@ export const projects: Project[] = [
     id: 15,
     slug: 'mercer-retail',
     title: 'Mercer Retail',
-    url: 'https://mercer-retail.com/',
+    url: 'https://www.mercerretail.com',
     category: 'shopify',
     role: 'Multi-Brand Retail Architect',
     description:
       'Full multi-brand retail store setup and schema architecture. Built flexible homepage sections mapping out interactive lookbooks, product grids, and automated inventory sync behaviors.',
     tags: ['Shopify', 'Multi-Brand', 'Schema', 'Lookbook', 'Inventory Sync'],
+    image: '/images/projects/mercer.jpg',
     gradientFrom: '#0a0a14',
     gradientVia: '#10102a',
     gradientTo: '#0a0a10',
@@ -252,6 +268,7 @@ export const projects: Project[] = [
     description:
       'Built a vibrant, bespoke apparel e-commerce site featuring customized collection carousels, responsive modern filters, and an optimized sticky cart interface.',
     tags: ['Shopify', 'Carousels', 'Responsive Filters', 'Sticky Cart', 'Apparel'],
+    image: '/images/projects/mizyan.jpg',
     gradientFrom: '#1a0a14',
     gradientVia: '#2d1020',
     gradientTo: '#140a10',
@@ -267,10 +284,27 @@ export const projects: Project[] = [
     description:
       'Developed an organic skin and beauty care store. Designed a crisp, green-and-neutral clean aesthetic matching organic product ingredients with transparent reviews and high-speed page loads.',
     tags: ['Shopify', 'Organic Beauty', 'Green Aesthetic', 'Reviews', 'Speed'],
+    image: '/images/projects/north-naturals.jpg',
     gradientFrom: '#061206',
     gradientVia: '#0a1e0a',
     gradientTo: '#06100a',
     accentHex: '#4ade80',
+  },
+  {
+    id: 27,
+    slug: 'shoestreet',
+    title: 'Shoestreet',
+    url: 'https://shoestreet.pk',
+    category: 'shopify',
+    role: 'Footwear E-Commerce Developer',
+    description:
+      'Built a fast, conversion-focused footwear storefront on Shopify. Engineered responsive collection grids, size/variant selectors, and a streamlined mobile checkout flow tuned for local market shoppers.',
+    tags: ['Shopify', 'Liquid', 'Footwear', 'Variant Selectors', 'Mobile Checkout'],
+    image: '/images/projects/shoestreet.jpg',
+    gradientFrom: '#14100a',
+    gradientVia: '#241a0f',
+    gradientTo: '#100c08',
+    accentHex: '#f59e0b',
   },
   // ── Category B: GHL ───────────────────────────────────────────
   {

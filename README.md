@@ -1,8 +1,8 @@
 # Munib Ahmad — Portfolio
 
 A premium, animated developer portfolio for **Munib Ahmad** — Frontend Architect, Shopify
-theme engineer, and GoHighLevel automation specialist. Showcases **26 live projects**
-(17 Shopify storefronts + 9 GoHighLevel funnels) with a 3D particle background, GSAP
+theme engineer, and GoHighLevel automation specialist. Showcases **27 live projects**
+(18 Shopify storefronts + 9 GoHighLevel funnels) with a 3D particle background, GSAP
 motion, per-project case-study pages, and a working contact form.
 
 > **Status:** Active build. `tsc --noEmit` **and** `next build` both pass clean.
@@ -69,7 +69,8 @@ app/
   layout.tsx              # Metadata, Google Fonts, AOSProvider
   page.tsx                # Home — composes all sections (<main> is overflow-x: clip)
   globals.css             # Tailwind v4 config + animations + design tokens + overflow guards
-  projects/[id]/page.tsx  # Dynamic per-project case-study pages (SSG via generateStaticParams)
+  projects/[id]/page.tsx  # Dynamic per-project case-study pages (SSG via generateStaticParams);
+                          #   full-width hero screenshot + "Visit Live Store" CTA when project.image is set
   api/contact/route.ts    # POST contact endpoint — validates, returns JSON, email TODO
 
 components/
@@ -84,8 +85,8 @@ components/
   Skills.tsx                  # Per-element animated skill bars (reduced-motion safe) + badges
   Portfolio/
     index.tsx                 # GSAP filter transitions, 3-column project grid
-    ProjectCard.tsx           # Card linking to /projects/[slug]
-    AbstractMockup.tsx        # Generated SVG/gradient "screenshot" per project
+    ProjectCard.tsx           # Card → /projects/[slug]; renders project.image screenshot, else AbstractMockup
+    AbstractMockup.tsx        # Generated SVG/gradient "screenshot" — fallback when a project has no image
     ExperienceTimeline.tsx    # Work-history timeline + fixed back-to-top button
   SwiperShowcase.tsx          # EffectCreative slider — 6 featured projects
   Contact.tsx                 # Controlled form → POST /api/contact + contact link cards
@@ -95,7 +96,7 @@ components/
   ResumePDF.tsx               # ⚠️ Unused — legacy résumé version
 
 data/
-  projects.ts             # All 26 projects (slug, url, tags, gradients, accent colors)
+  projects.ts             # All 27 projects (slug, url, tags, gradients, accents, optional hero image)
   skills.ts               # Skill groups + tech badge cloud
   experience.ts           # Work history (feeds timeline)
 
@@ -103,6 +104,7 @@ types/
   resume.ts               # WorkExperience / ResumeRole types
 
 public/images/            # profile photos + 2 category images (shopify.webp, ghl.jpg)
+  projects/               # 18 real Shopify hero screenshots (JPEG, served locally; referenced by data → image)
 ```
 
 ---
@@ -113,9 +115,24 @@ The fixed full-viewport background is a **3D Three.js point cloud**
 ([ThreeBackground.tsx](components/ThreeBackground.tsx)), loaded client-only via
 [ThreeBackgroundWrapper.tsx](components/ThreeBackgroundWrapper.tsx). It's a `THREE.Points`
 cloud built from a `BufferGeometry` of N vertices spread across a 3D volume (40 × 30 × 24).
-Depth is felt three ways: `sizeAttenuation` (nearer points render larger), slow
-auto-rotation, and **pointer-driven parallax** — the cloud sits in a `THREE.Group` that
-tilts toward the cursor while the camera pans, so near points swing more than far ones.
+Depth is felt several ways: `sizeAttenuation` (nearer points render larger), slow
+auto-rotation, **pointer-driven parallax** (the cloud sits in a `THREE.Group` that tilts
+toward the cursor while the camera pans, so near points swing more than far ones), and —
+the newest layer — **per-particle 3D orbital motion**.
+
+### Per-particle orbital motion
+Each dot orbits its **own fixed anchor** along a smooth 3D elliptical path inside its **own
+randomly-tilted plane** (an orthonormal basis `u, v` derived from a random normal), with a
+per-particle radius, signed angular speed (random direction), and phase. Radius, speed, and
+orbital plane are all randomized, so the field reads as organic per-particle depth motion —
+not a uniform spinning ring, and not just a drifting group. This **replaced** the previous
+subtle linear drift; anchors keep the cloud's overall shape while every dot visibly orbits.
+
+It **composes with the cursor parallax**: orbital motion writes to the geometry's position
+buffer (local space) while parallax tilts the parent `Group` and pans the camera — so you
+feel both at once (dots orbiting *and* the whole field leaning toward the cursor). All
+position updates **mutate the existing typed array in place** + `needsUpdate` — no per-frame
+allocation, no geometry recreation.
 
 ### Tunable constants
 All live at the top of [ThreeBackground.tsx](components/ThreeBackground.tsx) as named,
@@ -123,43 +140,63 @@ commented module constants:
 
 | Constant | Value | Role |
 | --- | --- | --- |
-| `EASING` | `0.18` | Cursor-follow lerp factor — higher tracks the pointer faster (was `0.025`, the source of the old sluggishness). |
-| `DRIFT_SPEED` | `0.006` | Autonomous movement — per-particle drift + auto-rotation speed (was `0.004`). |
-| `MOUSE_RADIUS` | `0.5` | Pointer interaction reach, normalized to half the viewport (smaller = full strength nearer centre). |
+| `EASING` | `0.18` | Cursor-follow lerp factor — higher tracks the pointer faster. |
+| `DRIFT_SPEED` | `0.006` | Slow auto-rotation speed of the whole cloud. |
+| `MOUSE_RADIUS` | `0.5` | Pointer interaction reach, normalized to half the viewport. |
 | `MOUSE_FORCE` | `0.6` | Parallax strength — camera-pan + cloud-tilt amplitude. |
 | `PARTICLE_COUNT` | `2200` | Desktop base count; scaled down per device at runtime. |
+| `ORBIT_SPEED` | `0.012` | Base per-particle angular velocity (radians per frame). |
+| `ORBIT_RADIUS` | `1.0` | Base orbit size in world units. |
+| `ORBIT_RADIUS_VARIANCE` | `0.6` | Per-particle randomness in orbit radius (0..1 fraction). |
+| `ORBIT_SPEED_VARIANCE` | `0.6` | Per-particle randomness in angular speed (0..1 fraction). |
 
-### Performance guards (all required, all present)
+### Performance guards (all required, all present — unchanged by the orbital feature)
 - **Dynamic import, `ssr:false`** — the wrapper defers Three.js entirely, so it never blocks first paint.
 - **Fewer particles on mobile/touch/low-DPR** — `pointer: coarse` + `devicePixelRatio < 1.5` + small viewport drop the count to ~30% of base (~660); the 768–1279px tier uses ~68% (~1500).
 - **Pixel-ratio cap** — `renderer.setPixelRatio(Math.min(dpr, 1.5–2))`.
 - **Off-screen / hidden-tab pause** — an `IntersectionObserver` and `visibilitychange` gate the rAF loop; it only runs when on-screen *and* the tab is visible.
-- **Reduced-motion fallback** — `prefers-reduced-motion: reduce` returns early before any WebGL is created; the div's CSS gradient is the static fallback.
-- **Disposal** — geometry, material, texture, and renderer are disposed and all listeners/observers removed on unmount (no WebGL context leaks).
+- **Reduced-motion fallback** — `prefers-reduced-motion: reduce` returns early before any WebGL is created, so **orbital motion is fully disabled** and the div's CSS gradient is the static fallback.
+- **Disposal** — geometry, material, texture, and renderer are disposed and all listeners/observers removed on unmount (no WebGL context leaks). The per-particle orbital state is plain typed arrays, GC'd with the effect — no extra GPU resources.
 
 ### Dependencies
 **None added** — reuses the `three` already in the project (no `@react-three/fiber`/`drei`).
+(The brief referenced R3F, but the component is hand-rolled imperative Three.js.)
 
 ### Measured numbers
-> ⚠️ Frame-rate and Lighthouse can't be captured in the headless build environment used to
-> author these changes — run them locally with the snippets below. The values are reasoned,
-> not fabricated:
+> ⚠️ Frame-rate / Lighthouse can't be captured in the headless environment used to author
+> these changes — measure locally with the snippet below. Values are reasoned, not fabricated:
 
-| Metric | Before | After | Notes |
+| Metric | Before (drift) | After (orbital) | Notes |
 | --- | --- | --- | --- |
-| Cursor-follow lerp | `0.025` | `0.18` | ~7× snappier; settles in <0.1s vs ~2s. |
-| Desktop frame rate | ~60fps target | unchanged by construction | Stage 1 changed only multiply constants (identical per-frame work). Stage 2 keeps the desktop count (2200) and adds only 4 eased lerps + a `lookAt` per frame — negligible. |
-| First paint (FCP) | ~5.8s (QA report) | not regressed | Background is `ssr:false` (off the critical path); same/fewer particles than before. |
+| Per-frame work / dot | ~3 adds + 6 compares | ~9 mul + 6 add + 2 trig | Added cost is dominated by 2 `Math.cos/sin` per dot — ~0.3–0.5ms total for 2200 dots, well within the 16.6ms / 60fps budget. |
+| Desktop frame rate | ~60fps | ~60fps (expected) | Same particle count, same single `render()` call. If your measurement dips below ~60fps, lower `PARTICLE_COUNT` first (tell me and I'll tune) rather than shipping janky motion. |
 
-Confirm locally:
-```bash
-# Frame rate — paste in DevTools console:
+Confirm locally — paste in the DevTools console:
+```js
 let f=0,t=performance.now();(function l(n){f++;if(n-t>=1000){console.log('fps',f);f=0;t=n}requestAnimationFrame(l)})(t);
-
-# Lighthouse performance:
-npm run build && npm run start
-npx -y lighthouse http://localhost:3000 --only-categories=performance --view
 ```
+
+---
+
+## 🖼️ Project Hero Screenshots
+
+Each **Shopify** project carries an optional `image` field on the `Project` type
+([data/projects.ts](data/projects.ts)) pointing at a locally-served hero screenshot in
+[public/images/projects/](public/images/projects/). All **18 Shopify** storefronts are
+wired; the **9 GoHighLevel** funnels have no `image` and fall back to `AbstractMockup`.
+
+- **Served locally, never hot-linked.** Screenshots live in the repo at
+  `public/images/projects/<name>.jpg` and render through `next/image`. Source files arrived
+  as JPEG, so they're stored as `.jpg` even though the originals were named `.png` — this
+  keeps the served `Content-Type` correct.
+- **Cards** ([ProjectCard.tsx](components/Portfolio/ProjectCard.tsx)) prefer `project.image`,
+  then a title-derived `/images/portfolio/<slug>.jpg`, then `AbstractMockup` via `onError` —
+  so a project without a screenshot is never broken (`object-fit: cover`, lazy except the
+  first row).
+- **Case-study pages** ([projects/[id]/page.tsx](app/projects/[id]/page.tsx)) open with a
+  full-width hero screenshot (`object-position: top` to show the first fold) and a prominent
+  **"Visit Live Store"** button (new tab, `rel="noopener noreferrer"`) when `image` is set.
+  The overview keeps the decorative `AbstractMockup` browser frame.
 
 ---
 
@@ -174,13 +211,15 @@ npx -y lighthouse http://localhost:3000 --only-categories=performance --view
 - [x] **Contact** section (working form + link cards) and branded **Footer**.
 
 ### Per-Project Case Studies
-- [x] Dynamic route `/projects/[id]` statically generated for all 26 projects via `generateStaticParams`.
+- [x] Dynamic route `/projects/[id]` statically generated for all 27 projects via `generateStaticParams`.
 - [x] Per-project `generateMetadata` (title, description, OpenGraph).
 - [x] Hero, overview, derived feature bullets, full tech-stack tags, prev/next navigation, CTA.
-- [x] `AbstractMockup` generates a unique gradient "browser preview" per project.
+- [x] **Real hero screenshots** — all 18 Shopify case-study pages open with a full-width hero screenshot and a "Visit Live Store" button (gated on `project.image`); the 9 GoHighLevel pages keep the generated `AbstractMockup`.
+- [x] `AbstractMockup` generates a unique gradient "browser preview" per project (fallback when no `image` is set).
 
 ### Data & Content
-- [x] All 26 projects modeled in [data/projects.ts](data/projects.ts) with slugs, live URLs, roles, tags, and per-project gradient/accent tokens.
+- [x] All 27 projects modeled in [data/projects.ts](data/projects.ts) with slugs, live URLs, roles, tags, and per-project gradient/accent tokens.
+- [x] Optional `image` field on the `Project` type — **18 Shopify projects wired to real hero screenshots** in [public/images/projects/](public/images/projects/), consumed by both the cards and the case-study pages (with `AbstractMockup` as the fallback).
 - [x] Skills ([data/skills.ts](data/skills.ts)) and work experience ([data/experience.ts](data/experience.ts)) centralized.
 
 ### Foundation
@@ -228,12 +267,12 @@ the contact API was exercised live (200 / 422 / 405).
 - [ ] Audit duplicated design tokens — colors are redeclared per-file as inline hex; consider centralizing.
 
 ### 🟠 Content & Assets
-- [ ] Replace `AbstractMockup` placeholders with **real project screenshots** (or OG thumbnails).
+- [x] ~~Replace `AbstractMockup` placeholders with **real project screenshots**~~ — done for all **18 Shopify** projects ([public/images/projects/](public/images/projects/)). The **9 GoHighLevel** funnels still use `AbstractMockup` — add their screenshots next.
 - [ ] Add a proper **OpenGraph / Twitter share image** (currently OG has no `images`).
-- [ ] Verify all 26 project URLs, roles, and descriptions are accurate and up to date.
+- [ ] Verify all 27 project URLs, roles, and descriptions are accurate and up to date.
 
 ### 🟡 SEO & Performance
-- [ ] Add `sitemap.ts` and `robots.ts` (App Router conventions) — important for 26 indexable case-study pages.
+- [ ] Add `sitemap.ts` and `robots.ts` (App Router conventions) — important for 27 indexable case-study pages.
 - [ ] Add JSON-LD structured data (`Person` / `CreativeWork`).
 - [ ] **Confirm the Lighthouse number** — run `npx lighthouse http://localhost:3000 --only-categories=performance` after `npm run build && npm run start`. (Before this pass: FCP ~5.8s reported; the perf fixes target < 2s but the score still needs a real headless run.)
 

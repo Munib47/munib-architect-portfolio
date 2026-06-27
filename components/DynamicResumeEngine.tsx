@@ -25,7 +25,7 @@ const GB = '#A7F3D0';
 const WH = '#FFFFFF';
 
 const HIGHLIGHTS = [
-  '26 Live Projects Delivered',
+  '27 Live Projects Delivered',
   'Shopify + GoHighLevel Expert',
   '4+ Years of Experience',
   'React / Next.js / Three.js',
@@ -401,7 +401,7 @@ export function DynamicResumeEngine({ profileImageUrl }: Props) {
                 Senior Frontend Engineer with 4+ years building high-performance digital
                 experiences. Expert in Shopify Liquid theme engineering, GoHighLevel funnel
                 architecture, and modern React ecosystems — Next.js, Three.js, and GSAP animation
-                systems. 26 live deployments across Pakistan, USA, UAE, and the UK.
+                systems. 27 live deployments across Pakistan, USA, UAE, and the UK.
               </Text>
             </View>
 
