@@ -15,6 +15,24 @@ const FOOTER_LINK_STYLE: React.CSSProperties = {
   letterSpacing: '0.03em',
 };
 
+/*
+ * Root-relative, not bare fragments — the footer renders on /projects and on
+ * all 27 case studies, where "#about" would resolve against the current page
+ * and go nowhere.
+ */
+const SECTION_LINKS = [
+  { href: '/',            label: 'Home'       },
+  { href: '/#about',      label: 'About'      },
+  { href: '/#skills',     label: 'Skills'     },
+  { href: '/#portfolio',  label: 'Portfolio'  },
+  { href: '/#experience', label: 'Experience' },
+  { href: '/#showcase',   label: 'Showcase'   },
+  // /projects is deliberately absent here — it already has its own button in
+  // the links row below, and pointing at the same URL twice in one footer is
+  // noise, not an extra signal.
+  { href: '/#contact',    label: 'Contact'    },
+];
+
 const SOCIAL_LINKS = [
   { href: 'https://github.com/Munib47/',                        label: 'GitHub'   },
   { href: 'https://www.linkedin.com/in/munib-ahmad-294524237', label: 'LinkedIn' },
@@ -44,6 +62,49 @@ export default function Footer() {
           gap: '1rem',
         }}
       >
+        {/*
+          * Footer section nav.
+          *
+          * Standard practice, and the single highest-leverage internal-linking
+          * change available: the footer renders on all 29 routes, so every
+          * case study now carries a link to each homepage section instead of
+          * dead-ending. It is also what tips the homepage's internal/external
+          * link ratio, which was 38/55 against — the 27 "Visit Live Site"
+          * buttons and the social/mailto links are all outbound by nature, so
+          * the balance has to come from somewhere.
+          */}
+        <nav
+          aria-label="Footer"
+          style={{
+            width: '100%',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '0.35rem 1.25rem',
+            paddingBottom: '1.75rem',
+            marginBottom: '1.75rem',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          {SECTION_LINKS.map((s) => (
+            <Link
+              key={s.href}
+              href={s.href}
+              style={{
+                fontSize: '13px',
+                fontWeight: 500,
+                color: '#8892A4',
+                textDecoration: 'none',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#10B981'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#8892A4'; }}
+            >
+              {s.label}
+            </Link>
+          ))}
+        </nav>
+
         {/* Logo / name — circular avatar matching nav style */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <span

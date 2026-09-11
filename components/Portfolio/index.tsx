@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { projects, type Category } from '@/data/projects';
 import ProjectCard from './ProjectCard';
@@ -251,35 +252,69 @@ export default function Portfolio() {
             Each project is live and deployed. View them in production or{' '}
             <strong style={{ color: '#ffffff' }}>reach out to discuss your next build.</strong>
           </p>
-          <a
-            href="mailto:munibahmad47@gmail.com"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.7rem 1.6rem',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, #10B981, #06B6D4)',
-              color: '#0A0A0C',
-              fontWeight: 700,
-              fontSize: '14px',
-              textDecoration: 'none',
-              boxShadow: '0 4px 20px rgba(16,185,129,0.3)',
-              transition: 'transform 0.2s, box-shadow 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.transform = 'translateY(-2px)';
-              el.style.boxShadow = '0 8px 28px rgba(16,185,129,0.45)';
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.transform = 'none';
-              el.style.boxShadow = '0 4px 20px rgba(16,185,129,0.3)';
-            }}
-          >
-            Start a Project →
-          </a>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+            <a
+              href="mailto:munibahmad47@gmail.com"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.7rem 1.6rem',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #10B981, #06B6D4)',
+                color: '#0A0A0C',
+                fontWeight: 700,
+                fontSize: '14px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 20px rgba(16,185,129,0.3)',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.transform = 'translateY(-2px)';
+                el.style.boxShadow = '0 8px 28px rgba(16,185,129,0.45)';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.transform = 'none';
+                el.style.boxShadow = '0 4px 20px rgba(16,185,129,0.3)';
+              }}
+            >
+              Start a Project →
+            </a>
+
+            {/* The grid is filterable but not paginated or sortable; the hub
+                is the browsable index, and this was the only section of the
+                homepage with no link to it. */}
+            <Link
+              href="/projects"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.7rem 1.6rem',
+                borderRadius: '10px',
+                border: '1px solid rgba(16,185,129,0.3)',
+                color: '#ffffff',
+                fontWeight: 600,
+                fontSize: '14px',
+                textDecoration: 'none',
+                transition: 'background 0.2s, border-color 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = 'rgba(16,185,129,0.08)';
+                el.style.borderColor = 'rgba(16,185,129,0.6)';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = 'transparent';
+                el.style.borderColor = 'rgba(16,185,129,0.3)';
+              }}
+            >
+              Browse all {projects.length} case studies
+            </Link>
+          </div>
         </div>
       </div>
     </section>

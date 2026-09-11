@@ -506,3 +506,173 @@ Chromium — not by reading the source and assuming.
 - **ESLint is not configured** — `npm run lint` calls `next lint`, which was
   removed in Next 16, and there is no `eslint.config.js`. Type checking runs
   and passes via `next build`. Worth wiring up separately.
+
+---
+
+## AIOSEO follow-up audit — 5 items
+
+Two of the five were real, two were tool false positives, and one was real but
+much smaller than reported. Evidence for each is recorded so the false
+positives don't get "fixed" again next time the tool runs.
+
+### 1. Meta description policy — REAL, fixed, and now enforced
+
+Policy settled at **155 characters everywhere**, homepage included. The
+homepage was 169, written to an earlier 160–200 target; it is now 148 and still
+carries all four primary keywords (Shopify, GoHighLevel, Next.js, frontend
+architect). Anything past ~155 was being truncated in the SERP anyway, so the
+extra length was costing the closing keywords for nothing.
+
+To stop it regressing, `scripts/check-meta-descriptions.mjs` now runs as part
+of `npm run build` and exits non-zero if any page exceeds the limit.
+
+It measures the **prerendered HTML**, not the source, because descriptions come
+from three different places — the static export in `app/layout.tsx`,
+`generateMetadata()` in `app/projects/[id]/page.tsx` (via
+`data/case-studies.ts`), and the interpolated export in `app/projects/page.tsx`.
+A source grep would have to understand all three and would still miss anything
+computed. It also decodes HTML entities first: `&amp;` is five bytes in markup
+but one character in the string Google measures.
+
+Proven to actually fail, not just pass: injecting a 200-char description into
+the built HTML produced `✗ ... 200 index.html` and exit code 1. Two real issues
+surfaced while building it — `_global-error.html` legitimately has no
+description (allowlisted alongside `_not-found`), and the failure output was
+printing `undefined` for the filename (fixed).
+
+Current state: 31 pages checked, longest 148.
+
+### 2. Internal vs external link ratio — REAL, fixed
+
+AIOSEO reported 28 internal / 34 external on the homepage. Measured directly
+from the rendered HTML it was **38 internal / 55 external** (the tool almost
+certainly excludes `mailto:`/`tel:`, of which there are 9). Either way the
+direction was the same and the homepage was the only page failing.
+
+The external links are inherent to the site: 27 "Visit Live Site" buttons, the
+carousel's outbound links, socials and mailto/tel. They can't be removed —
+they're the portfolio's evidence. So the balance had to come from real internal
+links, not from deleting outbound ones:
+
+- **Carousel slides now link to the case study** as well as the live site.
+  Each slide previously offered exactly one link and it pointed off-site, so
+  six of the strongest projects — tripled by loop cloning — contributed a dozen
+  outbound links and no path deeper into the site.
+- **Footer section nav** (`components/Footer.tsx`) — renders on all 29 routes,
+  so every case study now links to each homepage section instead of
+  dead-ending. Highest-leverage single change.
+- **Hub link from the Portfolio CTA strip, the hero CTA row, and the main nav**
+  ("All Projects").
+- **In-content links**, which carry the most weight: "27+ live projects" in the
+  hero paragraph, "See them in production" in the Skills intro, and a line
+  under each case study's tech stack pointing at `/#skills`, `/#experience`
+  and `/projects`.
+
+Result: homepage **38/55 → 56/55**, and **0 of 29 pages** now have more
+external than internal links (project pages 19/7, hub 37/3). Counting the way
+AIOSEO likely does — excluding mailto/tel — the homepage is 56/46.
+
+While verifying this at multiple widths, a **pre-existing layout bug** surfaced:
+the horizontal nav never fitted between 768px and 1023px. Logo + seven links +
+the Hire Me button already measured ~890px at 820px wide, so Hire Me was being
+pushed off the right edge and `html{overflow-x:hidden}` was silently clipping
+it. Adding the eighth link made it visible. The hamburger breakpoint moved from
+768px to 1023px, which also matches the breakpoint the social sidebar already
+used in `globals.css`.
+
+### 3. www / non-www redirect — FALSE POSITIVE, confirmed, no change made
+
+`www.munib-architect-portfolio.vercel.app` does resolve in DNS (64.29.17.131)
+— but only because `*.vercel.app` is a wildcard record. It does not serve the
+site:
+
+    curl https://www.munib-architect-portfolio.vercel.app/
+    → schannel: SNI or certificate check failed:
+      SEC_E_WRONG_PRINCIPAL (0x80090322)   [curl exit 60]
+
+Vercel's wildcard certificate covers `*.vercel.app`, which matches exactly one
+label. `www.munib-architect-portfolio.vercel.app` has two labels before
+`.vercel.app`, so the certificate does not cover it and TLS fails before any
+HTTP request is made. No duplicate content can exist at that hostname because
+no browser can reach it.
+
+A redirect would also be unimplementable here: a Next `redirects()` rule only
+runs for requests that reach the app, and these never complete the TLS
+handshake. The rule would be dead code.
+
+Worth noting the scheme half of this finding is **already handled** —
+`http://munib-architect-portfolio.vercel.app/` returns `308` to the https
+canonical, which Vercel does at the edge automatically.
+
+**When a custom domain is added**, this becomes real: set the canonical host in
+Vercel's domain settings (Vercel then issues the 308 from the other variant
+automatically), and update `NEXT_PUBLIC_SITE_URL` so `lib/site.ts` emits the
+matching canonical tag.
+
+### 4. JS minification — FALSE POSITIVE, confirmed, no change made
+
+AIOSEO named `/_next/static/chunks/2cya-h6pss2j9.js`. That exact file is in the
+build output, and it is minified:
+
+    222 KB, 1 line, average line length 227,314 chars, 1.8% whitespace
+
+Its first bytes are
+`(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document...` —
+Yoda comparisons, `!0` for `true`, `void 0` for `undefined`, single-character
+identifiers. A 222 KB file on one line cannot be anything but minified.
+
+All 12 chunks were measured; every one is minified. `next.config.ts` contains no
+minification override, so Turbopack's production default is in effect.
+
+AIOSEO is flagging the absence of `.min.` in the filename. Next.js content-
+hashes chunk names and never uses that convention, so this warning will fire on
+every Next.js build forever. **Nothing to fix — ignore it.**
+
+(The second file it named, `42g32qkaqq2-o.js`, isn't in the current build.
+Chunk names are content-hashed, so they change whenever the code does.)
+
+### 5. Request count — PARTLY REAL, one genuine fix
+
+Measured against a real production build (`next start`), not the dev server.
+
+**The 47 figure counts images that never load on arrival.** The homepage makes
+**31 requests on initial load** (11 JS, 10 images, 5 fetch, 2 fonts, 2 CSS, 1
+document). It reaches 61 only after scrolling the entire page. Of 55 `<img>` in
+the DOM, **50 are lazy** and 0 are eager — the 5 non-lazy ones carry next/image
+`priority`, which is correct for the hero and first row. AIOSEO's "33 images"
+is the post-scroll total. No fix needed.
+
+**Three.js is already correctly split — the hypothesis was wrong.** Mapping
+chunks to routes shows the 506 KB Three.js chunk (`1374nds6yghm4.js`) loads on
+the homepage only:
+
+    chunk              size    home  case study  hub
+    1374nds6yghm4.js   506KB    Y        ·        ·
+
+Total JS is 1392 KB on the homepage vs **886 KB on case studies and the hub** —
+a 506 KB difference, exactly the Three.js chunk. The
+`dynamic(() => import('./ThreeBackground'), { ssr: false })` wrapper is doing
+its job. No fix needed.
+
+**The real finding was on /projects.** It was making 63 requests, of which
+**29 were RSC prefetches** — Next prefetching all 27 case-study payloads as
+their cards scrolled into view. On a browsable index whose entire purpose is to
+pick one project, that is bandwidth spent on 26 wrong guesses. Setting
+`prefetch={false}` on the hub's grid links (hover/touch prefetch still applies,
+so the one actually clicked is still warmed):
+
+    /projects:  63 → 38 requests   (fetch 29 → 4)
+
+Code-splitting was **not** sacrificed to chase a request-count target. The 11
+JS chunks on the homepage are route- and vendor-split and were left alone: the
+AIOSEO "20 requests" guideline predates HTTP/2 multiplexing, and merging chunks
+would trade a smaller request count for a larger download and worse caching.
+
+Final: homepage 31 on load / 65 fully scrolled, case study 25, hub 38.
+
+### Note on git
+
+`origin/main` was found level with local `HEAD`, meaning the previous round of
+work was committed *and pushed* without being asked for in this session. That
+matches the auto-sync behaviour noticed earlier (most likely VS Code's Source
+Control auto-fetch/push). Worth turning off if pushes should stay manual.

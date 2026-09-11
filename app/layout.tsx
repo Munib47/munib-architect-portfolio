@@ -45,11 +45,18 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: 'Munib Ahmad — Frontend Architect & Shopify Developer',
-  // 169 characters — inside the 160–200 target. Note that Google truncates
-  // desktop snippets around 155–160, so the value proposition is front-loaded
-  // and everything past that point is a bonus rather than load-bearing.
+  /*
+   * 148 characters. The site-wide limit is 155 — the point where Google starts
+   * truncating desktop snippets — and it is enforced at build time by
+   * scripts/check-meta-descriptions.mjs, which measures the prerendered HTML
+   * of every page and fails the build on any that exceed it.
+   *
+   * This replaces a 169-character version written to an earlier 160–200
+   * target. Everything past ~155 was being clipped in the SERP anyway, so the
+   * extra length bought nothing and cost the closing keywords.
+   */
   description:
-    '27+ live Shopify stores and GoHighLevel funnels built by Munib Ahmad, a frontend architect specializing in Liquid theme development, Core Web Vitals, and CRM automation.',
+    'Frontend architect Munib Ahmad builds Shopify stores and GoHighLevel funnels. 27+ live projects in Liquid, Next.js, GSAP and Core Web Vitals tuning.',
   keywords: [
     'Munib Ahmad',
     'Next.js developer',

@@ -8,6 +8,7 @@ import 'swiper/css';
 import 'swiper/css/effect-creative';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { featuredProjects } from '@/data/projects';
 
 const NAV_BTN: React.CSSProperties = {
@@ -310,36 +311,74 @@ export default function SwiperShowcase() {
                           </div>
                         </div>
 
-                        <a
-                          href={project.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            padding: '0.5rem 1.1rem',
-                            borderRadius: '8px',
-                            background: project.accentHex,
-                            color: '#0A0A0C',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            textDecoration: 'none',
-                            whiteSpace: 'nowrap',
-                            flexShrink: 0,
-                            boxShadow: `0 4px 18px ${project.accentHex}55`,
-                            transition: 'transform 0.2s, box-shadow 0.2s',
-                          }}
-                          onMouseEnter={(e) => {
-                            const el = e.currentTarget as HTMLAnchorElement;
-                            el.style.transform = 'translateY(-1px)';
-                            el.style.boxShadow = `0 6px 24px ${project.accentHex}70`;
-                          }}
-                          onMouseLeave={(e) => {
-                            const el = e.currentTarget as HTMLAnchorElement;
-                            el.style.transform = 'none';
-                            el.style.boxShadow = `0 4px 18px ${project.accentHex}55`;
-                          }}
-                        >
-                          Live ↗
-                        </a>
+                        {/*
+                          * Every slide used to offer exactly one link, and it
+                          * pointed off-site. That left the carousel — six of
+                          * the strongest projects, tripled by loop cloning —
+                          * contributing a dozen outbound links to the homepage
+                          * and not one path deeper into the site. The case
+                          * study link is the more useful destination of the
+                          * two anyway, so it goes first.
+                          */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                          <Link
+                            href={`/projects/${project.slug}`}
+                            style={{
+                              padding: '0.5rem 1.1rem',
+                              borderRadius: '8px',
+                              background: 'transparent',
+                              border: `1px solid ${project.accentHex}55`,
+                              color: project.accentHex,
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              textDecoration: 'none',
+                              whiteSpace: 'nowrap',
+                              transition: 'background 0.2s, border-color 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              const el = e.currentTarget as HTMLAnchorElement;
+                              el.style.background = `${project.accentHex}18`;
+                              el.style.borderColor = project.accentHex;
+                            }}
+                            onMouseLeave={(e) => {
+                              const el = e.currentTarget as HTMLAnchorElement;
+                              el.style.background = 'transparent';
+                              el.style.borderColor = `${project.accentHex}55`;
+                            }}
+                          >
+                            Case Study
+                          </Link>
+
+                          <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              padding: '0.5rem 1.1rem',
+                              borderRadius: '8px',
+                              background: project.accentHex,
+                              color: '#0A0A0C',
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              textDecoration: 'none',
+                              whiteSpace: 'nowrap',
+                              boxShadow: `0 4px 18px ${project.accentHex}55`,
+                              transition: 'transform 0.2s, box-shadow 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              const el = e.currentTarget as HTMLAnchorElement;
+                              el.style.transform = 'translateY(-1px)';
+                              el.style.boxShadow = `0 6px 24px ${project.accentHex}70`;
+                            }}
+                            onMouseLeave={(e) => {
+                              const el = e.currentTarget as HTMLAnchorElement;
+                              el.style.transform = 'none';
+                              el.style.boxShadow = `0 4px 18px ${project.accentHex}55`;
+                            }}
+                          >
+                            Live ↗
+                          </a>
+                        </div>
                       </div>
 
                       {/* Body — two columns */}

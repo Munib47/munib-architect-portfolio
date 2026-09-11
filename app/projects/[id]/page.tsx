@@ -722,6 +722,29 @@ export default async function ProjectCasePage({ params }: PageProps) {
               </span>
             ))}
           </div>
+
+          {/*
+            * Contextual links back into the homepage sections this build draws
+            * on. Case studies previously pointed outward (the live site) and
+            * sideways (prev/next) but never back up into the site's own
+            * topical sections, which is where a crawler establishes that the
+            * stack listed above is a claimed skill and not just a tag.
+            */}
+          <p style={{ fontSize: '13px', color: '#6B7A8D', lineHeight: 1.8, marginTop: '1.25rem' }}>
+            These are the tools behind this build — see the{' '}
+            <Link href="/#skills" style={{ color: '#10B981', textDecoration: 'none', fontWeight: 600 }}>
+              full skills breakdown
+            </Link>
+            , the{' '}
+            <Link href="/#experience" style={{ color: '#10B981', textDecoration: 'none', fontWeight: 600 }}>
+              work history behind them
+            </Link>
+            , or{' '}
+            <Link href="/projects" style={{ color: '#10B981', textDecoration: 'none', fontWeight: 600 }}>
+              all {projects.length} case studies
+            </Link>
+            .
+          </p>
         </div>
 
         {/* ── Related Projects ─────────────────────────────────── */}

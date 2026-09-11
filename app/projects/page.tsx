@@ -210,6 +210,19 @@ export default function ProjectsIndexPage() {
                     <li key={project.slug}>
                       <Link
                         href={`/projects/${project.slug}`}
+                        /*
+                         * Viewport prefetch off for the index grid.
+                         *
+                         * Next prefetches every <Link> that scrolls into view,
+                         * so this page was firing 27 RSC payload requests —
+                         * 29 of its 63 total — to preload case studies the
+                         * visitor will mostly not open. On a browsable index
+                         * where the whole point is to pick one, that is
+                         * bandwidth spent on 26 wrong guesses. Hover/touch
+                         * prefetch still applies, so the one they do pick is
+                         * still warmed before the click lands.
+                         */
+                        prefetch={false}
                         style={{
                           display: 'flex',
                           flexDirection: 'column',

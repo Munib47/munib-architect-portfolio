@@ -70,6 +70,15 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  /*
+   * Lets a production build be written somewhere other than `.next`, e.g.
+   *   NEXT_DIST_DIR=.next-prod next build
+   *   NEXT_DIST_DIR=.next-prod next start -p 3001
+   * so it can be measured while `next dev` keeps running on 3000. Building
+   * into the shared `.next` while the dev server is live pulls the directory
+   * out from under it and wedges the process.
+   */
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   images: {
     remotePatterns: [],
     formats: ['image/avif', 'image/webp'],

@@ -168,7 +168,9 @@ export default function Navigation() {
   }, [syncActive]);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
+    // Must match the .nav-desktop breakpoint below, or the mobile sheet can be
+    // left open behind a nav that has already switched to horizontal.
+    const onResize = () => { if (window.innerWidth >= 1024) setMenuOpen(false); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -381,6 +383,22 @@ export default function Navigation() {
                 </a>
               );
             })}
+
+            {/* A real route rather than a fragment, so it is the one nav entry
+                that deepens the crawl instead of scrolling the same document. */}
+            <Link
+              href="/projects"
+              className="filter-tab"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '0.5rem 0.9rem', fontSize: '14px', fontWeight: 400,
+                color: '#ffffff', transition: 'color 0.25s', letterSpacing: '0.02em',
+                fontFamily: 'var(--font-stack-body)',
+                textDecoration: 'none', whiteSpace: 'nowrap',
+              }}
+            >
+              All Projects
+            </Link>
           </nav>
 
           {/* ── Desktop CTA — Hire Me ── */}
@@ -673,11 +691,22 @@ export default function Navigation() {
           0%, 100% { opacity: 1; box-shadow: 0 0 8px #10B981; }
           50%       { opacity: 0.5; box-shadow: 0 0 4px #10B981; }
         }
-        @media (min-width: 768px) {
+        /*
+         * Hamburger up to 1023px, not 767px.
+         *
+         * The horizontal nav never actually fit in the 768–1023 band: the
+         * logo, seven links and the Hire Me button already measured ~890px at
+         * 820px wide, so Hire Me was being pushed clean off the right edge and
+         * html{overflow-x:hidden} was quietly clipping it rather than letting
+         * it scroll into view. Adding the "All Projects" link made it worse and
+         * surfaced it. 1024px also matches the breakpoint the social sidebar
+         * already uses in globals.css, so the two agree now.
+         */
+        @media (min-width: 1024px) {
           .nav-desktop { display: flex !important; }
           .nav-mobile  { display: none  !important; }
         }
-        @media (max-width: 767px) {
+        @media (max-width: 1023px) {
           .nav-desktop { display: none  !important; }
           .nav-mobile  { display: flex  !important; }
         }

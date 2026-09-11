@@ -361,7 +361,22 @@ export default function Skills() {
           </h2>
           <p style={{ color: '#ffffff', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
             A curated stack built through real-world delivery — from pixel-perfect storefronts
-            to high-converting automation pipelines.
+            to high-converting automation pipelines.{' '}
+            {/* Ties the claimed skills to the work that evidences them, which is
+                the pairing a crawler needs to connect the two sections. */}
+            <a
+              href="#portfolio"
+              style={{
+                color: '#10B981',
+                fontWeight: 600,
+                textDecoration: 'underline',
+                textUnderlineOffset: '3px',
+                textDecorationColor: 'rgba(16,185,129,0.4)',
+              }}
+            >
+              See them in production
+            </a>
+            .
           </p>
         </div>
 

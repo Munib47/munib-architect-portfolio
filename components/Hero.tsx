@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
+import Link from 'next/link';
 import { scrollToSection } from './Navigation';
 
 const TECH_BADGES = [
@@ -336,8 +337,22 @@ export default function Hero() {
             >
               BSCS graduate from the University of the Punjab, Lahore — building
               high-performance digital storefronts, premium landing funnels, and
-              cinematic web experiences. 27+ live projects across Shopify,
-              GoHighLevel, Next.js, and modern animation stacks.
+              cinematic web experiences.{' '}
+              {/* In-content link, which is the kind search engines weight most:
+                  real anchor text in a sentence, not another chrome button. */}
+              <Link
+                href="/projects"
+                style={{
+                  color: '#10B981',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '3px',
+                  textDecorationColor: 'rgba(16,185,129,0.4)',
+                  fontWeight: 600,
+                }}
+              >
+                27+ live projects
+              </Link>{' '}
+              across Shopify, GoHighLevel, Next.js, and modern animation stacks.
             </p>
 
             {/* Tech badges */}
@@ -455,6 +470,25 @@ export default function Hero() {
               >
                 Get In Touch
               </a>
+
+              <Link
+                href="/projects"
+                style={{
+                  padding: '0.8rem 0.5rem',
+                  color: '#8892A4',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  letterSpacing: '0.02em',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  transition: 'color 0.25s',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#10B981'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = '#8892A4'; }}
+              >
+                Browse case studies →
+              </Link>
             </div>
 
             {/* Stats row */}
