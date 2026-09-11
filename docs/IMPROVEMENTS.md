@@ -1,8 +1,9 @@
 # Improvement Recommendations
 
 Companion to [PROGRESS.md](./PROGRESS.md). Ordered roughly by impact-to-effort
-ratio, highest first. The three items you asked about directly — domain, email
-delivery, automation — are covered first in detail.
+ratio, highest first. Everything that's been *done* — including items that
+started here — moved to [FIXES.md](./FIXES.md) so this file stays a clean
+list of what's still outstanding.
 
 ---
 
@@ -55,41 +56,7 @@ ages badly if your focus shifts.
 
 ---
 
-## 2. Email delivery — recommended: wire up Resend
-
-`app/api/contact/route.ts` is scaffolded for this already but not connected —
-the real `sendEmail()` call to Resend is written out in full as a commented
-block, gated behind `process.env.RESEND_API_KEY`. Right now, without a key
-set, a submitted contact form just gets validated and logged server-side and
-returns success — **no email actually goes out.** That's the main functional
-gap in the site: a visitor filling out the contact form has no way to
-actually reach you through it yet.
-
-**To go live (not done yet — left for you to activate when ready):**
-1. Create a free account at [resend.com](https://resend.com) (100 emails/day, 3,000/month free — plenty for a portfolio contact form).
-2. Generate an API key: Dashboard → API Keys → Create.
-3. Uncomment the `fetch('https://api.resend.com/emails', ...)` block at the bottom of `app/api/contact/route.ts` (currently commented out under "Example Resend wiring").
-4. Locally: add a git-ignored `.env.local` with `RESEND_API_KEY=re_xxx`.
-5. On Vercel: Project → Settings → Environment Variables → add `RESEND_API_KEY` for Production (and Preview, if you want the contact form to send real mail from preview deploys too).
-6. Redeploy.
-
-**One thing to know about the default sender:** the code currently sends
-`from: 'Portfolio Contact <onboarding@resend.dev>'`. That's Resend's shared
-test address — it works instantly with zero setup, but **only delivers to the
-email address on your own Resend account**. That's fine for a personal
-contact form (mail lands in `munibahmad47@gmail.com`, hard-coded as the `to`
-address), so you can ship with zero further config.
-
-If you later want the "from" address to show your own domain (e.g.
-`contact@munibahmad.dev` instead of `onboarding@resend.dev`) — which also
-improves deliverability and avoids the mail ever landing in spam — verify that
-domain in Resend (Dashboard → Domains → Add), which is a few DNS TXT/CNAME
-records. Natural next step once you've done the domain move in §1, since
-you'll be touching DNS anyway.
-
----
-
-## 3. Automation — n8n vs Make.com
+## 2. Automation — n8n vs Make.com
 
 Right now, a contact-form submission does exactly one thing: sends you one
 email. Worth asking what else should happen automatically when someone
@@ -122,105 +89,49 @@ email" into "captures a lead reliably, with a record you can't lose."
 
 ---
 
-## 4. SEO — done (2026-09-11)
+## 3. SEO — still open
 
-**First pass:**
-- ✅ `app/sitemap.ts` and `app/robots.ts` added — 27 case-study pages + home page are now all indexable, sourced live from `data/projects.ts`.
-- ✅ `metadataBase` added to `app/layout.tsx` (via a new `lib/site.ts` — one `SITE_URL` constant, override with `NEXT_PUBLIC_SITE_URL` once the custom domain from §1 goes live).
-- ✅ JSON-LD `Person` schema added to the root layout.
-- ✅ Per-project pages now set a canonical URL and use the project's real hero screenshot as `og:image` — the 18 Shopify case studies already have a working share-image, verified against a live server.
+Most SEO work is done — sitemap, robots.txt, metadataBase, JSON-LD, hreflang,
+canonical/OG tags, HSTS, favicon, meta description length. See
+[FIXES.md](./FIXES.md) for the full account. What's left:
 
-**Second pass — fixed against a site-auditor report:**
-- ✅ **Wrong domain everywhere (the real bug behind two of the auditor's warnings).**
-  `lib/site.ts` was pointing at the typo'd `munib-archetect-portfolio.vercel.app`
-  (see §1) — which meant the canonical tag, `og:url`, and every `<loc>` in
-  the sitemap all pointed at a URL that 404s. That's what the auditor's
-  "canonical points to a variant URL" and "sitemap... not detected" warnings
-  were actually about. Fixed by pointing `SITE_URL` at the real, live domain
-  (`munib-architect-portfolio.vercel.app`) — verified live that canonical,
-  `og:url`, robots.txt's `Sitemap:` line, and every sitemap `<loc>` now all
-  resolve to a 200.
-- ✅ **Meta description** shortened from 139 → 114 characters and rewritten to
-  lead with the main value ("27+ live Shopify stores & GoHighLevel funnels...")
-  instead of "Premium portfolio of..." — won't truncate in search results now.
-- ✅ **HSTS header** added via `next.config.ts` (`Strict-Transport-Security:
-  max-age=63072000; includeSubDomains; preload`) — verified present on live responses.
-- ✅ **Favicon** added (`app/icon.svg` — Next.js file-convention icon) —
-  previously the site had none at all. First pass used an "M" monogram;
-  redesigned on request into a `</>` code-bracket glyph (geometric paths, not
-  a font, so it stays crisp at 16px favicon size) in the same brand
-  emerald→cyan gradient — reads as "developer" rather than "initial."
-- ✅ **Hreflang** — added a self-referencing `en` + `x-default` hreflang tag
-  (home page and every project page) via `alternates.languages`. This is
-  *not* multi-language support — there's still only one version of each page
-  — but a self-referencing hreflang is Google's own recommended practice even
-  for single-language sites, since it removes any ambiguity about which
-  language/region a URL targets, and it's what actually clears an auditor's
-  "no hreflang tags found" flag. See §10 below for why the site isn't
-  getting real Arabic/Urdu/Hindi versions.
-- ⏭️ **Keyword density** ("shopify" 99×/2738 words, 3.6%) was flagged
-  informational, not an error, by the auditor itself — no fix needed, there's
-  no target percentage to chase.
-
-**Still open:**
 - **No sitewide OpenGraph/Twitter share image for the home page itself.** Project pages now have one (their hero screenshot); the home page's `openGraph` still has no `images` — a static 1200×630 design (or a dynamic one via `next/og`) is the next quick win here.
 - Once the domain from §1 is purchased, set `NEXT_PUBLIC_SITE_URL` in Vercel's environment variables to the new domain (no code change needed — `lib/site.ts` reads it automatically).
 
-## 5. Analytics
+## 4. Analytics
 
 Nothing is currently wired up — you have no visibility into who visits, which
 projects get clicked, or whether the contact form converts. Two reasonable options:
 - **Vercel Analytics** (`@vercel/analytics`) — one `<Analytics />` component, zero config, free tier is generous, already living on the same platform you deploy to.
 - **Plausible or Umami** if you want to self-host and stay cookie-consent-free (privacy-friendly, no GDPR banner needed).
 
-## 6. Cleanup
+## 5. Cleanup
 
 - **Dead code:** `components/DynamicResumeEngine.tsx`, `components/ResumePDF.tsx`, and the `@react-pdf/renderer` dependency are unused since the résumé download was removed from the nav. Either delete them or re-wire a "Download Résumé" button (Hero or Contact section) — right now it's just unshipped surface area.
 - **Inline hex colors** are repeated across components instead of referencing the `@theme` tokens already defined in `globals.css` — worth centralizing so a future rebrand (or the domain-driven refresh, if you do one) is a one-file change.
-- **⚠️ Found while fixing the social sidebar — worth knowing about sitewide:**
-  `app/globals.css` line ~22 has a base reset —
-  ```css
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  ```
-  — written as plain CSS, not wrapped in `@layer base`. Tailwind v4 ships its
-  own utilities inside `@layer utilities`, and CSS cascade layers give
-  **any unlayered rule priority over every layered rule**, regardless of
-  selector specificity or source order. The practical effect: **every
-  Tailwind spacing utility — `p-*`, `m-*`, `px-*`, `py-*`, `mx-*`, `my-*`,
-  `space-x-*`/`space-y-*` — silently resolves to `0` everywhere in this
-  codebase**, no matter how specific the class. (`gap-*` and `w-*`/`h-*` are
-  unaffected — they're not reset by this rule.)
+- **CSS reset silently defeats Tailwind's spacing utilities sitewide.** Found
+  while fixing the social sidebar (see [FIXES.md](./FIXES.md)) —
+  `app/globals.css`'s base reset (`*, *::before, *::after { margin: 0;
+  padding: 0; }`) is plain, unlayered CSS, and CSS cascade layers give any
+  unlayered rule priority over Tailwind's `@layer utilities`, regardless of
+  specificity. The practical effect: every `p-*`/`m-*`/`px-*`/`py-*`/
+  `mx-*`/`my-*`/`space-x-*`/`space-y-*` Tailwind class silently resolves to
+  `0` everywhere in this codebase (`gap-*` and `w-*`/`h-*` are unaffected).
+  Individual usages have been worked around locally with inline `style` as
+  they're found — the root-cause fix (wrap the reset in `@layer base { ... }`
+  in `globals.css`) is bigger and riskier: a global CSS change that could
+  shift layout anywhere in the site that happens to use a Tailwind spacing
+  class today expecting it to be inert. Worth doing as its own deliberate
+  pass (grep the codebase for `\b[pm][xytrbl]?-[0-9]` Tailwind classes first,
+  check each usage, then flip the layer and fix any that break) — not a
+  change to make casually alongside unrelated work.
 
-  This was invisible until now because the codebase's own pattern is to set
-  spacing via inline `style={{ padding: ..., gap: ... }}` instead of Tailwind
-  utilities almost everywhere (`SocialSidebar.tsx`'s wrapper `div`s are a
-  good example) — which was very possibly *why* that pattern exists, whether
-  discovered deliberately or worked around by trial and error. It only
-  surfaced as a visible bug once I used `px-3.5`/`gap-3`/`justify-*`
-  Tailwind classes directly on the sidebar's `<a>` tags while fixing the
-  icon/label gap — the padding silently no-opped and the icon sat flush
-  against the pill border.
-
-  **Two ways to fix, different risk levels:**
-  - **Low-risk (what I did locally):** keep using inline `style` for spacing
-    on any element, as the rest of the codebase already does. No sitewide change.
-  - **Root-cause fix (bigger, not done yet):** wrap the reset in
-    `@layer base { ... }` in `globals.css`, so Tailwind's spacing utilities
-    start working as expected everywhere. This is the "correct" fix and
-    would let future work use `p-4`/`gap-2`/etc. normally instead of always
-    reaching for inline styles — but it's a global CSS change that could
-    shift layout anywhere in the site that happens to use a Tailwind spacing
-    class today expecting it to be inert. Worth doing as its own deliberate
-    pass (grep the codebase for `\b[pm][xytrbl]?-[0-9]` Tailwind classes
-    first, check each usage, then flip the layer and fix any that break) —
-    not a change to make casually alongside unrelated work.
-
-## 7. Content
+## 6. Content
 
 - The **9 GoHighLevel projects** still show the generated `AbstractMockup` instead of real screenshots — same treatment as the 18 Shopify projects would make the portfolio feel complete rather than half-finished to a careful visitor.
 - Worth a pass to confirm all 27 project URLs/descriptions are still accurate — client sites get redesigned or taken down over time, and a dead link in a live case study undercuts credibility.
 
-## 8. Testing & CI
+## 7. Testing & CI
 
 No tests, no CI pipeline exist yet. Given the site's complexity (27 static
 routes, a contact API route with validation branches, a hand-rolled Three.js
@@ -229,12 +140,12 @@ it's:
 - A GitHub Action that runs `tsc --noEmit`, `next lint`, and `next build` on every push/PR, so a broken build never reaches `main` silently.
 - One smoke test for `/api/contact` (valid payload → 200, invalid → 422, honeypot → 200-but-silent) since that route has real branching logic and is easy to regress.
 
-## 9. Performance
+## 8. Performance
 
 The README notes Lighthouse hasn't actually been measured since the
 performance pass — worth running `npx lighthouse http://localhost:3000 --only-categories=performance` after `npm run build && npm run start` to confirm the theoretical gains (particle scaling, `ssr:false`, pause-on-hidden) translate to a real score, especially on mobile.
 
-## 10. Geo-based auto language switching (Arabic/Urdu/Hindi) — recommendation: don't
+## 9. Geo-based auto language switching (Arabic/Urdu/Hindi) — recommendation: don't
 
 You asked about detecting a visitor's location and auto-switching the site
 into Arabic, Urdu, or Hindi for those regions, defaulting to English

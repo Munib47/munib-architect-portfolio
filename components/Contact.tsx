@@ -1,31 +1,39 @@
 'use client';
 
 import { useState } from 'react';
+import type { ComponentType } from 'react';
+import { GitHubIcon, LinkedInIcon, MailIcon, PhoneIcon } from '@/components/icons/SocialIcons';
 
-const CONTACT_LINKS = [
+const CONTACT_LINKS: {
+  Icon: ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  href: string;
+  color: string;
+}[] = [
   {
-    icon: '✉️',
+    Icon: MailIcon,
     label: 'Email',
     value: 'munibahmad47@gmail.com',
     href: 'mailto:munibahmad47@gmail.com',
     color: '#10B981',
   },
   {
-    icon: '📞',
+    Icon: PhoneIcon,
     label: 'Phone',
     value: '+92 344 4955231',
     href: 'tel:+923444955231',
     color: '#06B6D4',
   },
   {
-    icon: '💼',
+    Icon: LinkedInIcon,
     label: 'LinkedIn',
     value: 'munib-ahmad-294524237',
     href: 'https://www.linkedin.com/in/munib-ahmad-294524237',
     color: '#0A66C2',
   },
   {
-    icon: '⬡',
+    Icon: GitHubIcon,
     label: 'GitHub',
     value: 'github.com/Munib47',
     href: 'https://github.com/Munib47/',
@@ -253,11 +261,11 @@ export default function Contact() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '1rem',
+                      color: link.color,
                       flexShrink: 0,
                     }}
                   >
-                    {link.icon}
+                    <link.Icon className="w-5 h-5" />
                   </div>
 
                   <div style={{ overflow: 'hidden' }}>

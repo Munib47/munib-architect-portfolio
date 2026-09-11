@@ -3,10 +3,13 @@
 A snapshot of the portfolio's current state, for future reference. See the main
 [README.md](../README.md) for the up-to-date, maintained version of this
 information (structure, tunables, full checklist) — this file is a point-in-time
-summary of everything built so far.
+summary of everything built so far. For a chronological log of every fix and
+improvement applied since, see [FIXES.md](./FIXES.md); for what's still
+outstanding, see [IMPROVEMENTS.md](./IMPROVEMENTS.md).
 
-**Live site:** munib-archetect-portfolio.vercel.app (see
-[IMPROVEMENTS.md](./IMPROVEMENTS.md) for a note on this domain)
+**Live site:** munib-architect-portfolio.vercel.app (note the spelling —
+`munib-archetect-portfolio.vercel.app`, missing an `i`, does not resolve; see
+IMPROVEMENTS.md §1)
 **Last updated:** 2026-09-11
 
 ---
@@ -72,14 +75,16 @@ devices) with:
 `components/Contact.tsx` is a controlled form that POSTs JSON to
 `/api/contact` ([app/api/contact/route.ts](../app/api/contact/route.ts)).
 Server-side validation (name/email/subject/message), a honeypot field against
-bots, loading/success/error UI states.
+bots, loading/success/error UI states. The four contact-link cards
+(Email/Phone/LinkedIn/GitHub) render brand SVG icons from
+[components/icons/SocialIcons.tsx](../components/icons/SocialIcons.tsx),
+shared with `SocialSidebar.tsx`.
 
-**Email delivery is scaffolded but not yet wired.** The real Resend `fetch`
-call is written out in `app/api/contact/route.ts` but left commented, gated
-behind `RESEND_API_KEY`. Without the key set, the route runs in "scaffold"
-mode — it validates and logs the message and returns success, so the form
-stays fully functional with zero secrets configured, but no email is actually
-sent. See [IMPROVEMENTS.md](./IMPROVEMENTS.md) for the activation steps.
+**Email delivery is live**, via Resend — a submitted form sends a real email
+to `munibahmad47@gmail.com`, verified end-to-end with a real test submission.
+`RESEND_API_KEY` is set locally; it still needs to be added to Vercel's
+environment variables (marked Sensitive) for production to send mail — see
+[FIXES.md](./FIXES.md).
 
 ## Quality / accessibility work already done
 
@@ -88,34 +93,6 @@ sent. See [IMPROVEMENTS.md](./IMPROVEMENTS.md) for the activation steps.
 - Skill bars: per-element `IntersectionObserver`, no stuck-at-0% bug, instant reveal on reduced-motion.
 - Horizontal-overflow guards (`overflow-x: clip` on `<main>`), hero stacks text-first on mobile/tablet.
 - `prefers-reduced-motion` respected across GSAP, AOS, and Three.js.
-
-## SEO — done (2026-09-11)
-
-- `app/sitemap.ts` — generates `/sitemap.xml` covering the home page + all 27
-  project case-study pages, sourced live from `data/projects.ts` (no manual
-  upkeep needed as projects are added/removed).
-- `app/robots.ts` — generates `/robots.txt`, allows all crawlers, points at the sitemap.
-- `lib/site.ts` — single `SITE_URL` constant (env-overridable via
-  `NEXT_PUBLIC_SITE_URL`) feeding sitemap, robots, and metadata — swap one
-  value once the custom domain from IMPROVEMENTS.md §1 goes live.
-- `metadataBase` set in `app/layout.tsx`, so relative OG/canonical URLs
-  resolve to absolute ones site-wide.
-- JSON-LD `Person` schema injected on the root layout (name, job title,
-  GitHub/LinkedIn `sameAs`, skills) — helps Google understand the site is a
-  person's professional profile.
-- Per-project pages (`app/projects/[id]/page.tsx`) now set a canonical URL and
-  use each project's real hero screenshot as its `og:image` (for the 18
-  Shopify projects that have one) — verified live against a running server
-  that all three (canonical, `og:url`, `og:image`) resolve to correct absolute URLs.
-- **Follow-up fix, same day:** an automated SEO audit of the live site
-  surfaced that `lib/site.ts` was pointing at the wrong domain —
-  `munib-archetect-portfolio.vercel.app` (typo, 404s) instead of the actual
-  live `munib-architect-portfolio.vercel.app`. That's what was behind the
-  audit's "canonical points to a variant URL" and "sitemap not detected"
-  warnings. Fixed at the source (`lib/site.ts`). Also fixed in the same
-  pass: meta description shortened to avoid search-result truncation, an
-  HSTS header added (`next.config.ts`), and a favicon added (`app/icon.svg`,
-  the site previously had none). See [IMPROVEMENTS.md](./IMPROVEMENTS.md) §4 for detail.
 
 ## Known gaps / unfinished work
 
@@ -132,5 +109,5 @@ These are tracked in more detail in the README's "What's Left To Do" section:
 - The 9 GoHighLevel projects still use the generated `AbstractMockup` instead of real screenshots.
 - Lighthouse performance score hasn't been measured in a real (non-headless) run since the perf pass.
 
-For recommendations on all of the above, plus domain, email delivery activation,
-and automation tooling, see [IMPROVEMENTS.md](./IMPROVEMENTS.md).
+For recommendations on all of the above, plus domain and automation tooling,
+see [IMPROVEMENTS.md](./IMPROVEMENTS.md).
