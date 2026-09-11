@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: 'Munib Ahmad — Frontend Architect & Shopify Developer',
   description:
-    'Premium portfolio of Munib Ahmad — Next.js developer, Shopify theme engineer, and GoHighLevel automation specialist with 27+ live projects.',
+    '27+ live Shopify stores & GoHighLevel funnels, built by Munib Ahmad — Next.js developer and automation specialist.',
   keywords: [
     'Munib Ahmad',
     'Next.js developer',
@@ -20,7 +20,10 @@ export const metadata: Metadata = {
     'Lahore Pakistan',
   ],
   authors: [{ name: 'Munib Ahmad', url: 'https://github.com/Munib47' }],
-  alternates: { canonical: '/' },
+  // Absolute, no trailing slash — must exactly match the served URL
+  // (Next.js defaults to trailingSlash: false), otherwise crawlers flag
+  // the canonical as pointing to a "variant" URL.
+  alternates: { canonical: SITE_URL },
   openGraph: {
     title: 'Munib Ahmad — Frontend Architect',
     description:

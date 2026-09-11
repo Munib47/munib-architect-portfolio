@@ -8,14 +8,20 @@ delivery, automation — are covered first in detail.
 
 ## 1. Domain — should you change it?
 
-**Current:** `munib-archetect-portfolio.vercel.app`
+**Actual live URL:** `munib-architect-portfolio.vercel.app` (correct spelling,
+matches the GitHub repo). **Note:** `munib-archetect-portfolio.vercel.app`
+(the URL originally given for this doc) **does not resolve** —
+`DEPLOYMENT_NOT_FOUND`. I'd built the SEO work below against the typo'd
+version at first; caught it by curling the URL directly during the SEO fixes
+in this session and corrected `lib/site.ts` to the real domain. Worth checking
+where else that typo'd URL might be written down (resume, LinkedIn, any
+client emails) since it's a dead link.
 
-**Recommendation: yes, move to a custom domain.** Three separate reasons:
+**Recommendation: yes, move to a custom domain anyway.** Three reasons:
 
-1. **It has a typo.** "Archetect" isn't a word — "architect" is missing an `i`.
-   Whether that happened when the Vercel project was named or it's just how
-   it's being shared, anyone who reads it carefully will notice. That alone
-   is worth fixing before this URL goes on a CV or a client proposal.
+1. **The `.vercel.app` name is fragile.** You've now got direct proof of
+   why — one letter off and the "portfolio" people try to visit doesn't
+   exist. A domain you register yourself doesn't have this failure mode.
 2. **`*.vercel.app` reads as an unfinished project**, not a professional site.
    Clients and recruiters unconsciously discount free-subdomain URLs — it's
    the same instinct as trusting a `@gmail.com` business email less than one
@@ -118,10 +124,34 @@ email" into "captures a lead reliably, with a record you can't lose."
 
 ## 4. SEO — done (2026-09-11)
 
+**First pass:**
 - ✅ `app/sitemap.ts` and `app/robots.ts` added — 27 case-study pages + home page are now all indexable, sourced live from `data/projects.ts`.
 - ✅ `metadataBase` added to `app/layout.tsx` (via a new `lib/site.ts` — one `SITE_URL` constant, override with `NEXT_PUBLIC_SITE_URL` once the custom domain from §1 goes live).
 - ✅ JSON-LD `Person` schema added to the root layout.
 - ✅ Per-project pages now set a canonical URL and use the project's real hero screenshot as `og:image` — the 18 Shopify case studies already have a working share-image, verified against a live server.
+
+**Second pass — fixed against a site-auditor report:**
+- ✅ **Wrong domain everywhere (the real bug behind two of the auditor's warnings).**
+  `lib/site.ts` was pointing at the typo'd `munib-archetect-portfolio.vercel.app`
+  (see §1) — which meant the canonical tag, `og:url`, and every `<loc>` in
+  the sitemap all pointed at a URL that 404s. That's what the auditor's
+  "canonical points to a variant URL" and "sitemap... not detected" warnings
+  were actually about. Fixed by pointing `SITE_URL` at the real, live domain
+  (`munib-architect-portfolio.vercel.app`) — verified live that canonical,
+  `og:url`, robots.txt's `Sitemap:` line, and every sitemap `<loc>` now all
+  resolve to a 200.
+- ✅ **Meta description** shortened from 139 → 114 characters and rewritten to
+  lead with the main value ("27+ live Shopify stores & GoHighLevel funnels...")
+  instead of "Premium portfolio of..." — won't truncate in search results now.
+- ✅ **HSTS header** added via `next.config.ts` (`Strict-Transport-Security:
+  max-age=63072000; includeSubDomains; preload`) — verified present on live responses.
+- ✅ **Favicon** added (`app/icon.svg` — Next.js file-convention icon, brand
+  emerald→cyan monogram) — previously the site had none at all.
+- ⏭️ **Keyword density** ("shopify" 99×/2738 words, 3.6%) and **hreflang** (0
+  tags) were both flagged informational, not errors, by the auditor itself —
+  no fix needed. Keyword density has no target to chase, and hreflang is
+  correctly absent for a single-language site (see §10 below for why it should
+  stay that way).
 
 **Still open:**
 - **No sitewide OpenGraph/Twitter share image for the home page itself.** Project pages now have one (their hero screenshot); the home page's `openGraph` still has no `images` — a static 1200×630 design (or a dynamic one via `next/og`) is the next quick win here.
@@ -157,3 +187,45 @@ it's:
 
 The README notes Lighthouse hasn't actually been measured since the
 performance pass — worth running `npx lighthouse http://localhost:3000 --only-categories=performance` after `npm run build && npm run start` to confirm the theoretical gains (particle scaling, `ssr:false`, pause-on-hidden) translate to a real score, especially on mobile.
+
+## 10. Geo-based auto language switching (Arabic/Urdu/Hindi) — recommendation: don't
+
+You asked about detecting a visitor's location and auto-switching the site
+into Arabic, Urdu, or Hindi for those regions, defaulting to English
+elsewhere. **My recommendation is no — keep the site English-only.** Not
+because it's technically hard (it's a solved problem: `next-intl`/`next-i18next`
++ a `middleware.ts` that reads `Accept-Language` or a geo header), but because
+it's a poor fit for what this specific site is:
+
+1. **The audience reads English regardless of location.** This isn't a
+   consumer storefront where a local-language UI increases conversion —
+   it's a developer/agency portfolio. Clients and recruiters evaluating a
+   Next.js/Shopify/GoHighLevel specialist — including ones based in Pakistan,
+   the Gulf, or India — read case studies and job listings in English as a
+   matter of professional norm. Auto-switching to Urdu for a Lahore-based IP
+   doesn't match how the people actually hiring for this work browse.
+2. **Arabic and Urdu are RTL — this site's layout isn't built for it.** The
+   fixed left `SocialSidebar`, the GSAP entrance timelines, the Three.js
+   pointer-parallax math, Swiper's `EffectCreative` slider — all of it is
+   built assuming LTR, with hardcoded left/right positioning throughout.
+   Making it RTL-correct isn't a translation task, it's close to a redesign,
+   and a half-mirrored layout would look broken, not international.
+3. **Auto-translating 27 case studies (or the whole site) is a real content
+   project, not a config flag.** Either you write and maintain three more
+   full copies of every section by hand, or you machine-translate — and
+   machine-translated technical content (Shopify, Liquid, GoHighLevel, "AJAX
+   cart drawer mechanics") tends to read awkwardly or wrong in exactly the
+   audience-facing copy meant to demonstrate craftsmanship.
+4. **Geo-IP language redirects are also an SEO risk if mishandled** — Google
+   can index the "wrong" language version for a given URL, VPN/traveling
+   users get served a language they didn't ask for, and hreflang tags (which
+   *should* exist once you do have real alternate-language pages) add
+   another thing to keep in sync. The auditor's "0 hreflang tags" note isn't
+   a problem to fix here — it's correctly reporting a single-language site
+   as a single-language site.
+
+**When this would flip:** if you start taking on clients specifically in
+Arabic/Urdu/Hindi-speaking markets and want a *separate*, purpose-built
+landing page in that language to pitch them directly — not an auto-switched
+mirror of the whole portfolio — that's a reasonable, much smaller project
+worth doing on its own terms.

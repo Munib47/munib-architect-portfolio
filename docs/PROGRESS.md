@@ -107,6 +107,15 @@ sent. See [IMPROVEMENTS.md](./IMPROVEMENTS.md) for the activation steps.
   use each project's real hero screenshot as its `og:image` (for the 18
   Shopify projects that have one) — verified live against a running server
   that all three (canonical, `og:url`, `og:image`) resolve to correct absolute URLs.
+- **Follow-up fix, same day:** an automated SEO audit of the live site
+  surfaced that `lib/site.ts` was pointing at the wrong domain —
+  `munib-archetect-portfolio.vercel.app` (typo, 404s) instead of the actual
+  live `munib-architect-portfolio.vercel.app`. That's what was behind the
+  audit's "canonical points to a variant URL" and "sitemap not detected"
+  warnings. Fixed at the source (`lib/site.ts`). Also fixed in the same
+  pass: meta description shortened to avoid search-result truncation, an
+  HSTS header added (`next.config.ts`), and a favicon added (`app/icon.svg`,
+  the site previously had none). See [IMPROVEMENTS.md](./IMPROVEMENTS.md) §4 for detail.
 
 ## Known gaps / unfinished work
 
