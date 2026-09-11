@@ -422,8 +422,21 @@ export default function ProjectCard({ project, index }: Props) {
               gap: '1.6rem',
             }}
           >
-            {/* Project identity block */}
+            {/*
+             * Project identity block — decorative repeat, hidden from AT.
+             *
+             * This is the reverse of a flip card: the same #id, title and role
+             * that the front face already states, restyled. Both faces are in
+             * the DOM at all times (backface-visibility only hides them
+             * visually), so every card was contributing two <h3>s with
+             * identical text — 27 cards, 54 headings, none of them wrong to a
+             * sighted user but all of them noise in a screen reader's heading
+             * list. The front face keeps the single semantic <h3>; this copy
+             * is now a plain <p> behind aria-hidden. The two action links
+             * below stay outside this block and carry their own labels.
+             */}
             <div
+              aria-hidden="true"
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -448,9 +461,9 @@ export default function ProjectCard({ project, index }: Props) {
                 #{String(project.id).padStart(2, '0')} · {categoryLabel}
               </span>
 
-              <h3
+              <p
                 style={{
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontFamily: 'var(--font-stack-display)',
                   fontSize: '16.5px',
                   fontWeight: 800,
                   color: '#ffffff',
@@ -459,7 +472,7 @@ export default function ProjectCard({ project, index }: Props) {
                 }}
               >
                 {project.title}
-              </h3>
+              </p>
 
               <p
                 style={{
@@ -501,6 +514,7 @@ export default function ProjectCard({ project, index }: Props) {
               <Link
                 href={casePath}
                 onClick={(e) => e.stopPropagation()}
+                aria-label={`View the ${project.title} case study`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -549,6 +563,7 @@ export default function ProjectCard({ project, index }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
+                aria-label={`Visit the live ${project.title} site (opens in a new tab)`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

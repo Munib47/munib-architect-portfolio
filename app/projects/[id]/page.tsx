@@ -3,6 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { projects } from '@/data/projects';
+import { getCaseStudy } from '@/data/case-studies';
+import { SITE_URL } from '@/lib/site';
 import AbstractMockup from '@/components/Portfolio/AbstractMockup';
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -15,9 +17,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
   const p = projects.find((proj) => proj.slug === id);
   if (!p) return { title: 'Project Not Found | Munib Ahmad' };
+  const cs = getCaseStudy(p.slug);
+
   return {
-    title: `${p.title} — Case Study | Munib Ahmad`,
-    description: p.description,
+    /*
+     * "{Name} Case Study | Munib Ahmad" — one structural separator, not two.
+     * Several project names already contain an em dash ("Image 1993 —
+     * Pakistan"), so the old "{Name} — Case Study | Munib Ahmad" template
+     * produced titles with a dash doing two different jobs in the same string.
+     * Dropping the second dash also keeps every title inside 60 characters.
+     */
+    title: `${p.title} Case Study | Munib Ahmad`,
+    /*
+     * seoDescription, not description. `description` is visible page copy and
+     * runs 170–260 characters on most projects, which Google truncates. This
+     * field exists purely for the SERP snippet and is capped at 155.
+     */
+    description: cs?.seoDescription ?? p.description,
     alternates: {
       canonical: `/projects/${p.slug}`,
       languages: {
@@ -27,10 +43,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     openGraph: {
       title: `${p.title} — Case Study`,
-      description: p.description,
+      description: cs?.seoDescription ?? p.description,
       type: 'article',
       url: `/projects/${p.slug}`,
-      images: p.image ? [{ url: p.image }] : undefined,
+      /*
+       * No `images` here on purpose. opengraph-image.tsx in this same segment
+       * generates a 1200x630 card and Next emits og:image plus its width,
+       * height, type and alt automatically. Setting `images` as well would
+       * override that with the raw screenshot — which is 980x577 (under
+       * LinkedIn's minimum) on the 18 projects that have one, and absent
+       * entirely on the 9 GHL projects that don't. Deferring to the generated
+       * card is what gives all 27 pages an image of the right size.
+       */
     },
   };
 }
@@ -48,16 +72,93 @@ export default async function ProjectCasePage({ params }: PageProps) {
   const categoryLabel = isShopify ? 'Shopify' : 'GoHighLevel';
   const categoryColor = isShopify ? '#96BF48' : '#F97316';
 
-  // Derive feature bullet points from description sentences
-  const featureSentences = project.description
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 20);
+  const caseStudy = getCaseStudy(project.slug);
+
+  /*
+   * Highlights are authored content now.
+   *
+   * This used to be `project.description.split(/(?<=[.!?])\s+/)` — the summary
+   * chopped on sentence boundaries. That printed the exact paragraph shown
+   * under "About This Project" a second time as the bullets under "Key
+   * Development Areas", word for word, on all 27 pages. The fallback keeps the
+   * page rendering if a project ever ships without case-study content.
+   */
+  const highlights = caseStudy?.highlights ?? [];
+
+  /*
+   * Related projects — same category, nearest neighbours by position, wrapping
+   * around the list so projects at either end still get three. Prev/next alone
+   * gave each case study only two internal links, which is thin for 27 pages
+   * that are otherwise reachable only from the homepage grid.
+   */
+  const sameCategory = projects.filter(
+    (p) => p.category === project.category && p.slug !== project.slug,
+  );
+  const startAt = sameCategory.findIndex((p) => p.id > project.id);
+  const rotated = startAt === -1
+    ? sameCategory
+    : [...sameCategory.slice(startAt), ...sameCategory.slice(0, startAt)];
+  const relatedProjects = rotated.slice(0, 3);
 
   const displayUrl = project.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const pageUrl = `${SITE_URL}/projects/${project.slug}`;
+
+  /*
+   * Page-level structured data. Project pages previously inherited only the
+   * root Person schema, so nothing described the work itself, and with no
+   * /projects hub there was no breadcrumb trail to emit either.
+   */
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CreativeWork',
+        '@id': `${pageUrl}#work`,
+        name: project.title,
+        headline: `${project.title} Case Study`,
+        description: caseStudy?.seoDescription ?? project.description,
+        url: pageUrl,
+        image: `${pageUrl}/opengraph-image`,
+        ...(caseStudy?.updatedAt ? { dateModified: caseStudy.updatedAt } : {}),
+        keywords: project.tags.join(', '),
+        creator: {
+          '@type': 'Person',
+          name: 'Munib Ahmad',
+          url: SITE_URL,
+        },
+        about: {
+          '@type': 'WebSite',
+          name: project.title,
+          url: project.url,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Projects', item: `${SITE_URL}/projects` },
+          { '@type': 'ListItem', position: 3, name: project.title, item: pageUrl },
+        ],
+      },
+    ],
+  };
+
+  /** The four narrative sections that make each case study unique. */
+  const narrative = caseStudy
+    ? [
+        { heading: 'The Problem',       body: caseStudy.problem  },
+        { heading: 'What I Built',      body: caseStudy.approach },
+        { heading: 'The Outcome',       body: caseStudy.outcome  },
+        { heading: 'Why This Stack',    body: caseStudy.stackRationale },
+      ]
+    : [];
 
   return (
     <div style={{ minHeight: '100vh', background: '#0A0A0C', color: '#F0F4F8' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── Sticky Top Nav ───────────────────────────────────────── */}
       <nav
@@ -192,7 +293,7 @@ export default async function ProjectCasePage({ params }: PageProps) {
           {/* Title */}
           <h1
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: 'var(--font-stack-display)',
               fontSize: 'clamp(2rem, 5vw, 3.75rem)',
               fontWeight: 800,
               lineHeight: 1.08,
@@ -245,7 +346,7 @@ export default async function ProjectCasePage({ params }: PageProps) {
             </a>
 
             <Link
-              href="/#portfolio"
+              href="/projects"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -327,7 +428,7 @@ export default async function ProjectCasePage({ params }: PageProps) {
       )}
 
       {/* ── Main Content ─────────────────────────────────────────── */}
-      <main style={{ maxWidth: '900px', margin: '0 auto', padding: '0 1.5rem 6rem' }}>
+      <main id="main" style={{ maxWidth: '900px', margin: '0 auto', padding: '0 1.5rem 6rem' }}>
 
         {/* ── Overview: 2-column grid ─────────────────────────── */}
         <div
@@ -492,7 +593,7 @@ export default async function ProjectCasePage({ params }: PageProps) {
         </div>
 
         {/* ── Key Development Areas ────────────────────────────── */}
-        {featureSentences.length > 0 && (
+        {highlights.length > 0 && (
           <div
             style={{
               marginBottom: '4rem',
@@ -516,7 +617,7 @@ export default async function ProjectCasePage({ params }: PageProps) {
             </h2>
 
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {featureSentences.map((sentence, i) => (
+              {highlights.map((sentence, i) => (
                 <li
                   key={i}
                   style={{
@@ -551,6 +652,39 @@ export default async function ProjectCasePage({ params }: PageProps) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* ── Case study narrative ─────────────────────────────── */}
+        {/*
+          * The substance of the page. Every project used to render the same
+          * ~140-word skeleton — 27 near-identical pages, which is the textbook
+          * thin-content pattern. These four sections are written per project.
+          */}
+        {narrative.length > 0 && (
+          <div style={{ marginBottom: '4rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            {narrative.map(({ heading, body }) => (
+              <section key={heading}>
+                <h2
+                  style={{
+                    fontFamily: 'var(--font-stack-display)',
+                    fontSize: 'clamp(1.15rem, 2.5vw, 1.5rem)',
+                    fontWeight: 800,
+                    color: '#F0F4F8',
+                    letterSpacing: '-0.02em',
+                    marginBottom: '0.9rem',
+                    paddingLeft: '0.9rem',
+                    borderLeft: `3px solid ${project.accentHex}`,
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {heading}
+                </h2>
+                <p style={{ fontSize: '15px', color: '#A0AEC0', lineHeight: 1.85 }}>
+                  {body}
+                </p>
+              </section>
+            ))}
           </div>
         )}
 
@@ -589,6 +723,67 @@ export default async function ProjectCasePage({ params }: PageProps) {
             ))}
           </div>
         </div>
+
+        {/* ── Related Projects ─────────────────────────────────── */}
+        {relatedProjects.length > 0 && (
+          <div style={{ marginBottom: '3rem' }}>
+            <h2
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#10B981',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                marginBottom: '1.25rem',
+              }}
+            >
+              Related {isShopify ? 'Shopify Builds' : 'GoHighLevel Funnels'}
+            </h2>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '1rem',
+              }}
+            >
+              {relatedProjects.map((rel) => (
+                <Link
+                  key={rel.slug}
+                  href={`/projects/${rel.slug}`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.4rem',
+                    padding: '1.1rem 1.25rem',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${rel.accentHex}22`,
+                    textDecoration: 'none',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: rel.accentHex,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    #{String(rel.id).padStart(2, '0')}
+                  </span>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: '#F0F4F8', lineHeight: 1.3 }}>
+                    {rel.title}
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#6B7A8D', lineHeight: 1.5 }}>
+                    {rel.role}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Project Navigation ───────────────────────────────── */}
         <div
@@ -669,7 +864,7 @@ export default async function ProjectCasePage({ params }: PageProps) {
           </p>
           <h3
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: 'var(--font-stack-display)',
               fontSize: 'clamp(1.3rem, 3vw, 1.8rem)',
               fontWeight: 800,
               color: '#F0F4F8',

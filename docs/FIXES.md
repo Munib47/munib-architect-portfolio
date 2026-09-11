@@ -331,3 +331,178 @@ four to match, filling the other three with dead space. Switched the grid to
   95%` with no negative frame, resets correctly when scrolling away both
   downward and upward, and under `prefers-reduced-motion` the bars hold their
   real value with no reset cycling at all.
+
+---
+
+## Live-audit remediation (P0 → P3)
+
+A full live audit (console, network, per-page SEO, interaction testing) turned
+up 25 findings. All 25 are addressed below. Verification was done by walking
+the rendered HTML of all 29 sitemap URLs and by driving the real page in
+Chromium — not by reading the source and assuming.
+
+### P0 — functional bugs
+
+- **Carousel prev/next was non-deterministic** — `components/SwiperShowcase.tsx`.
+  The audit's diagnosis (a `Math.random()` shuffle re-deriving the slide array
+  each render) was wrong: `featuredProjects` is a fixed `[1, 9, 13, 22, 23, 26]`
+  lookup and has always been stable. The real cause was
+  `autoplay.disableOnInteraction: false` — autoplay kept firing on its 4.8s
+  timer after the user took over, so a click on Next raced the timer, and Prev
+  then walked back from wherever autoplay had left you. Set to `true`.
+  Verified: `#01 -> next -> #09 -> prev -> #01`, and the slide holds for 6s
+  idle after an interaction.
+- **"Hire Me" did nothing on click** — `components/Navigation.tsx`. The button
+  already had an `onClick` toggle, but the wrapper's `onMouseEnter` set the
+  menu open the instant the pointer arrived, so the click toggled it straight
+  back shut. Replaced with a real disclosure: a `hirePinned` flag means a click
+  always resolves to "open and pin" and only closes when already pinned. Added
+  Escape (with focus restored to the trigger), outside-click, arrow-key /
+  Home / End roving focus, `aria-haspopup="menu"`, `aria-expanded`,
+  `aria-controls`, `role="menu"` / `role="menuitem"`, and `inert` on the
+  closed panel so its links leave the tab order.
+- **Two `<h3>` per project card** — `components/Portfolio/ProjectCard.tsx`.
+  Both faces of the flip card are always in the DOM (`backface-visibility`
+  only hides them visually), so each card contributed two identical headings.
+  The back face's identity block is now `aria-hidden` with a `<p>` instead of
+  an `<h3>`; the two action links sit outside it and carry their own
+  `aria-label`s. Verified: 27 cards, exactly one `<h3>` each.
+- **Scroll spy** — `components/Navigation.tsx`. Rewritten to resolve a single
+  section by construction (walk in document order, keep the last one whose top
+  has cleared the header), with the final section pinned at page bottom since
+  it is shorter than the viewport. Also switched from `offsetTop` (measured
+  against the offset *parent* — wrong inside any positioned wrapper) to
+  `getBoundingClientRect()`, rAF-coalesced, plus `aria-current`.
+  Note: the reported "two nav items active at once" could not be reproduced —
+  `active` is a single string, so two simultaneous winners are not reachable
+  from that code. The rewrite still lands the real improvements (correct
+  measurement, bottom-of-page handling, `aria-current`). Verified: exactly one
+  active item at 0/20/40/60/80/100% scroll.
+- **Summary reprinted as the bullet list** — `app/projects/[id]/page.tsx`.
+  "Key Development Areas" was the `description` chopped on sentence
+  boundaries — literally the paragraph above it — on all 27 pages. Replaced
+  with authored `highlights` in the new `data/case-studies.ts`. Verified: 0 of
+  27 pages now reprint the summary.
+- **Nav items were `<button>`s** — now `<a href="#...">` with `preventDefault`
+  and smooth scroll that honours `prefers-reduced-motion`, and modifier-clicks
+  left alone so ctrl/cmd-click still opens a new tab. Hero's "View My Work"
+  too. Label/id mismatch resolved by renaming the label "Works" to "Portfolio"
+  to match the existing `#portfolio` id — renaming the id would have broken
+  every `/#portfolio` link already in the case-study pages. The orphan
+  `#experience` section got a nav entry.
+- **No footer on project pages** — `components/Footer.tsx` moved from
+  `app/page.tsx` into `app/layout.tsx`, so all 29 routes get it. Added an
+  "All Projects" link, which is what gives the case studies a site-wide
+  internal link back to the hub.
+- **Stock Next.js 404** — `app/not-found.tsx` added, on-brand, with links to
+  home, the projects hub and contact.
+
+### P1 — SEO
+
+- **og:image missing on 9 GHL projects, and 980x577 on the other 18** — added
+  `app/projects/[id]/opengraph-image.tsx`, a generated 1200x630 card per
+  project (title, role, tech chips, byline). Because it is a file convention,
+  Next emits `og:image:width`, `height`, `type` and `alt` automatically. The
+  hand-set `openGraph.images` was removed so it cannot override the generated
+  card. `app/projects/opengraph-image.tsx` added for the hub, which does *not*
+  inherit the root one. Verified: 29/29 URLs have og:image at 1200x630.
+- **Meta descriptions over the SERP limit** — new `seoDescription` field, 155
+  chars max, front-loaded with brand + keyword, kept separate from the visible
+  `description`. Verified: every project page is at or under 155.
+  **Note:** this partly reverses the previous section of this log. The
+  homepage stays at 169 chars per the explicit 160–200 instruction, and this
+  audit did not flag it; project pages now follow this audit's 155 limit.
+  Worth settling on one rule.
+- **Double-separator titles** — the old template put an em dash next to names
+  that already contain one ("Image 1993 — Pakistan"). Now
+  "{Name} Case Study | Munib Ahmad". Verified: longest title 56 chars.
+- **No page-level structured data** — `CreativeWork` + `BreadcrumbList` per
+  project page; `WebSite` + `ProfilePage` alongside `Person` on the root;
+  `CollectionPage` + `BreadcrumbList` on the hub.
+- **Thin, near-duplicate content** — `data/case-studies.ts` adds four authored
+  sections per project (the problem / what I built / the outcome / why this
+  stack) plus a "Related Projects" block picking three same-category
+  neighbours. Verified: main content is now 421–520 words per page (was ~142),
+  and internal links inside `<main>` went from 4 to at least 7.
+- **/projects returned 404** — `app/projects/page.tsx` added: a real indexable
+  hub with its own title, description, canonical and OG card, grouped by
+  platform, linked from the mobile nav, the footer and every case study. Added
+  to the sitemap.
+- **Heading noise** — carousel slide titles demoted from `<h3>` to `<p>` (they
+  already exist as headings in the Works grid, and `loop` cloning tripled
+  them), non-active slides marked `aria-hidden` + `inert`. The `<h1>` now
+  carries the role line as well as the name — the role `<p>` that sat directly
+  below was absorbed into the heading, so it is keyword-bearing without moving
+  a pixel. The section heading follows the active filter ("9 Live GHL Funnels")
+  instead of being hard-coded "27 Live Projects". Verified: homepage headings
+  83 -> 50, duplicate heading strings 29 -> 1 (the remaining one is two genuine
+  "Senior Frontend Developer" roles in the experience timeline).
+- **Missing icon / PWA files** — `app/favicon.ico` and `app/apple-icon.png`
+  (180x180) generated from `app/icon.svg` via sharp; `app/manifest.ts` added;
+  `themeColor` in a `viewport` export. Note that Next serves the manifest at
+  `/manifest.webmanifest`, not `/manifest.json` — the `<link rel="manifest">`
+  tag is the discovery mechanism browsers actually follow.
+- **Sitemap lastmod** — was the build timestamp on all 28 URLs, which is the
+  same as having none. Now per-project `updatedAt`. `changefreq` and
+  `priority` dropped (Google ignores both). Verified: 27 distinct lastmod
+  values. **These dates are best estimates — correct any that are wrong.**
+- **No robots meta** — added explicitly, with `max-image-preview: large`,
+  which is the part that actually changes how an image-heavy result renders.
+
+### P2 — performance
+
+- **Slow cold-start hero** — `components/Hero.tsx`. The sequence ran to ~2.1s
+  of offsets and started *every* element at `autoAlpha: 0`, including the H1 —
+  so on a cold cache the hero was blank until GSAP downloaded and then spent
+  two more seconds revealing itself. The sequence now completes in ~800ms, the
+  H1 is never animated on opacity (transform only, so it is legible from first
+  paint whether or not the JS lands), and a `prefers-reduced-motion` branch
+  skips the entrance entirely. Nothing waits on the WebGL canvas.
+- **WebGL canvas** — `components/ThreeBackground.tsx`. Visibility and
+  IntersectionObserver pausing and the reduced-motion guard were already in
+  place. Added: window blur/focus pausing (`visibilitychange` does not fire
+  when you switch to another *application*, so the loop was burning GPU behind
+  other windows), a 30fps cap on low-power devices and machines with 4 or
+  fewer cores, and the DPR cap lowered from 2.0 to 1.5 everywhere — it scales
+  quadratically, so a 4K display was rendering four times the pixels of a
+  1080p one for a background.
+- **Google Fonts via external `<link>`** — migrated to `next/font/google`.
+  Self-hosted, preloaded, no third-party round trip and no request to Google
+  from the visitor's browser. Exposed as `--font-body` / `--font-display`
+  because the design sets `font-family` inline in ~26 places; those now
+  reference `var(--font-stack-display)` / `var(--font-stack-body)`. Verified:
+  zero third-party hosts requested on page load.
+- **Images without intrinsic sizing** — audited all 64; every one has either
+  explicit width/height or a positioned, sized `fill` parent. CLS measured
+  0.0000.
+
+### P3 — security headers and accessibility
+
+- **Zero security headers** — `next.config.ts` now sets HSTS,
+  `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`,
+  `Permissions-Policy` and a CSP. **The CSP ships as `Report-Only`
+  deliberately** — the site inlines JSON-LD and `<style>` blocks and Next
+  injects inline bootstrap scripts, so enforcing it without nonces would risk
+  a blank page. To enforce: confirm the console is clean on the homepage, a
+  case study and /projects, then rename the header and replace
+  `'unsafe-inline'` on `script-src` with a nonce. Verified: all six headers
+  present on the HTML response.
+- **Accessibility** — `aria-hidden` and `role="presentation"` on the WebGL
+  canvas element itself, not just its wrapper; a skip link as the first
+  focusable element with `<main id="main">` on all three page types; carousel
+  dots rebuilt as real `<button>`s with `aria-label` and `aria-current`
+  (Swiper's own pagination renders `<span>`s that can carry neither); and a
+  `:focus-visible` ring, since several controls set `border: none` inline and
+  left keyboard users with no visible focus on the dark theme.
+
+### Not changed
+
+- **Contact form delivery** could not be confirmed end-to-end here — that
+  needs the Vercel function logs. Locally the validation path is live (empty
+  body returns 422) and `RESEND_API_KEY` is set in `.env.local`. **Production
+  still needs `RESEND_API_KEY` added to the Vercel environment variables**
+  (marked Sensitive) and a redeploy, or the deployed form runs in scaffold
+  mode.
+- **ESLint is not configured** — `npm run lint` calls `next lint`, which was
+  removed in Next 16, and there is no `eslint.config.js`. Type checking runs
+  and passes via `next build`. Worth wiring up separately.

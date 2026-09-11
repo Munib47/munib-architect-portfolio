@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Autoplay, EffectCreative } from 'swiper/modules';
+import { Autoplay, EffectCreative } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
-import 'swiper/css/pagination';
 import 'swiper/css/effect-creative';
 
 import Image from 'next/image';
@@ -46,6 +45,30 @@ function onNavLeave(e: React.MouseEvent<HTMLButtonElement>) {
 
 export default function SwiperShowcase() {
   const [swiper, setSwiper] = useState<SwiperType | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  /*
+   * Keep the a11y tree in step with what is actually on screen.
+   *
+   * `loop` makes Swiper clone slides, so without this the same six projects
+   * are exposed to assistive tech three times over, and the off-screen copies
+   * keep their links in the tab order. `inert` (not just aria-hidden) is what
+   * removes those links from focus — aria-hidden alone on a subtree that still
+   * contains focusable children is itself an a11y violation.
+   */
+  const syncSlideA11y = useCallback((sw: SwiperType) => {
+    setActiveIndex(sw.realIndex);
+    sw.slides.forEach((slide) => {
+      const isActive = slide.classList.contains('swiper-slide-active');
+      if (isActive) {
+        slide.removeAttribute('aria-hidden');
+        slide.removeAttribute('inert');
+      } else {
+        slide.setAttribute('aria-hidden', 'true');
+        slide.setAttribute('inert', '');
+      }
+    });
+  }, []);
 
   return (
     <section
@@ -77,7 +100,7 @@ export default function SwiperShowcase() {
           </span>
           <h2
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: 'var(--font-stack-display)',
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: 800,
               color: '#ffffff',
@@ -114,7 +137,12 @@ export default function SwiperShowcase() {
            * The buttons sit inside that channel, never inside the slider's
            * overflow:hidden boundary, so they can never collide with slide content.
            */}
-          <div style={{ position: 'relative', padding: '0 52px' }}>
+          <div
+            style={{ position: 'relative', padding: '0 52px' }}
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Featured project showcase"
+          >
 
             {/* ── Prev button (left channel) ── */}
             <button
@@ -130,15 +158,26 @@ export default function SwiperShowcase() {
             </button>
 
             <Swiper
-              modules={[Pagination, Autoplay, EffectCreative]}
+              modules={[Autoplay, EffectCreative]}
               effect="creative"
               creativeEffect={{
                 prev: { shadow: true, translate: ['-120%', 0, -500] },
                 next: { translate: ['100%', 0, 0] },
               }}
-              onSwiper={setSwiper}
-              pagination={{ clickable: true, dynamicBullets: true }}
-              autoplay={{ delay: 4800, disableOnInteraction: false, pauseOnMouseEnter: true }}
+              onSwiper={(sw) => { setSwiper(sw); syncSlideA11y(sw); }}
+              onSlideChange={syncSlideA11y}
+              /*
+               * disableOnInteraction MUST stay true.
+               *
+               * With it false, autoplay keeps firing *after* the user takes
+               * over, so a click on Next races the 4.8s timer: press Next and
+               * you can land two or three slides further on, and Prev then
+               * walks back from wherever autoplay left you rather than from
+               * where you clicked. The slide order was never random — the
+               * timer was simply still driving. Stopping autoplay on the first
+               * interaction makes prev/next exact inverses of each other.
+               */
+              autoplay={{ delay: 4800, disableOnInteraction: true, pauseOnMouseEnter: true }}
               loop
               grabCursor
               speed={700}
@@ -246,9 +285,19 @@ export default function SwiperShowcase() {
                               #{String(project.id).padStart(2, '0')} ·{' '}
                               {project.category === 'shopify' ? 'Shopify' : 'GoHighLevel'}
                             </p>
-                            <h3
+                            {/*
+                              * Deliberately a <p>, not a heading.
+                              *
+                              * Every one of these projects already owns an <h3>
+                              * in the Works grid above. Repeating them here —
+                              * times three, once loop cloning kicks in — is what
+                              * pushed the homepage to 83 headings with 29
+                              * duplicate strings. The carousel is a card, not a
+                              * new document section, so it carries no headings.
+                              */}
+                            <p
                               style={{
-                                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                                fontFamily: 'var(--font-stack-display)',
                                 fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)',
                                 fontWeight: 800,
                                 color: '#ffffff',
@@ -257,7 +306,7 @@ export default function SwiperShowcase() {
                               }}
                             >
                               {project.title}
-                            </h3>
+                            </p>
                           </div>
                         </div>
 
@@ -429,6 +478,45 @@ export default function SwiperShowcase() {
                 <path d="M1.5 1.5L8.5 8l-7 6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
+
+            {/*
+             * Pagination dots, hand-rolled rather than Swiper's built-in ones.
+             * Swiper renders those as bare <span>s: not focusable, no label, no
+             * state exposed. These are real buttons with slideToLoop() — which
+             * takes a *logical* index, so it stays correct despite loop clones.
+             */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '8px',
+                marginTop: '1.75rem',
+              }}
+            >
+              {featuredProjects.map((project, i) => {
+                const isActive = i === activeIndex;
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    onClick={() => swiper?.slideToLoop(i)}
+                    aria-label={`Go to slide ${i + 1}: ${project.title}`}
+                    aria-current={isActive ? 'true' : undefined}
+                    style={{
+                      width: isActive ? '24px' : '8px',
+                      height: '8px',
+                      padding: 0,
+                      border: 'none',
+                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      background: isActive ? '#10B981' : 'rgba(16,185,129,0.35)',
+                      transition: 'width 0.3s ease, background 0.3s ease',
+                    }}
+                  />
+                );
+              })}
+            </div>
 
           </div>
         </div>

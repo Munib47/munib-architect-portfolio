@@ -21,6 +21,13 @@ export default function Portfolio() {
     [active],
   );
 
+  // Heading noun follows the active filter, so "9 Live Shopify Stores" reads
+  // correctly rather than "9 Live Projects" under a Shopify-only grid.
+  const activeLabel =
+    active === 'shopify' ? 'Shopify Stores'
+    : active === 'ghl'   ? 'GHL Funnels'
+    : 'Projects';
+
   // Run entrance animation only on initial mount, not on every filter change
   // (filter changes are animated inside handleFilter)
   useEffect(() => {
@@ -95,7 +102,7 @@ export default function Portfolio() {
             </span>
             <h2
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily: 'var(--font-stack-display)',
                 fontSize: 'clamp(2rem, 4vw, 3rem)',
                 fontWeight: 800,
                 color: '#ffffff',
@@ -103,7 +110,10 @@ export default function Portfolio() {
                 letterSpacing: '-0.02em',
               }}
             >
-              27 Live{' '}
+              {/* Was hard-coded "27 Live Projects" and stayed that way while
+                  the grid below showed 9 — the heading contradicted the count
+                  badge next to it. */}
+              {filtered.length} Live{' '}
               <span
                 style={{
                   background: 'linear-gradient(135deg, #10B981, #06B6D4)',
@@ -112,7 +122,7 @@ export default function Portfolio() {
                   backgroundClip: 'text',
                 }}
               >
-                Projects
+                {activeLabel}
               </span>
             </h2>
           </div>

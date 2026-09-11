@@ -2,15 +2,37 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
+/*
+ * Label and fragment are deliberately the same word now. The nav used to say
+ * "Works" while the section id was `portfolio`, which meant the visible label,
+ * the URL fragment and the anchor could never agree. "Experience" was the
+ * opposite problem: a section id with no nav entry pointing at it. Both are
+ * reconciled here rather than by renaming ids, so every /#portfolio link that
+ * already exists (the case-study pages all use one) keeps working.
+ */
 const NAV_LINKS = [
-  { label: 'Home',     href: '#hero'      },
-  { label: 'About',    href: '#about'     },
-  { label: 'Skills',   href: '#skills'    },
-  { label: 'Works',    href: '#portfolio' },
-  { label: 'Showcase', href: '#showcase'  },
-  { label: 'Contact',  href: '#contact'   },
+  { label: 'Home',       href: '#hero'       },
+  { label: 'About',      href: '#about'      },
+  { label: 'Skills',     href: '#skills'     },
+  { label: 'Portfolio',  href: '#portfolio'  },
+  { label: 'Experience', href: '#experience' },
+  { label: 'Showcase',   href: '#showcase'   },
+  { label: 'Contact',    href: '#contact'    },
 ];
+
+// Height of the fixed header, plus a little breathing room. A section counts
+// as "current" once its top has passed under the bar.
+const HEADER_OFFSET = 88;
+
+/** Smooth-scroll to a fragment, honouring the user's motion preference. */
+export function scrollToSection(href: string) {
+  const el = document.getElementById(href.slice(1));
+  if (!el) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+}
 
 // ── Contact channel icons ─────────────────────────────────────────
 function IconMail() {
@@ -85,26 +107,65 @@ export default function Navigation() {
   const [active,      setActive]      = useState('hero');
   const [menuOpen,    setMenuOpen]    = useState(false);
   const [hireMeOpen,  setHireMeOpen]  = useState(false);
+  // Tracks whether the dropdown was opened deliberately (click / keyboard)
+  // rather than by the pointer merely passing over it. A pinned menu ignores
+  // mouseleave, so it behaves like a real disclosure instead of a tooltip.
+  const [hirePinned,  setHirePinned]  = useState(false);
   const hireMeRef = useRef<HTMLDivElement>(null);
+  const hireBtnRef = useRef<HTMLButtonElement>(null);
+  const hireItemsRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
-  const handleScroll = useCallback(() => {
+  /*
+   * Scroll spy.
+   *
+   * Resolves to exactly one section by construction: walk the list in document
+   * order and keep the last one whose top has passed under the header, so there
+   * is a single winner rather than a set of "active" candidates. The previous
+   * version read el.offsetTop, which is measured against the offset *parent* —
+   * wrong for any section inside a positioned or transformed wrapper.
+   *
+   * The final section is pinned at the bottom of the page: it is shorter than
+   * the viewport, so scrolling can run out before its top ever clears the
+   * header and it would otherwise never light up.
+   */
+  const syncActive = useCallback(() => {
     setScrolled(window.scrollY > 50);
-    const sections = NAV_LINKS.map((l) => l.href.slice(1));
-    for (let i = sections.length - 1; i >= 0; i--) {
-      const el = document.getElementById(sections[i]);
-      if (el && window.scrollY >= el.offsetTop - 160) {
-        setActive(sections[i]);
-        break;
-      }
+
+    const ids = NAV_LINKS.map((l) => l.href.slice(1));
+    const atBottom =
+      window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+
+    if (atBottom) {
+      setActive(ids[ids.length - 1]);
+      return;
     }
+
+    let current = ids[0];
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top <= HEADER_OFFSET) current = id;
+    }
+    setActive(current);
   }, []);
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+    let frame = 0;
+    const onScroll = () => {
+      // Coalesce to one measurement per frame — syncActive reads layout.
+      if (frame) return;
+      frame = requestAnimationFrame(() => { frame = 0; syncActive(); });
+    };
+    syncActive();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [syncActive]);
 
   useEffect(() => {
     const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
@@ -112,15 +173,70 @@ export default function Navigation() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Close hire-me dropdown when clicking outside (covers mobile tap-away)
+  const closeHireMe = useCallback((restoreFocus = false) => {
+    setHireMeOpen(false);
+    setHirePinned(false);
+    if (restoreFocus) hireBtnRef.current?.focus();
+  }, []);
+
+  /*
+   * Click used to fight hover. The wrapper's onMouseEnter set open=true the
+   * instant the pointer arrived, so by the time the click landed the menu was
+   * already open and the toggle closed it again — the button looked dead.
+   * Now a click always resolves to "open and pin", and only closes when the
+   * menu was already pinned.
+   */
+  const toggleHireMe = useCallback(() => {
+    if (hireMeOpen && hirePinned) {
+      closeHireMe();
+    } else {
+      setHireMeOpen(true);
+      setHirePinned(true);
+    }
+  }, [hireMeOpen, hirePinned, closeHireMe]);
+
+  // Close on outside click and on Escape (Escape returns focus to the trigger).
   useEffect(() => {
-    const onClickOutside = (e: MouseEvent) => {
+    if (!hireMeOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
       if (hireMeRef.current && !hireMeRef.current.contains(e.target as Node)) {
-        setHireMeOpen(false);
+        closeHireMe();
       }
     };
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); closeHireMe(true); }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [hireMeOpen, closeHireMe]);
+
+  /** Roving focus across the menu items with the arrow keys / Home / End. */
+  const onHireMenuKeyDown = useCallback((e: React.KeyboardEvent, index: number) => {
+    const items = hireItemsRef.current.filter(Boolean) as HTMLAnchorElement[];
+    if (items.length === 0) return;
+    const go = (i: number) => {
+      e.preventDefault();
+      items[(i + items.length) % items.length]?.focus();
+    };
+    if (e.key === 'ArrowDown') go(index + 1);
+    else if (e.key === 'ArrowUp') go(index - 1);
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(items.length - 1);
+    else if (e.key === 'Tab') closeHireMe();
+  }, [closeHireMe]);
+
+  /** Enter/Space/ArrowDown on the trigger opens the menu and focuses item 1. */
+  const onHireTriggerKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setHireMeOpen(true);
+      setHirePinned(true);
+      requestAnimationFrame(() => hireItemsRef.current[0]?.focus());
+    }
   }, []);
 
   // ── Mobile menu: focus trap + Escape + scroll lock + focus restore ──
@@ -171,9 +287,19 @@ export default function Navigation() {
     };
   }, [menuOpen]);
 
-  const scrollTo = (href: string) => {
-    const id = href.slice(1);
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /*
+   * Anchors, not buttons — so the sections are crawlable, shareable and
+   * deep-linkable. preventDefault only suppresses the instant jump; the href
+   * is still a real URL, and middle-click / ctrl-click still behave normally
+   * because those don't produce a plain left-click event here.
+   */
+  const onNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    scrollToSection(href);
+    // Reflect the destination in the URL without pushing a history entry per click.
+    window.history.replaceState(null, '', href);
+    setActive(href.slice(1));
     setMenuOpen(false);
   };
 
@@ -206,9 +332,11 @@ export default function Navigation() {
         >
 
           {/* ── Logo ── */}
-          <button
-            onClick={() => scrollTo('#hero')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', padding: 0 }}
+          <a
+            href="#hero"
+            onClick={(e) => onNavClick(e, '#hero')}
+            aria-label="Munib Ahmad — back to top"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem', padding: 0, textDecoration: 'none' }}
           >
             <span
               style={{
@@ -221,21 +349,23 @@ export default function Navigation() {
               <Image src="/images/profile/avatar.png" alt="Munib Ahmad" fill sizes="38px" style={{ objectFit: 'cover' }} priority />
             </span>
             <span
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '16px', color: '#ffffff', letterSpacing: '-0.3px' }}
+              style={{ fontFamily: 'var(--font-stack-display)', fontWeight: 700, fontSize: '16px', color: '#ffffff', letterSpacing: '-0.3px' }}
             >
               Munib<span style={{ color: '#10B981' }}>.</span>
             </span>
-          </button>
+          </a>
 
           {/* ── Desktop Nav links ── */}
-          <nav style={{ display: 'flex', gap: '0.25rem' }} className="nav-desktop">
+          <nav aria-label="Main" style={{ display: 'flex', gap: '0.25rem' }} className="nav-desktop">
             {NAV_LINKS.map((link) => {
               const id       = link.href.slice(1);
               const isActive = active === id;
               return (
-                <button
+                <a
                   key={link.href}
-                  onClick={() => scrollTo(link.href)}
+                  href={link.href}
+                  onClick={(e) => onNavClick(e, link.href)}
+                  aria-current={isActive ? 'true' : undefined}
                   className={`filter-tab ${isActive ? 'active' : ''}`}
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
@@ -243,11 +373,12 @@ export default function Navigation() {
                     fontWeight: isActive ? 600 : 400,
                     color: isActive ? '#10B981' : '#ffffff',
                     transition: 'color 0.25s', letterSpacing: '0.02em',
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: 'var(--font-stack-body)',
+                    textDecoration: 'none', whiteSpace: 'nowrap',
                   }}
                 >
                   {link.label}
-                </button>
+                </a>
               );
             })}
           </nav>
@@ -260,13 +391,17 @@ export default function Navigation() {
               ref={hireMeRef}
               style={{ position: 'relative' }}
               onMouseEnter={() => setHireMeOpen(true)}
-              onMouseLeave={() => setHireMeOpen(false)}
+              onMouseLeave={() => { if (!hirePinned) setHireMeOpen(false); }}
             >
             {/* Trigger button */}
             <button
-              onClick={() => setHireMeOpen((v) => !v)}
-              aria-haspopup="true"
+              ref={hireBtnRef}
+              type="button"
+              onClick={toggleHireMe}
+              onKeyDown={onHireTriggerKeyDown}
+              aria-haspopup="menu"
               aria-expanded={hireMeOpen}
+              aria-controls="hire-me-menu"
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.35rem',
                 padding: '0.45rem 1.1rem',
@@ -274,7 +409,7 @@ export default function Navigation() {
                 border: '1px solid rgba(16,185,129,0.4)',
                 color: '#10B981', fontSize: '13px', fontWeight: 600,
                 cursor: 'pointer', letterSpacing: '0.02em',
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: 'var(--font-stack-body)',
                 background: hireMeOpen ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.05)',
                 boxShadow: hireMeOpen ? '0 0 20px rgba(16,185,129,0.2)' : 'none',
                 transition: 'background 0.25s, box-shadow 0.25s',
@@ -308,6 +443,13 @@ export default function Navigation() {
             >
               {/* Visible panel */}
               <div
+                id="hire-me-menu"
+                role="menu"
+                aria-label="Get in touch"
+                /* Kept mounted for the open/close transition, so it must be
+                   hidden from AT and from the tab order while closed. */
+                aria-hidden={!hireMeOpen}
+                inert={!hireMeOpen}
                 style={{
                   minWidth: '248px',
                   background: 'rgba(8,10,16,0.97)',
@@ -337,13 +479,16 @@ export default function Navigation() {
                 </p>
 
                 {/* Channel items */}
-                {HIRE_CHANNELS.map(({ id, label, sublabel, href, color, Icon }) => (
+                {HIRE_CHANNELS.map(({ id, label, sublabel, href, color, Icon }, i) => (
                   <a
                     key={id}
+                    ref={(el) => { hireItemsRef.current[i] = el; }}
                     href={href}
+                    role="menuitem"
                     target={id === 'whatsapp' ? '_blank' : undefined}
                     rel={id === 'whatsapp' ? 'noopener noreferrer' : undefined}
-                    onClick={() => setHireMeOpen(false)}
+                    onClick={() => closeHireMe()}
+                    onKeyDown={(e) => onHireMenuKeyDown(e, i)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '0.75rem',
                       padding: '0.6rem 0.75rem',
@@ -436,7 +581,10 @@ export default function Navigation() {
             background: 'rgba(10,10,12,0.97)',
             backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
             display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', gap: '1.75rem',
+            justifyContent: 'center', gap: '1.15rem',
+            // 8 entries plus the contact block overflows a short phone screen,
+            // so the sheet scrolls rather than clipping its last items.
+            overflowY: 'auto', padding: '4.5rem 1.5rem 2.5rem',
           }}
         >
           <p style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', fontSize: '12px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
@@ -444,22 +592,41 @@ export default function Navigation() {
           </p>
 
           {NAV_LINKS.map((link, i) => (
-            <button
+            <a
               key={link.href}
-              onClick={() => scrollTo(link.href)}
+              href={link.href}
+              onClick={(e) => onNavClick(e, link.href)}
+              aria-current={active === link.href.slice(1) ? 'true' : undefined}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: '2.2rem', fontWeight: 800,
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: '1.9rem', fontWeight: 800,
+                fontFamily: 'var(--font-stack-display)',
                 color: active === link.href.slice(1) ? '#10B981' : '#FFFFFF',
                 letterSpacing: '-0.5px', transition: 'color 0.2s',
+                textDecoration: 'none',
                 opacity: 0, animation: 'fadeSlideIn 0.35s ease forwards',
                 animationDelay: `${i * 60}ms`,
               }}
             >
               {link.label}
-            </button>
+            </a>
           ))}
+
+          {/* Hub page — a real route, not a fragment. */}
+          <Link
+            href="/projects"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              fontSize: '1.9rem', fontWeight: 800,
+              fontFamily: 'var(--font-stack-display)',
+              color: '#FFFFFF', letterSpacing: '-0.5px',
+              textDecoration: 'none',
+              opacity: 0, animation: 'fadeSlideIn 0.35s ease forwards',
+              animationDelay: `${NAV_LINKS.length * 60}ms`,
+            }}
+          >
+            All Projects
+          </Link>
 
           {/* Mobile contact channels */}
           <div
@@ -467,7 +634,7 @@ export default function Navigation() {
               display: 'flex', flexDirection: 'column', gap: '0.6rem',
               marginTop: '0.25rem', width: '100%', maxWidth: '260px',
               opacity: 0, animation: 'fadeSlideIn 0.35s ease forwards',
-              animationDelay: `${NAV_LINKS.length * 60}ms`,
+              animationDelay: `${(NAV_LINKS.length + 1) * 60}ms`,
             }}
           >
             <p style={{ textAlign: 'center', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '0.25rem' }}>

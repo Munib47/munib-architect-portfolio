@@ -180,7 +180,7 @@ export default function About(): JSX.Element {
           </span>
           <h2
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: 'var(--font-stack-display)',
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: 800,
               color: '#ffffff',

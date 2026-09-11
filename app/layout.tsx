@@ -1,7 +1,46 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import AOSProvider from '@/components/AOSProvider';
+import Footer from '@/components/Footer';
 import { SITE_URL } from '@/lib/site';
+
+/*
+ * Self-hosted via next/font instead of a <link> to fonts.googleapis.com.
+ *
+ * The old setup cost two extra DNS + TLS handshakes (googleapis for the CSS,
+ * gstatic for the files) before any glyph could be requested, and the font CSS
+ * was render-blocking on a third-party host we don't control. next/font copies
+ * the files into our own build output, inlines the @font-face rules, and
+ * preloads them — so there's no third-party round trip, no FOUT, and no
+ * request to Google from the visitor's browser, which also removes a GDPR
+ * consideration for EU traffic.
+ *
+ * Exposed as CSS variables because the design sets font-family in inline
+ * styles all over the component tree; next/font generates a hashed family
+ * name, so var(--font-display) is what those call sites reference.
+ */
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+});
+
+// Plus Jakarta Sans tops out at 800 upstream — requesting 900 fails the build.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-display',
+  weight: ['400', '500', '600', '700', '800'],
+});
+
+export const viewport: Viewport = {
+  // Matches the page background, so mobile browser chrome blends with the site
+  // instead of framing it in white.
+  themeColor: '#0A0A0C',
+  colorScheme: 'dark',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -23,6 +62,24 @@ export const metadata: Metadata = {
     'Lahore Pakistan',
   ],
   authors: [{ name: 'Munib Ahmad', url: 'https://github.com/Munib47' }],
+  /*
+   * index,follow is the default, so this is not fixing a bug — it is stating
+   * the intent explicitly. The part that does change behaviour is
+   * max-image-preview:large, which lets Google show a full-size thumbnail
+   * rather than a postage stamp. On an image-heavy portfolio that materially
+   * changes how the result renders.
+   */
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
   // Absolute, no trailing slash — must exactly match the served URL
   // (Next.js defaults to trailingSlash: false), otherwise crawlers flag
   // the canonical as pointing to a "variant" URL.
@@ -46,52 +103,95 @@ export const metadata: Metadata = {
   },
 };
 
-const personJsonLd = {
+/*
+ * Site-wide structured data.
+ *
+ * Person alone described who made the site but not the site itself. WebSite
+ * lets search engines attach the name and publisher to the domain, and
+ * ProfilePage tells them this URL *is* the profile for that Person rather than
+ * merely mentioning them.
+ */
+const siteJsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Munib Ahmad',
-  jobTitle: 'Frontend Architect & Shopify Developer',
-  url: SITE_URL,
-  email: 'mailto:munibahmad47@gmail.com',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Lahore',
-    addressCountry: 'PK',
-  },
-  sameAs: [
-    'https://github.com/Munib47',
-    'https://www.linkedin.com/in/munib-ahmad-294524237',
-  ],
-  knowsAbout: [
-    'Next.js',
-    'React',
-    'Shopify',
-    'Liquid',
-    'GoHighLevel',
-    'Frontend Development',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${SITE_URL}#person`,
+      name: 'Munib Ahmad',
+      jobTitle: 'Frontend Architect & Shopify Developer',
+      url: SITE_URL,
+      email: 'mailto:munibahmad47@gmail.com',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Lahore',
+        addressCountry: 'PK',
+      },
+      sameAs: [
+        'https://github.com/Munib47',
+        'https://www.linkedin.com/in/munib-ahmad-294524237',
+      ],
+      knowsAbout: [
+        'Next.js',
+        'React',
+        'Shopify',
+        'Liquid',
+        'GoHighLevel',
+        'Frontend Development',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}#website`,
+      url: SITE_URL,
+      name: 'Munib Ahmad — Frontend Architect & Shopify Developer',
+      inLanguage: 'en',
+      publisher: { '@id': `${SITE_URL}#person` },
+    },
+    {
+      '@type': 'ProfilePage',
+      '@id': `${SITE_URL}#profile`,
+      url: SITE_URL,
+      name: 'Munib Ahmad — Frontend Architect & Shopify Developer',
+      isPartOf: { '@id': `${SITE_URL}#website` },
+      mainEntity: { '@id': `${SITE_URL}#person` },
+    },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className={`scroll-smooth ${inter.variable} ${jakarta.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
       </head>
       <body
         className="antialiased"
         style={{ backgroundColor: '#0A0A0C', color: '#F0F4F8' }}
       >
+        {/*
+         * Skip link — the first thing in the tab order, visually hidden until
+         * focused. Without it a keyboard user tabs through the whole header,
+         * the seven nav items and the Hire Me menu on every single page load
+         * before reaching content.
+         */}
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+
         <AOSProvider>{children}</AOSProvider>
+
+        {/*
+         * Footer lives in the layout, not in page.tsx.
+         *
+         * It was rendered only by the homepage, so all 27 case-study pages had
+         * no <footer> at all — which is also where the site-wide internal links
+         * live, so those pages were leaking crawl depth as well as looking
+         * unfinished.
+         */}
+        <Footer />
       </body>
     </html>
   );

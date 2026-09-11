@@ -8,7 +8,6 @@ import Portfolio from '@/components/Portfolio/index';
 import ExperienceTimeline from '@/components/Portfolio/ExperienceTimeline';
 import SwiperShowcase from '@/components/SwiperShowcase';
 import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -27,8 +26,9 @@ export default function Home() {
        */}
       <SocialSidebar />
 
-      {/* All page sections — z-index 1, sits above the canvas */}
-      <main style={{ position: 'relative', zIndex: 1 }}>
+      {/* All page sections — z-index 1, sits above the canvas.
+          id="main" is the skip link's destination. */}
+      <main id="main" style={{ position: 'relative', zIndex: 1 }}>
         <Hero />
         <About />
         <Skills />
@@ -37,8 +37,6 @@ export default function Home() {
         <SwiperShowcase />
         <Contact />
       </main>
-
-      <Footer />
     </>
   );
 }

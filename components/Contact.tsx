@@ -162,7 +162,7 @@ export default function Contact() {
           </span>
           <h2
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: 'var(--font-stack-display)',
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               fontWeight: 800,
               color: '#ffffff',
@@ -205,7 +205,7 @@ export default function Contact() {
                   fontWeight: 700,
                   color: '#ffffff',
                   marginBottom: '0.5rem',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontFamily: 'var(--font-stack-display)',
                 }}
               >
                 Munib Ahmad
@@ -355,7 +355,7 @@ export default function Contact() {
                   fontSize: '16px',
                   fontWeight: 700,
                   color: '#ffffff',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontFamily: 'var(--font-stack-display)',
                 }}
               >
                 Send a Message

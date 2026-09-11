@@ -1,6 +1,19 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
+
+const FOOTER_LINK_STYLE: React.CSSProperties = {
+  padding: '0.4rem 0.8rem',
+  borderRadius: '6px',
+  border: '1px solid rgba(255,255,255,0.1)',
+  color: '#ffffff',
+  fontSize: '12px',
+  fontWeight: 600,
+  textDecoration: 'none',
+  transition: 'all 0.25s',
+  letterSpacing: '0.03em',
+};
 
 const SOCIAL_LINKS = [
   { href: 'https://github.com/Munib47/',                        label: 'GitHub'   },
@@ -56,7 +69,7 @@ export default function Footer() {
           </span>
           <span
             style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontFamily: 'var(--font-stack-display)',
               fontSize: '14px',
               fontWeight: 700,
               color: '#ffffff',
@@ -75,8 +88,13 @@ export default function Footer() {
           <span style={{ color: '#96BF48' }}>Shopify</span>.
         </p>
 
-        {/* Social links */}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        {/* Site links + socials. The footer renders on every route now, so the
+            hub link here is what gives the 27 case studies a site-wide
+            internal link back into the index. */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <Link href="/projects" style={FOOTER_LINK_STYLE}>
+            All Projects
+          </Link>
           {SOCIAL_LINKS.map((s) => (
             <a
               key={s.label}

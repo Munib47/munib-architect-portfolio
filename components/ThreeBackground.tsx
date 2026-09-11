@@ -69,10 +69,20 @@ export default function ThreeBackground() {
       alpha: true,
       powerPreference: 'high-performance',
     });
-    // GUARD: cap the device-pixel-ratio (biggest GPU fill-rate cost).
-    renderer.setPixelRatio(Math.min(dpr, lowPower ? 1.5 : 2));
+    /*
+     * GUARD: cap the device-pixel-ratio — the single biggest GPU fill-rate
+     * cost on a full-viewport canvas, since it scales quadratically. 1.5 is
+     * the cap everywhere now; the previous 2.0 on desktop meant a 4K display
+     * was rendering four times the pixels of a 1080p one for a background
+     * nobody is looking directly at.
+     */
+    renderer.setPixelRatio(Math.min(dpr, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 0);
+    // The canvas is decorative; the wrapper is aria-hidden but marking the
+    // element itself means it stays hidden regardless of how it's reparented.
+    renderer.domElement.setAttribute('aria-hidden', 'true');
+    renderer.domElement.setAttribute('role', 'presentation');
     mount.appendChild(renderer.domElement);
 
     // ── Soft-circle sprite texture (round, glowing points) ────────────
@@ -250,22 +260,55 @@ export default function ThreeBackground() {
       renderer.render(scene, camera);
     };
 
-    const loop = () => {
+    /*
+     * GUARD: frame-rate cap.
+     *
+     * On low-power devices the loop is throttled to ~30fps. The particle
+     * update is O(n) over every dot with trig per dot, so halving the frame
+     * rate halves that cost outright — and at this drift speed the difference
+     * is not perceptible on a background. Desktop stays uncapped.
+     */
+    const targetFps = lowPower || (navigator.hardwareConcurrency ?? 8) <= 4 ? 30 : 0;
+    const frameInterval = targetFps ? 1000 / targetFps : 0;
+    let lastFrame = 0;
+
+    const loop = (now: number) => {
       if (!running) return;
+      if (frameInterval) {
+        // Budget with a small tolerance so we don't systematically skip a
+        // frame when the rAF cadence lands just under the interval.
+        if (now - lastFrame < frameInterval - 1) {
+          frameId = requestAnimationFrame(loop);
+          return;
+        }
+        lastFrame = now;
+      }
       renderFrame();
       frameId = requestAnimationFrame(loop);
     };
-    const startLoop = () => { if (!running) { running = true; frameId = requestAnimationFrame(loop); } };
+    const startLoop = () => {
+      if (!running) { running = true; lastFrame = 0; frameId = requestAnimationFrame(loop); }
+    };
     const stopLoop  = () => { running = false; cancelAnimationFrame(frameId); };
 
-    // ── GUARD: render only when tab visible AND canvas on-screen ──────
+    // ── GUARD: render only when tab visible, window focused, canvas on-screen ──
     let onScreen = true;
+    // Start from the real focus state rather than assuming focused — a page
+    // restored into a background window shouldn't begin by rendering.
+    let focused = document.hasFocus();
     const syncRunning = () => {
-      if (!document.hidden && onScreen) startLoop();
+      if (!document.hidden && onScreen && focused) startLoop();
       else stopLoop();
     };
     const onVisibility = () => syncRunning();
+    // visibilitychange only fires when the *tab* is backgrounded. Switching to
+    // another application leaves the tab "visible", so without these the loop
+    // keeps burning GPU behind another window.
+    const onBlur  = () => { focused = false; syncRunning(); };
+    const onFocus = () => { focused = true;  syncRunning(); };
     document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    window.addEventListener('focus', onFocus);
 
     const io = new IntersectionObserver(
       ([entry]) => { onScreen = entry.isIntersecting; syncRunning(); },
@@ -279,6 +322,8 @@ export default function ThreeBackground() {
     return () => {
       stopLoop();
       document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('blur', onBlur);
+      window.removeEventListener('focus', onFocus);
       window.removeEventListener('pointermove', onPointer);
       window.removeEventListener('resize', onResize);
       io.disconnect();

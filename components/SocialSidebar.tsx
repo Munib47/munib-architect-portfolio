@@ -136,7 +136,7 @@ export default function SocialSidebar() {
                */}
               <span
                 className="sidebar-label leading-none whitespace-nowrap text-xs font-semibold"
-                style={{ letterSpacing: '0.02em', fontFamily: "'Inter', sans-serif" }}
+                style={{ letterSpacing: '0.02em', fontFamily: 'var(--font-stack-body)' }}
               >
                 {label}
               </span>

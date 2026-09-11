@@ -14,8 +14,19 @@
   --color-text-muted:   #4B5563;
   --color-border:       rgba(16,185,129,0.15);
   --color-glow:         rgba(16,185,129,0.25);
-  --font-sans: 'Inter', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: var(--font-body), 'Inter', system-ui, sans-serif;
   --radius-card: 1rem;
+}
+
+/* ── Font stacks ─────────────────────────────────────────────────
+   --font-body and --font-display are injected on <html> by next/font
+   (see app/layout.tsx). next/font generates a hashed family name, so the
+   literal 'Inter' / 'Plus Jakarta Sans' entries here are only a fallback for
+   the window before the variables resolve — and for anything that still
+   references the family by name. */
+:root {
+  --font-stack-body: var(--font-body), 'Inter', system-ui, sans-serif;
+  --font-stack-display: var(--font-display), 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 /* ── Base Reset ──────────────────────────────────────────────── */
@@ -39,9 +50,48 @@ html {
 body {
   background-color: #0A0A0C;
   color: #ffffff;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-stack-body);
   overflow-x: hidden;
   max-width: 100%;
+}
+
+/* ── Skip link ───────────────────────────────────────────────────
+   Off-screen until focused, then pinned to the top-left above everything
+   (the nav sits at z-index 100). */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 0.75rem 1.25rem;
+  background: #10B981;
+  color: #0A0A0C;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+  transform: translateY(-120%);
+  transition: transform 0.18s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ── Focus visibility ────────────────────────────────────────────
+   Several controls set `border: none` / `outline: none` inline for styling,
+   which on a dark theme left keyboard users with no visible focus at all.
+   :focus-visible only fires for keyboard/AT focus, so pointer users never
+   see these rings. The offset keeps the ring legible against dark surfaces. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid #10B981;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+/* Gradient-filled buttons sit on emerald already — use a light ring so it
+   stays visible against their own background. */
+.filter-tab.active:focus-visible {
+  outline-color: #F0F4F8;
 }
 
 /* Clip any horizontal transform overflow (AOS, GSAP slide-ins, decorative
@@ -183,19 +233,11 @@ textarea:-ms-input-placeholder {
 /* ── AOS duration override ───────────────────────────────────── */
 [data-aos] { transition-duration: 700ms !important; }
 
-/* ── Swiper overrides ────────────────────────────────────────── */
-.swiper-pagination-bullet {
-  background: rgba(16,185,129,0.35) !important;
-  width: 8px !important;
-  height: 8px !important;
-  opacity: 1 !important;
-  transition: all 0.3s ease !important;
-}
-.swiper-pagination-bullet-active {
-  background: #10B981 !important;
-  width: 24px !important;
-  border-radius: 4px !important;
-}
+/* Swiper's own pagination is no longer used — the showcase renders its own
+   <button> dots so they can carry a label and aria-current, which Swiper's
+   <span> bullets cannot. The styles that used to override those bullets are
+   gone with them; the dot styling now lives with the buttons in
+   components/SwiperShowcase.tsx. */
 
 /* ── Section spacing ─────────────────────────────────────────── */
 .section-padding {
