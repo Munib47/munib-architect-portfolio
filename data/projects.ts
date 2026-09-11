@@ -26,7 +26,7 @@ export const projects: Project[] = [
     category: 'shopify',
     role: 'Senior Shopify Theme Developer',
     description:
-      'Advanced theme customization and regional performance optimization for a premium fashion retail brand. Configured complex regional variants, fast AJAX cart drawer mechanics, and local payment portal logic.',
+      'Advanced theme customization and regional performance optimization for a premium fashion retail brand. Configured regional variants, fast AJAX cart drawer mechanics, and local payment logic.',
     tags: ['Shopify', 'Liquid', 'AJAX Cart', 'Dawn', 'Regional Variants'],
     image: '/images/projects/image-1993-pk.jpg',
     gradientFrom: '#1a0a1a',
@@ -42,7 +42,7 @@ export const projects: Project[] = [
     category: 'shopify',
     role: 'Shopify International Deployment',
     description:
-      'Managed the localized US storefront deployment. Optimized cross-border CDN delivery, international shipping matrix integrations, and automated conversion workflows tailored for the North American market.',
+      'Managed the localized US storefront deployment. Optimized cross-border CDN delivery, international shipping matrix integrations, and automated conversion workflows for the North American market.',
     tags: ['Shopify', 'CDN Optimization', 'Multi-Currency', 'US Market'],
     image: '/images/projects/image-1993.jpg',
     gradientFrom: '#0a0a1f',
@@ -122,7 +122,7 @@ export const projects: Project[] = [
     category: 'shopify',
     role: 'Cross-Border Shopify Developer',
     description:
-      'Scaled a cross-border boutique fashion catalog on Shopify, implementing dynamic size guides, cart drawers, and custom AJAX add-to-cart workflows.',
+      'Scaled a cross-border boutique fashion catalog on Shopify, implementing dynamic size guides, slide-out cart drawers, and custom AJAX add-to-cart workflows built for speed.',
     tags: ['Shopify', 'Cross-Border', 'AJAX', 'Size Guide', 'Cart Drawer'],
     image: '/images/projects/vera.jpg',
     gradientFrom: '#1a0a12',
@@ -154,7 +154,7 @@ export const projects: Project[] = [
     category: 'shopify',
     role: 'Performance & Frontend Architect',
     description:
-      'Frontend architecture and speed tuning for a massive, high-traffic consumer electronics store. Optimized Core Web Vitals, specifically targeting Largest Contentful Paint (LCP) and eliminating layout shifts.',
+      'Frontend architecture and speed tuning for a high-traffic consumer electronics store. Optimized Core Web Vitals, targeting Largest Contentful Paint (LCP) and eliminating cumulative layout shifts.',
     tags: ['Shopify', 'Core Web Vitals', 'LCP', 'Electronics', 'High Traffic'],
     image: '/images/projects/mistore.jpg',
     gradientFrom: '#0a0f1a',
@@ -170,7 +170,7 @@ export const projects: Project[] = [
     category: 'shopify',
     role: 'Boutique Fashion Developer',
     description:
-      'Developed a premium evening and party-wear gown boutique layout. Configured cinematic high-definition product lookbooks and interactive variant selectors.',
+      'Developed a premium evening and party-wear gown boutique layout. Configured cinematic high-definition product lookbooks, interactive variant selectors, and a refined mobile flow.',
     tags: ['Shopify', 'Fashion', 'Lookbook', 'Variant Selectors', 'Boutique'],
     image: '/images/projects/summat.jpg',
     gradientFrom: '#1a0a0f',
@@ -218,7 +218,7 @@ export const projects: Project[] = [
     category: 'shopify',
     role: 'Enterprise Fashion Performance Engineer',
     description:
-      'Performance architecture for a world-renowned luxury fashion label. Optimized render-blocking script behavior, lazy-loaded heavy banner structures, and handled complex third-party marketing integrations like Klaviyo without dropping storefront loading speeds.',
+      'Performance architecture for a world-renowned luxury fashion label. Optimized render-blocking scripts, lazy-loaded heavy banner structures, and integrated Klaviyo without hurting load speed.',
     tags: ['Shopify', 'Performance', 'Klaviyo', 'Luxury Fashion', 'Script Optimization'],
     image: '/images/projects/afrozeh.jpg',
     gradientFrom: '#1a0f1a',
@@ -266,7 +266,7 @@ export const projects: Project[] = [
     category: 'shopify',
     role: 'Bespoke Apparel Developer',
     description:
-      'Built a vibrant, bespoke apparel e-commerce site featuring customized collection carousels, responsive modern filters, and an optimized sticky cart interface.',
+      'Built a vibrant, bespoke apparel e-commerce site featuring customized collection carousels, responsive modern filters, and an optimized sticky cart interface tuned for mobile.',
     tags: ['Shopify', 'Carousels', 'Responsive Filters', 'Sticky Cart', 'Apparel'],
     image: '/images/projects/mizyan.jpg',
     gradientFrom: '#1a0a14',
@@ -345,7 +345,7 @@ export const projects: Project[] = [
     category: 'ghl',
     role: 'GHL Legal & Compliance Designer',
     description:
-      'Built secure, clean legal disclosure and operational evaluation templates. Focused heavily on high mobile responsiveness and legal framework typography layout.',
+      'Built secure, clean legal disclosure and operational evaluation templates in GoHighLevel. Focused heavily on high mobile responsiveness and legal framework typography layout.',
     tags: ['GoHighLevel', 'Legal', 'Compliance', 'Mobile-First', 'Typography'],
     gradientFrom: '#12100a',
     gradientVia: '#1e1a0f',

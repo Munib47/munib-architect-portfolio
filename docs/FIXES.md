@@ -288,6 +288,25 @@ four to match, filling the other three with dead space. Switched the grid to
   **expanded** only the clicked card grows (668px) while the other three stay
   454px; **collapsed again** all four return to 454px.
 
+## Meta descriptions normalized to 160–200 characters
+
+- Home page rewritten to 169 characters (`app/layout.tsx`).
+- Audited all 28 indexable pages by reading the meta description actually
+  rendered by the dev server (not by parsing source), which found 4 project
+  descriptions under 160 (145–159) and 4 over 200 (203–259). Rewrote those 8
+  in `data/projects.ts`. Re-ran the audit: **28/28 now in range.**
+- Note these project strings do double duty — they're the meta description
+  *and* the visible blurb on the project card and case-study page, so the
+  rewrites are user-facing copy changes too, not just metadata.
+- ⚠️ **This contradicts the earlier SEO-auditor pass.** That tool flagged the
+  139-character description as too long and asked for "135 characters or
+  less," which is why it was cut to 114. The 160–200 target was requested
+  afterwards. Worth knowing that Google truncates desktop snippets at roughly
+  155–160 characters, so everything past that point won't display in search
+  results — the value proposition is front-loaded in each rewrite for that
+  reason. If that auditor gets re-run, expect it to flag these again; decide
+  which guidance wins rather than ping-ponging between the two.
+
 ## Skill bars replay their animation on every scroll-in
 
 - The bar fill and the percentage count-up used to be one-shot: the

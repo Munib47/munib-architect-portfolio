@@ -6,8 +6,11 @@ import { SITE_URL } from '@/lib/site';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: 'Munib Ahmad — Frontend Architect & Shopify Developer',
+  // 169 characters — inside the 160–200 target. Note that Google truncates
+  // desktop snippets around 155–160, so the value proposition is front-loaded
+  // and everything past that point is a bonus rather than load-bearing.
   description:
-    '27+ live Shopify stores & GoHighLevel funnels, built by Munib Ahmad — Next.js developer and automation specialist.',
+    '27+ live Shopify stores and GoHighLevel funnels built by Munib Ahmad, a frontend architect specializing in Liquid theme development, Core Web Vitals, and CRM automation.',
   keywords: [
     'Munib Ahmad',
     'Next.js developer',
