@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { skillGroups, techBadges } from '@/data/skills';
+import { TechIcon } from '@/components/icons/TechIcon';
+import { TECH_ICONS } from '@/lib/tech-icons';
 
 // Tracks the user's reduced-motion preference (reactively).
 function usePrefersReducedMotion(): boolean {
@@ -17,9 +19,10 @@ function usePrefersReducedMotion(): boolean {
 }
 
 function SkillBar({
-  name, level, icon, color, index,
+  name, level, icon, color, index, parts,
 }: {
   name: string; level: number; icon: string; color: string; index: number;
+  parts?: { icon: string; label: string }[];
 }) {
   const reduced = usePrefersReducedMotion();
   const barRef = useRef<HTMLDivElement>(null);
@@ -90,8 +93,20 @@ function SkillBar({
             fontWeight: 500,
           }}
         >
-          <span style={{ fontSize: '11px' }}>{icon}</span>
-          {name}
+          {parts ? (
+            parts.map((part, i) => (
+              <span key={part.label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                {i > 0 && <span style={{ color: 'rgba(255,255,255,0.4)' }}>/</span>}
+                <TechIcon def={TECH_ICONS[part.icon]} className="w-3.5 h-3.5" />
+                {part.label}
+              </span>
+            ))
+          ) : (
+            <>
+              <TechIcon def={TECH_ICONS[icon]} className="w-3.5 h-3.5" />
+              {name}
+            </>
+          )}
         </span>
         <span style={{ fontSize: '12px', fontWeight: 700, color }}>
           {display}%
@@ -243,11 +258,11 @@ export default function Skills() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.1rem',
+                    color: group.color,
                     flexShrink: 0,
                   }}
                 >
-                  {group.icon}
+                  <TechIcon def={TECH_ICONS[group.icon]} className="w-5 h-5" />
                 </div>
                 <h3
                   style={{

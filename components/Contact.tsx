@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import type { ComponentType } from 'react';
 import { GitHubIcon, LinkedInIcon, MailIcon, PhoneIcon } from '@/components/icons/SocialIcons';
+import { TechIcon } from '@/components/icons/TechIcon';
+import { TECH_ICONS } from '@/lib/tech-icons';
 
 const CONTACT_LINKS: {
   Icon: ComponentType<{ className?: string }>;
@@ -469,6 +471,9 @@ export default function Contact() {
                 {status === 'success' && (
                   <div
                     style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
                       padding: '0.8rem 1rem',
                       borderRadius: '10px',
                       background: 'rgba(16,185,129,0.1)',
@@ -478,7 +483,8 @@ export default function Contact() {
                       fontWeight: 600,
                     }}
                   >
-                    ✓ Thanks — your message has been sent. I&apos;ll get back to you shortly.
+                    <TechIcon def={TECH_ICONS.check} className="w-4 h-4 shrink-0" />
+                    Thanks — your message has been sent. I&apos;ll get back to you shortly.
                   </div>
                 )}
                 {status === 'error' && formError && (
@@ -550,11 +556,16 @@ export default function Contact() {
                     }}
                   />
                 )}
-                {submitting
-                  ? 'Sending…'
-                  : status === 'success'
-                    ? '✓ Message Sent'
-                    : 'Send Message →'}
+                {submitting ? (
+                  'Sending…'
+                ) : status === 'success' ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <TechIcon def={TECH_ICONS.check} className="w-4 h-4" />
+                    Message Sent
+                  </span>
+                ) : (
+                  'Send Message →'
+                )}
               </button>
             </form>
           </div>

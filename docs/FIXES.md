@@ -152,3 +152,71 @@ build on or correct earlier ones (see the domain fix under SEO, second pass).
   home page emits fully-formed `og:image`/`twitter:image` meta tags
   (absolute URL, correct dimensions, alt text) with zero manual metadata
   config needed — Next.js wires it up automatically from these files.
+
+## Skills section icons: emoji → SVG, one shared renderer
+
+- The Skills & Expertise section (`components/Skills.tsx`) used raw emoji
+  (⚡ 🎬 🛒 🚀 for categories; ▲ ⚛️ 🌐 🎨 💧 🌅 📈 🤖 📧 🔌 📅 etc. for
+  individual skills — 33 icons total) instead of SVG, same underlying issue
+  as the earlier Contact card fix.
+- Built one reusable renderer, `components/icons/TechIcon.tsx` — every icon
+  is a data entry (`{ viewBox, mode: 'fill' | 'stroke', shapes: [...] }`)
+  rendered through this single component, not a bespoke component per icon.
+  `shapes` are simple primitives (`path`/`rect`/`circle`/`line`), so
+  multi-part icons (calendar, envelope, cart) don't need one hand-encoded
+  compound path.
+- Path data lives in `lib/tech-icons.ts`, keyed by icon name:
+  - **Brand logos** (`mode: 'fill'`) — Next.js, React, TypeScript,
+    JavaScript, HTML5, Tailwind CSS, Bootstrap, MUI, GSAP, Three.js,
+    Shopify, Framer, Swiper. Path data sourced from the `simple-icons`
+    project's SVG data for accuracy (temporarily installed with `--no-save`
+    purely to copy the exact path strings, then removed — confirmed via
+    `git status` that `package.json`/`package-lock.json` were never
+    touched; it's not a runtime dependency).
+  - **Generic concept icons** (`mode: 'stroke'`) — calendar, funnel, cart,
+    plug, link, envelope, sliders, sunrise, package, trending-up, etc. —
+    hand-built from simple primitives since there's no official mark to
+    match for concepts like "Webhook Integrations" or "Booking Calendars."
+- `data/skills.ts`'s `icon` fields now hold these string keys (e.g.
+  `'nextjs'`, `'funnel'`) instead of emoji characters; `Skills.tsx` looks
+  each key up in `TECH_ICONS` and renders it via `<TechIcon>`.
+- Verified visually with a live render (screenshots, including zoomed
+  crops): every category and skill icon renders as a crisp, correctly
+  colored SVG — brand marks are recognizable (Next.js, React, TypeScript,
+  Shopify, etc.), generic icons read clearly at the small size used.
+
+## HTML5/CSS3 split into two icons, plus a full-project emoji audit
+
+- The "HTML5 / CSS3" skill row showed one HTML5 icon for two technologies.
+  Added an optional `parts` field to the `Skill` type
+  (`{ icon: string; label: string }[]`) for skills that bundle more than
+  one technology under one bar — `Skills.tsx` now renders each part with
+  its own icon before its own label when `parts` is set, joined by "/",
+  instead of a single icon for the whole line. Added the CSS3 brand icon
+  to `lib/tech-icons.ts` (same `simple-icons` sourcing as the others) to
+  fill the second slot. Currently the only skill using `parts`.
+- Ran a full-codebase scan (`app/`, `components/`, `data/`, `lib/`,
+  `types/`) for any remaining pictographic emoji used as icons. Found two:
+  a plain "✓" checkmark in `Contact.tsx`'s success message and the
+  "Message Sent" button label. Added a `check` icon to `lib/tech-icons.ts`
+  and replaced both. See [ICON_AUDIT.md](./ICON_AUDIT.md) for the full
+  scan results — nothing else found, nothing left outstanding, nothing
+  was too difficult to replace.
+- Verified live: screenshotted the HTML5/CSS3 row (shows both icons
+  correctly), and submitted a real test contact-form entry to confirm the
+  checkmark renders correctly in both the success banner and the button.
+
+## CSS3 icon swapped for the classic shield mark
+
+- The CSS3 icon initially used the newer flat "CSS" wordmark logo (from
+  `simple-icons`), which reads ambiguously at 14px next to the HTML5 icon.
+  Swapped it for the classic single-tone "shield with a 3" mark instead
+  (sourced from Font Awesome's `css3-alt`, matching the official W3C-style
+  badge everyone recognizes) — same sourcing approach as the other brand
+  icons: temporarily installed `@fortawesome/fontawesome-free` with
+  `--no-save` to copy the exact path, then removed it (confirmed via
+  `git status` that `package.json`/`package-lock.json` were never touched).
+- Verified the path data by rendering it standalone at full size (120×160)
+  before trusting it in the small in-context icon — confirmed it's the
+  correct shield-and-3 shape, with `fill-rule="evenodd"` (the default in
+  `TechIcon`) rendering identically to the unset default, so no risk there.
