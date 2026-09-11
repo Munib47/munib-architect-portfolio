@@ -35,6 +35,10 @@ export const skillGroups: SkillGroup[] = [
       { name: 'Tailwind CSS',      level: 96, icon: 'tailwindcss'},
       { name: 'Bootstrap',         level: 90, icon: 'bootstrap'  },
       { name: 'Material UI',       level: 88, icon: 'mui'        },
+      { name: 'Shopify Polaris',   level: 85, icon: 'polaris'    },
+      { name: 'Sass',              level: 88, icon: 'sass'       },
+      { name: 'Less',              level: 82, icon: 'less'       },
+      { name: 'WordPress',         level: 85, icon: 'wordpress'  },
     ],
   },
   {
@@ -48,6 +52,7 @@ export const skillGroups: SkillGroup[] = [
       { name: 'Swiper.js',      level: 92, icon: 'swiper'      },
       { name: 'CSS Animations', level: 94, icon: 'sparkle'     },
       { name: 'Framer Motion',  level: 80, icon: 'framer'      },
+      { name: 'Anime.js',       level: 80, icon: 'animejs'     },
     ],
   },
   {
@@ -76,6 +81,8 @@ export const skillGroups: SkillGroup[] = [
       { name: 'SMS/Email Triggers',  level: 92, icon: 'envelope'    },
       { name: 'Webhook Integrations',level: 88, icon: 'plug'        },
       { name: 'Booking Calendars',   level: 90, icon: 'calendar'    },
+      { name: 'ClickFunnels',        level: 88, icon: 'clickfunnels'},
+      { name: 'Unbounce',            level: 85, icon: 'unbounce'    },
     ],
   },
 ];

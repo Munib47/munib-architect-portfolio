@@ -220,3 +220,95 @@ build on or correct earlier ones (see the domain fix under SEO, second pass).
   before trusting it in the small in-context icon — confirmed it's the
   correct shield-and-3 shape, with `fill-rule="evenodd"` (the default in
   `TechIcon`) rendering identically to the unset default, so no risk there.
+
+## Added 4 skills: Shopify Polaris, Sass, Less, Anime.js
+
+- Added to `data/skills.ts` — Polaris, Sass, Less under Frontend Development
+  (per request), Anime.js under Animation & 3D. Icon paths for Sass, Less,
+  and Anime.js sourced from `simple-icons` (same temp-install-then-remove
+  approach as every other brand icon here). Polaris has no `simple-icons`
+  brand mark (it's Shopify's internal design system, not independently
+  catalogued), so it uses a generic compass icon instead — a deliberate,
+  thematically-apt choice ("Polaris" = north star / navigation), not a
+  placeholder standing in for a missing accurate mark.
+- Proficiency percentages (Polaris 85%, Sass 88%, Less 82%, Anime.js 80%)
+  are placeholder defaults, explicitly requested as such — roughly matched
+  to comparable existing skills, not a claim of verified real numbers.
+  Update these directly in `data/skills.ts` whenever exact levels are known.
+- Verified visually with a live render — all four show correct, recognizable icons.
+
+## Added WordPress, ClickFunnels, Unbounce + equal-height skill cards
+
+**Skills added** (placeholder proficiency %, same as above — correct them in
+`data/skills.ts` anytime):
+- **WordPress** → Frontend Development. That card is the general
+  "web platforms/tooling" bucket; none of the other three categories fit a CMS.
+  Uses its real `simple-icons` brand mark.
+- **ClickFunnels** and **Unbounce** → GoHighLevel & CRM. That category was
+  already general funnel/marketing-automation work (Funnel Building, Webhook
+  Integrations, Booking Calendars), not GHL-branded things only. Neither has a
+  `simple-icons` entry, so both use deliberate generic icons: a cursor for
+  ClickFunnels (echoes "Click", and stays visually distinct from the `funnel`
+  icon two rows above it) and a page-layout icon for Unbounce.
+
+**Card height/layout** — the cards were already equal height (CSS Grid
+stretches items in a row by default), but the *content* was lopsided: one
+group had 12 skills and another had 7, leaving the shorter cards mostly empty.
+Fixed by capping each card at `VISIBLE_SKILLS = 7` rows at rest — the size of
+the smallest group — so all four render identical row counts and the shared
+row height is tight instead of padded out with dead space. Measured live:
+all four cards land at exactly the same height (453px collapsed, 666px when
+one is expanded).
+
+- Cards with more than 7 skills get an underlined **"Show N more"** toggle,
+  pinned to the card's bottom edge (`marginTop: auto` on a flex column) so the
+  button line stays aligned across cards.
+- **Click, not hover.** Hover-to-expand was considered and rejected: touch
+  devices have no hover state, so the extra skills would be permanently
+  unreachable on mobile. Verified the button renders and is tappable at 390px
+  with no horizontal overflow.
+- Newly revealed bars pass a new `immediate` prop to `SkillBar`, which skips
+  the scroll-triggered `IntersectionObserver` reveal. Without it, rows that
+  land below the fold on expand sit at 0% with an empty bar until the user
+  scrolls — caught this in a live screenshot (WordPress rendered 0%), since
+  the user explicitly asked to see those rows by clicking.
+
+**Follow-up — only the clicked card expands.** The first pass left the grid
+on its default `align-items: stretch`, so expanding one card stretched all
+four to match, filling the other three with dead space. Switched the grid to
+`align-items: start` so each card sizes to its own content.
+
+- That alone would have broken the rest-state alignment, since only two of
+  the four cards have a "Show N more" button (a 16px difference, measured).
+  Rather than hardcode a matching pixel height, cards without a toggle render
+  an invisible `<span>` carrying the button's exact typography via a shared
+  `TOGGLE_TEXT_STYLE` constant — so the two stay in lockstep automatically if
+  the type is ever changed. It's `aria-hidden` and non-focusable, purely spacing.
+- Measured live across all three states: **at rest** all four cards are 454px;
+  **expanded** only the clicked card grows (668px) while the other three stay
+  454px; **collapsed again** all four return to 454px.
+
+## Skill bars replay their animation on every scroll-in
+
+- The bar fill and the percentage count-up used to be one-shot: the
+  `IntersectionObserver` called `obs.disconnect()` on first intersection, so
+  the animation ran once per page load and never again. Now the observer
+  stays connected — leaving the section in **either** direction resets the bar
+  to empty and the counter to 0, so scrolling back to Skills replays both.
+- Removed the `immediate` prop added in the previous pass. It existed so
+  expand-revealed rows below the fold wouldn't sit at 0% forever, but with
+  replay-on-scroll that's no longer a stuck state — it's just "not revealed
+  yet", consistent with every other bar. Keeping it would have fought the
+  observer (an `immediate` bar below the fold would be reset to 0 anyway).
+- **Bug found and fixed while testing this:** the counter briefly rendered a
+  *negative* percentage (`-4%` captured live). `requestAnimationFrame` passes
+  the timestamp of when the frame's work began, which can predate the
+  `performance.now()` captured moments earlier when scheduling it — so
+  `(now - start) / DURATION` went slightly negative, and easeOutCubic
+  (`1 - (1-p)³`) amplified that into a negative result. Progress is now
+  clamped at both ends, not just the top. This bug predates this change; it
+  was simply invisible while the animation only ran once.
+- Verified live: replay series reads `0 → 8 → 37 → 61 → 75 → 86 → 91 → 94 →
+  95%` with no negative frame, resets correctly when scrolling away both
+  downward and upward, and under `prefers-reduced-motion` the bars hold their
+  real value with no reset cycling at all.

@@ -30,8 +30,14 @@ function SkillBar({
   const [shown, setShown] = useState(false);
   const [display, setDisplay] = useState(0);
 
-  // Reveal when the bar scrolls into view (per-element, one-shot). With
-  // reduced motion or no IntersectionObserver support, reveal immediately.
+  // Replays every time the bar enters the viewport, not just the first
+  // time: leaving the section in EITHER direction resets the bar to empty
+  // and the counter to 0, so scrolling back to Skills re-runs the fill and
+  // the count-up. (The observer therefore stays connected for the life of
+  // the component rather than disconnecting on first intersection.)
+  //
+  // With reduced motion, or no IntersectionObserver, skip all of it and
+  // rest at the real value permanently.
   useEffect(() => {
     if (reduced || typeof IntersectionObserver === 'undefined') {
       setShown(true);
@@ -44,7 +50,11 @@ function SkillBar({
       ([entry]) => {
         if (entry.isIntersecting) {
           setShown(true);
-          obs.disconnect();
+        } else {
+          // Reset so the next entry animates from empty rather than
+          // snapping straight to the previous resting value.
+          setShown(false);
+          setDisplay(0);
         }
       },
       { threshold: 0.25, rootMargin: '0px 0px -10% 0px' },
@@ -63,7 +73,12 @@ function SkillBar({
     const DURATION = 1100;
     const start = performance.now();
     const tick = (now: number) => {
-      const p = Math.min((now - start) / DURATION, 1);
+      // Clamped at BOTH ends. The rAF timestamp is the time the frame's
+      // work began, which can predate the `performance.now()` captured a
+      // moment earlier — leaving `now - start` slightly negative, which
+      // easeOutCubic then amplifies into a negative percentage (a brief
+      // "-4%" flash, seen live once the animation started replaying).
+      const p = Math.min(Math.max((now - start) / DURATION, 0), 1);
       const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
       setDisplay(Math.round(level * eased));
       if (p < 1) raf = requestAnimationFrame(tick);
@@ -139,6 +154,159 @@ function SkillBar({
   );
 }
 
+// How many skills each card shows before the "Show more" toggle. Set to
+// the size of the smallest group so every card renders the same number of
+// rows at rest — the grid then lays them out at a matching height with no
+// large empty gap in the shorter cards, which is what made the row look
+// ragged when one group had 12 skills and another had 7.
+const VISIBLE_SKILLS = 7;
+
+// Shared by the real toggle and its invisible spacer twin, so both occupy
+// exactly the same box no matter how the type is tweaked later.
+const TOGGLE_TEXT_STYLE: React.CSSProperties = {
+  display: 'inline-block',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  fontSize: '12px',
+  fontWeight: 600,
+  fontFamily: 'inherit',
+  textDecoration: 'underline',
+  textUnderlineOffset: '3px',
+  letterSpacing: '0.01em',
+};
+
+function SkillGroupCard({
+  group, index,
+}: {
+  group: (typeof skillGroups)[number]; index: number;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const hiddenCount = group.skills.length - VISIBLE_SKILLS;
+  const hasMore = hiddenCount > 0;
+  const visible = expanded || !hasMore ? group.skills : group.skills.slice(0, VISIBLE_SKILLS);
+
+  return (
+    <div
+      className="card-lift"
+      data-aos="fade-up"
+      data-aos-delay={index * 100}
+      style={{
+        background: '#0F1117',
+        border: `1px solid ${group.color}18`,
+        borderRadius: '16px',
+        padding: '1.75rem',
+        position: 'relative',
+        overflow: 'hidden',
+        // Column layout so the toggle can be pinned to the card's bottom
+        // edge (marginTop:auto) rather than floating right under the last
+        // bar — keeps the button line aligned across cards.
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease, border-color 0.35s ease',
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLDivElement;
+        el.style.boxShadow   = `0 20px 60px ${group.color}30, 0 4px 20px rgba(0,0,0,0.5)`;
+        el.style.borderColor = `${group.color}50`;
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLDivElement;
+        el.style.boxShadow   = '';
+        el.style.borderColor = `${group.color}18`;
+      }}
+    >
+      {/* Corner glow */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '130px',
+          height: '130px',
+          background: `radial-gradient(circle at top right, ${group.color}15, transparent 60%)`,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Group header */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          marginBottom: '1.5rem',
+        }}
+      >
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '10px',
+            background: `${group.color}18`,
+            border: `1px solid ${group.color}30`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: group.color,
+            flexShrink: 0,
+          }}
+        >
+          <TechIcon def={TECH_ICONS[group.icon]} className="w-5 h-5" />
+        </div>
+        <h3
+          style={{
+            fontSize: '15px',
+            fontWeight: 700,
+            color: group.color,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {group.category}
+        </h3>
+      </div>
+
+      {/* Skill bars */}
+      {visible.map((skill, si) => (
+        <SkillBar
+          key={skill.name}
+          {...skill}
+          color={group.color}
+          index={si}
+        />
+      ))}
+
+      {/*
+       * Footer slot always renders, even with no button, so all four cards
+       * reserve identical height at rest now that the grid no longer
+       * stretches them to a common height. The empty case uses a hidden
+       * copy of the button's own text rather than a hardcoded height, so
+       * the two stay in lockstep if the type ever changes.
+       *
+       * Click (not hover) to expand — hover would leave the extra skills
+       * permanently unreachable on touch devices, which have no hover state.
+       */}
+      <div style={{ marginTop: 'auto', paddingTop: '0.6rem' }}>
+        {hasMore ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            style={{ ...TOGGLE_TEXT_STYLE, color: group.color, cursor: 'pointer' }}
+          >
+            {expanded ? 'Show less' : `Show ${hiddenCount} more`}
+          </button>
+        ) : (
+          <span aria-hidden="true" style={{ ...TOGGLE_TEXT_STYLE, visibility: 'hidden' }}>
+            Show more
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Skills() {
   return (
     <section
@@ -198,94 +366,19 @@ export default function Skills() {
         </div>
 
         {/* ── Skill Groups Grid — 4-column single row on desktop ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ marginBottom: '4rem' }}>
+        {/*
+         * alignItems:'start' — without it, Grid stretches every card in a
+         * row to match the tallest, so expanding one card would inflate the
+         * other three with dead space. Each card sizes to its own content
+         * instead; they still line up at rest because every card renders the
+         * same 7 rows plus a fixed-height footer slot (see SkillGroupCard).
+         */}
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          style={{ marginBottom: '4rem', alignItems: 'start' }}
+        >
           {skillGroups.map((group, gi) => (
-            <div
-              key={group.category}
-              className="card-lift"
-              data-aos="fade-up"
-              data-aos-delay={gi * 100}
-              style={{
-                background: '#0F1117',
-                border: `1px solid ${group.color}18`,
-                borderRadius: '16px',
-                padding: '1.75rem',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease, border-color 0.35s ease',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.boxShadow   = `0 20px 60px ${group.color}30, 0 4px 20px rgba(0,0,0,0.5)`;
-                el.style.borderColor = `${group.color}50`;
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.boxShadow   = '';
-                el.style.borderColor = `${group.color}18`;
-              }}
-            >
-              {/* Corner glow */}
-              <div
-                aria-hidden="true"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  width: '130px',
-                  height: '130px',
-                  background: `radial-gradient(circle at top right, ${group.color}15, transparent 60%)`,
-                  pointerEvents: 'none',
-                }}
-              />
-
-              {/* Group header */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                <div
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '10px',
-                    background: `${group.color}18`,
-                    border: `1px solid ${group.color}30`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: group.color,
-                    flexShrink: 0,
-                  }}
-                >
-                  <TechIcon def={TECH_ICONS[group.icon]} className="w-5 h-5" />
-                </div>
-                <h3
-                  style={{
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    color: group.color,
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  {group.category}
-                </h3>
-              </div>
-
-              {/* Skill bars */}
-              {group.skills.map((skill, si) => (
-                <SkillBar
-                  key={skill.name}
-                  {...skill}
-                  color={group.color}
-                  index={si}
-                />
-              ))}
-            </div>
+            <SkillGroupCard key={group.category} group={group} index={gi} />
           ))}
         </div>
 
