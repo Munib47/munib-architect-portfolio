@@ -317,6 +317,7 @@ export const projects: Project[] = [
     description:
       'Constructed a streamlined community recruitment landing page in GHL. Automated user onboarding flows, webhook notifications, and centralized customer access tags.',
     tags: ['GoHighLevel', 'Funnel', 'Webhooks', 'Onboarding', 'Community'],
+    image: '/images/projects/strong-refuge-pool-community.jpg',
     gradientFrom: '#0a0f1a',
     gradientVia: '#0f1a30',
     gradientTo: '#0a0f18',

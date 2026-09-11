@@ -676,3 +676,74 @@ Final: homepage 31 on load / 65 fully scrolled, case study 25, hub 38.
 work was committed *and pushed* without being asked for in this session. That
 matches the auto-sync behaviour noticed earlier (most likely VS Code's Source
 Control auto-fetch/push). Worth turning off if pushes should stay manual.
+
+---
+
+## Project screenshots — dead fallback removed, and the add-a-screenshot process
+
+### The 404s in the dev terminal — REAL, fixed
+
+`components/Portfolio/ProjectCard.tsx` resolved its thumbnail as:
+
+    const imgSrc = project.image ?? `/images/portfolio/${imgSlug(project.title)}.jpg`;
+
+Only 18 of 27 projects carry an `image` field, so the 9 GHL cards fell through
+to the title-derived path — and `public/images/portfolio/` only ever contained
+`ghl.jpg` and `shopify.webp`, the two category badges. The fallback therefore
+resolved for **nothing**: every GHL card fired a request that 404'd, logged
+`The requested resource isn't a valid image ... received null`, and only then
+degraded to the `AbstractMockup` wireframe that was already rendered underneath
+it as the base layer.
+
+Nine wasted round-trips per homepage load for a result identical to rendering
+nothing. Fixed by gating on `project.image` so no request is made when there is
+no screenshot; `imgSlug()` was deleted with it. The `imgError` state stays —
+it still covers a screenshot file going missing later.
+
+Verified: 0 failing image requests on a full homepage scroll, all 27 cards
+still rendering.
+
+### Adding a screenshot for a project
+
+Screenshots are captured from the live site rather than cropped from a shared
+image — it is sharper, correctly framed, and matches the existing files.
+Convention is **980x577 JPEG** in `public/images/projects/<slug>.jpg`.
+
+1. **Capture** at 2x device scale, then downscale (crisper than shooting at
+   980 directly):
+
+       viewport 1470x866, deviceScaleFactor 2
+       page.goto(url, { waitUntil: 'load' })
+
+   Use `'load'`, **not** `'networkidle'` — GHL funnels hold tracking/polling
+   connections open indefinitely, so networkidle never fires and the capture
+   times out at 60s. Scroll to ~300px and back before shooting to trigger lazy
+   hero imagery, then wait ~4s for webfonts.
+
+2. **Resize** with sharp: `.resize(980, 577, { fit: 'cover', position: 'top' })`
+   at `quality: 82` — `position: 'top'` keeps the header and hero rather than
+   centre-cropping into the page body.
+
+3. **Wire it up**: add `image: '/images/projects/<slug>.jpg'` to that project in
+   `data/projects.ts`. Nothing else needs touching — the card, the case-study
+   hero and the `/projects` hub all read the same field.
+
+Note the per-project OG card in `app/projects/[id]/opengraph-image.tsx` is
+generated and does **not** use this screenshot, so social previews were already
+correct for the projects that had none.
+
+### Remaining
+
+8 of 27 still have no screenshot, all GHL:
+
+    strong-refuge-pool-funnel       https://go.strongrefugepool.com/
+    strong-refuge-pool-compliance   https://comp.strongrefugepool.com/
+    strong-refuge-pool-equipment    https://equip.strongrefugepool.com/
+    wingman-aero-uft                https://uft.wingmanaero.com/
+    beyond-remedy-ny-injectables    https://go.beyondremedyny.com/brinjectablespromo
+    beyond-remedy-co-main           https://go.beyondremedyco.com/
+    swoon-learning-start            https://start.swoonlearning.com/
+    my-injury-case-help             https://myinjurycasehelp.com/
+
+These render the AbstractMockup wireframe, which is a deliberate fallback and
+costs no failed request.

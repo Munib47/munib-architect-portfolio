@@ -13,14 +13,6 @@ interface Props {
   index: number;
 }
 
-function imgSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-');
-}
-
 // ── Shared inline-style shorthand types ──────────────────────────
 type CSSProp = React.CSSProperties;
 
@@ -43,10 +35,21 @@ export default function ProjectCard({ project, index }: Props) {
   const isShopify     = project.category === 'shopify';
   const categoryLabel = isShopify ? 'Shopify' : 'GoHighLevel';
   const categoryColor = isShopify ? '#96BF48' : '#F97316';
-  // Prefer the explicit local hero screenshot when present; otherwise fall back
-  // to the title-derived portfolio image (which itself degrades to AbstractMockup
-  // via onError). Projects without `image` keep their exact prior behavior.
-  const imgSrc        = project.image ?? `/images/portfolio/${imgSlug(project.title)}.jpg`;
+  /*
+   * Only the 18 Shopify projects have a screenshot; the 9 GHL ones deliberately
+   * render the AbstractMockup wireframe instead.
+   *
+   * This used to fall back to a title-derived path —
+   * `/images/portfolio/${imgSlug(project.title)}.jpg` — and let next/image's
+   * onError degrade to the mockup. But public/images/portfolio/ only ever held
+   * ghl.jpg and shopify.webp (the two category badges), so that path resolved
+   * for exactly nothing: every GHL card fired a request that 404'd, logged
+   * "The requested resource isn't a valid image ... received null", and only
+   * then showed the mockup that was already sitting underneath it.
+   *
+   * Nine wasted round-trips per homepage load for a visual result identical to
+   * rendering nothing. Gating on project.image skips the request entirely.
+   */
   const casePath      = `/projects/${project.slug}`;
 
   // Kill active tween on unmount to avoid state updates on dead element
@@ -143,10 +146,11 @@ export default function ProjectCard({ project, index }: Props) {
             {/* Abstract SVG wireframe — always rendered as base layer */}
             <AbstractMockup project={project} idPrefix={`front-${project.id}`} />
 
-            {/* Real screenshot overlays SVG when available */}
-            {!imgError && (
+            {/* Real screenshot overlays the SVG when one exists. imgError still
+                covers the case of a screenshot file going missing later. */}
+            {project.image && !imgError && (
               <Image
-                src={imgSrc}
+                src={project.image}
                 alt={`Screenshot of ${project.title}`}
                 fill
                 style={{ objectFit: 'cover' }}
