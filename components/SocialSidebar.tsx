@@ -138,11 +138,25 @@ export default function SocialSidebar() {
              *                    transition-all animates this smoothly.
              * `overflow-hidden`— clips the label while the pill is narrow;
              *                    the label is revealed as the pill grows.
-             * `px-3.5`        — 14 px side padding keeps the icon from
-             *                    sitting flush against the border.
+             *
+             * Padding, gap, and flex alignment are set via inline `style`
+             * below rather than Tailwind's `px-3.5`/`gap-3`/`justify-*`
+             * utilities. Those utilities compile correctly but are always
+             * overridden to 0 by the global `*, ::before, ::after { margin:
+             * 0; padding: 0; }` reset in globals.css — that reset is plain
+             * (unlayered) CSS, and CSS cascade layers give ANY unlayered
+             * rule priority over ALL of Tailwind's utilities (which ship
+             * inside `@layer utilities`), regardless of selector
+             * specificity or source order. This bit precisely when
+             * switching from `justify-center` (masked it — a single
+             * flex child centers without needing padding) to left-aligned
+             * (exposed it — the icon sat flush against the border with no
+             * padding). Inline styles aren't layered, so they aren't
+             * affected. The rest of this component already uses inline
+             * styles for layout for the same underlying reason.
              *
              * Visual styles (border, background, backdrop-filter, glow) live
-             * in .sidebar-link below; Tailwind handles sizing + layout.
+             * in .sidebar-link below.
              */
             <a
               key={label}
@@ -152,11 +166,18 @@ export default function SocialSidebar() {
               aria-label={label}
               className={[
                 'sidebar-link group',
-                'flex items-center justify-center',
-                'px-3.5 w-12 h-12 rounded-xl overflow-hidden',
+                'w-12 h-12 rounded-xl overflow-hidden',
                 'transition-all duration-300 ease-in-out',
                 'hover:w-36',
               ].join(' ')}
+              style={{
+                display:        'flex',
+                alignItems:     'center',
+                justifyContent: 'flex-start',
+                gap:            '0.75rem',
+                paddingLeft:    '0.875rem',
+                paddingRight:   '0.875rem',
+              }}
             >
               {/*
                * Brand icon — shrink-0 locks it at w-5 h-5 (20 × 20 px)
@@ -178,7 +199,7 @@ export default function SocialSidebar() {
                * inside the narrow pill mid-animation.
                */}
               <span
-                className="sidebar-label ml-3 whitespace-nowrap text-xs font-semibold"
+                className="sidebar-label leading-none whitespace-nowrap text-xs font-semibold"
                 style={{ letterSpacing: '0.02em', fontFamily: "'Inter', sans-serif" }}
               >
                 {label}

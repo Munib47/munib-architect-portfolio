@@ -177,6 +177,43 @@ projects get clicked, or whether the contact form converts. Two reasonable optio
 
 - **Dead code:** `components/DynamicResumeEngine.tsx`, `components/ResumePDF.tsx`, and the `@react-pdf/renderer` dependency are unused since the résumé download was removed from the nav. Either delete them or re-wire a "Download Résumé" button (Hero or Contact section) — right now it's just unshipped surface area.
 - **Inline hex colors** are repeated across components instead of referencing the `@theme` tokens already defined in `globals.css` — worth centralizing so a future rebrand (or the domain-driven refresh, if you do one) is a one-file change.
+- **⚠️ Found while fixing the social sidebar — worth knowing about sitewide:**
+  `app/globals.css` line ~22 has a base reset —
+  ```css
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  ```
+  — written as plain CSS, not wrapped in `@layer base`. Tailwind v4 ships its
+  own utilities inside `@layer utilities`, and CSS cascade layers give
+  **any unlayered rule priority over every layered rule**, regardless of
+  selector specificity or source order. The practical effect: **every
+  Tailwind spacing utility — `p-*`, `m-*`, `px-*`, `py-*`, `mx-*`, `my-*`,
+  `space-x-*`/`space-y-*` — silently resolves to `0` everywhere in this
+  codebase**, no matter how specific the class. (`gap-*` and `w-*`/`h-*` are
+  unaffected — they're not reset by this rule.)
+
+  This was invisible until now because the codebase's own pattern is to set
+  spacing via inline `style={{ padding: ..., gap: ... }}` instead of Tailwind
+  utilities almost everywhere (`SocialSidebar.tsx`'s wrapper `div`s are a
+  good example) — which was very possibly *why* that pattern exists, whether
+  discovered deliberately or worked around by trial and error. It only
+  surfaced as a visible bug once I used `px-3.5`/`gap-3`/`justify-*`
+  Tailwind classes directly on the sidebar's `<a>` tags while fixing the
+  icon/label gap — the padding silently no-opped and the icon sat flush
+  against the pill border.
+
+  **Two ways to fix, different risk levels:**
+  - **Low-risk (what I did locally):** keep using inline `style` for spacing
+    on any element, as the rest of the codebase already does. No sitewide change.
+  - **Root-cause fix (bigger, not done yet):** wrap the reset in
+    `@layer base { ... }` in `globals.css`, so Tailwind's spacing utilities
+    start working as expected everywhere. This is the "correct" fix and
+    would let future work use `p-4`/`gap-2`/etc. normally instead of always
+    reaching for inline styles — but it's a global CSS change that could
+    shift layout anywhere in the site that happens to use a Tailwind spacing
+    class today expecting it to be inert. Worth doing as its own deliberate
+    pass (grep the codebase for `\b[pm][xytrbl]?-[0-9]` Tailwind classes
+    first, check each usage, then flip the layer and fix any that break) —
+    not a change to make casually alongside unrelated work.
 
 ## 7. Content
 
