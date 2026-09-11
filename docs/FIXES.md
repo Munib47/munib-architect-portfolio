@@ -129,3 +129,26 @@ build on or correct earlier ones (see the domain fix under SEO, second pass).
 - Verified visually with a live render: all four cards show proper SVG
   icons (envelope, phone handset, LinkedIn "in" mark, GitHub octocat),
   each correctly colored via `currentColor` to match its card's accent.
+
+## Home page OG/Twitter share image
+
+- The home page had no `og:image`/`twitter:image` — sharing the link on
+  LinkedIn/Twitter/Slack showed no preview. Project case-study pages already
+  had one (their hero screenshot); the home page didn't.
+- Used Next.js's file-convention image generation (`app/opengraph-image.tsx`,
+  `app/twitter-image.tsx`, both built on `next/og`'s `ImageResponse`) instead
+  of a static designed asset — a 1200×630 branded card (dark background,
+  brand emerald→cyan accents, the same `</>` glyph as the favicon, name,
+  title, and the "27+ live Shopify stores & GoHighLevel funnels" line),
+  generated from JSX/CSS so there's no image file to keep in sync with the
+  brand if colors ever change. Shared the actual visual between both files
+  via `lib/og-image.tsx` rather than duplicating it.
+- Removed the initially-added `runtime = 'edge'` export — it forced the
+  image to regenerate on every request (shows as dynamic `ƒ` in the build
+  output) for content that never changes; without it, Next.js generates the
+  image once at build time (`○` static) instead.
+- Verified against a real production build: fetched `/opengraph-image`
+  directly and confirmed the rendered PNG looks correct, then confirmed the
+  home page emits fully-formed `og:image`/`twitter:image` meta tags
+  (absolute URL, correct dimensions, alt text) with zero manual metadata
+  config needed — Next.js wires it up automatically from these files.

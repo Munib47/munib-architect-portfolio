@@ -89,13 +89,12 @@ email" into "captures a lead reliably, with a record you can't lose."
 
 ---
 
-## 3. SEO — still open
+## 3. SEO — one item left, blocked on the domain
 
-Most SEO work is done — sitemap, robots.txt, metadataBase, JSON-LD, hreflang,
-canonical/OG tags, HSTS, favicon, meta description length. See
-[FIXES.md](./FIXES.md) for the full account. What's left:
+SEO work is otherwise done — sitemap, robots.txt, metadataBase, JSON-LD,
+hreflang, canonical/OG tags, OG/Twitter share image, HSTS, favicon, meta
+description length. See [FIXES.md](./FIXES.md) for the full account.
 
-- **No sitewide OpenGraph/Twitter share image for the home page itself.** Project pages now have one (their hero screenshot); the home page's `openGraph` still has no `images` — a static 1200×630 design (or a dynamic one via `next/og`) is the next quick win here.
 - Once the domain from §1 is purchased, set `NEXT_PUBLIC_SITE_URL` in Vercel's environment variables to the new domain (no code change needed — `lib/site.ts` reads it automatically).
 
 ## 4. Analytics
