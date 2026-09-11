@@ -116,20 +116,16 @@ email" into "captures a lead reliably, with a record you can't lose."
 
 ---
 
-## 4. SEO — biggest gap after the above
+## 4. SEO — done (2026-09-11)
 
-- **No `sitemap.ts` / `robots.ts`.** With 27 individually-addressable
-  case-study pages, this is the single highest-leverage SEO fix left — Next.js
-  App Router generates both from a few lines of TypeScript
-  (`app/sitemap.ts`, `app/robots.ts`), no extra dependency.
-- **No OpenGraph/Twitter share image.** Right now, sharing the site link on
-  LinkedIn/Twitter/Slack shows no preview image — a static 1200×630 design
-  (or a dynamically generated one via `next/og`) is a quick, high-visibility win.
-- **No JSON-LD structured data.** A `Person` schema on the home page (name,
-  jobTitle, sameAs → GitHub/LinkedIn) helps Google show a knowledge-panel-style
-  result for searches on your name.
-- **No `metadataBase`** set in `app/layout.tsx` — worth adding once the custom
-  domain from §1 is live, so relative OG image URLs resolve to absolute ones.
+- ✅ `app/sitemap.ts` and `app/robots.ts` added — 27 case-study pages + home page are now all indexable, sourced live from `data/projects.ts`.
+- ✅ `metadataBase` added to `app/layout.tsx` (via a new `lib/site.ts` — one `SITE_URL` constant, override with `NEXT_PUBLIC_SITE_URL` once the custom domain from §1 goes live).
+- ✅ JSON-LD `Person` schema added to the root layout.
+- ✅ Per-project pages now set a canonical URL and use the project's real hero screenshot as `og:image` — the 18 Shopify case studies already have a working share-image, verified against a live server.
+
+**Still open:**
+- **No sitewide OpenGraph/Twitter share image for the home page itself.** Project pages now have one (their hero screenshot); the home page's `openGraph` still has no `images` — a static 1200×630 design (or a dynamic one via `next/og`) is the next quick win here.
+- Once the domain from §1 is purchased, set `NEXT_PUBLIC_SITE_URL` in Vercel's environment variables to the new domain (no code change needed — `lib/site.ts` reads it automatically).
 
 ## 5. Analytics
 

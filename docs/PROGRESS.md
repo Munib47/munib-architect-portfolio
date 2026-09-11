@@ -89,13 +89,32 @@ sent. See [IMPROVEMENTS.md](./IMPROVEMENTS.md) for the activation steps.
 - Horizontal-overflow guards (`overflow-x: clip` on `<main>`), hero stacks text-first on mobile/tablet.
 - `prefers-reduced-motion` respected across GSAP, AOS, and Three.js.
 
+## SEO — done (2026-09-11)
+
+- `app/sitemap.ts` — generates `/sitemap.xml` covering the home page + all 27
+  project case-study pages, sourced live from `data/projects.ts` (no manual
+  upkeep needed as projects are added/removed).
+- `app/robots.ts` — generates `/robots.txt`, allows all crawlers, points at the sitemap.
+- `lib/site.ts` — single `SITE_URL` constant (env-overridable via
+  `NEXT_PUBLIC_SITE_URL`) feeding sitemap, robots, and metadata — swap one
+  value once the custom domain from IMPROVEMENTS.md §1 goes live.
+- `metadataBase` set in `app/layout.tsx`, so relative OG/canonical URLs
+  resolve to absolute ones site-wide.
+- JSON-LD `Person` schema injected on the root layout (name, job title,
+  GitHub/LinkedIn `sameAs`, skills) — helps Google understand the site is a
+  person's professional profile.
+- Per-project pages (`app/projects/[id]/page.tsx`) now set a canonical URL and
+  use each project's real hero screenshot as its `og:image` (for the 18
+  Shopify projects that have one) — verified live against a running server
+  that all three (canonical, `og:url`, `og:image`) resolve to correct absolute URLs.
+
 ## Known gaps / unfinished work
 
 These are tracked in more detail in the README's "What's Left To Do" section:
 
-- No `sitemap.ts` / `robots.ts` yet (App Router conventions) — matters for 27 indexable pages.
-- No OpenGraph/Twitter share image (`openGraph.images` is empty in `app/layout.tsx`).
-- No JSON-LD structured data (`Person` / `CreativeWork`).
+- No sitewide OpenGraph/Twitter share image for the home page itself (project
+  pages now have one from their hero screenshot; the home page's `openGraph`
+  still has no `images`).
 - No analytics of any kind wired up.
 - Dead code: `DynamicResumeEngine.tsx` and `ResumePDF.tsx` are unused since the
   résumé download was removed from the nav; `@react-pdf/renderer` could be

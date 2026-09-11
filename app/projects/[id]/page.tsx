@@ -18,10 +18,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${p.title} — Case Study | Munib Ahmad`,
     description: p.description,
+    alternates: { canonical: `/projects/${p.slug}` },
     openGraph: {
       title: `${p.title} — Case Study`,
       description: p.description,
       type: 'article',
+      url: `/projects/${p.slug}`,
+      images: p.image ? [{ url: p.image }] : undefined,
     },
   };
 }
