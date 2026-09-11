@@ -18,7 +18,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${p.title} — Case Study | Munib Ahmad`,
     description: p.description,
-    alternates: { canonical: `/projects/${p.slug}` },
+    alternates: {
+      canonical: `/projects/${p.slug}`,
+      languages: {
+        en: `/projects/${p.slug}`,
+        'x-default': `/projects/${p.slug}`,
+      },
+    },
     openGraph: {
       title: `${p.title} — Case Study`,
       description: p.description,

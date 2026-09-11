@@ -23,7 +23,17 @@ export const metadata: Metadata = {
   // Absolute, no trailing slash — must exactly match the served URL
   // (Next.js defaults to trailingSlash: false), otherwise crawlers flag
   // the canonical as pointing to a "variant" URL.
-  alternates: { canonical: SITE_URL },
+  //
+  // `languages` is a self-referencing hreflang, not multi-language support —
+  // there's only one version of this page. Google explicitly recommends a
+  // self-referencing hreflang even for single-language sites (it removes any
+  // ambiguity about which language/region a URL targets), which is what
+  // clears an auditor's "no hreflang tags found" flag correctly rather than
+  // by adding translations that don't exist. See docs/IMPROVEMENTS.md §10.
+  alternates: {
+    canonical: SITE_URL,
+    languages: { en: SITE_URL, 'x-default': SITE_URL },
+  },
   openGraph: {
     title: 'Munib Ahmad — Frontend Architect',
     description:

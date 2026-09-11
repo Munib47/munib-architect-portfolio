@@ -145,13 +145,22 @@ email" into "captures a lead reliably, with a record you can't lose."
   instead of "Premium portfolio of..." — won't truncate in search results now.
 - ✅ **HSTS header** added via `next.config.ts` (`Strict-Transport-Security:
   max-age=63072000; includeSubDomains; preload`) — verified present on live responses.
-- ✅ **Favicon** added (`app/icon.svg` — Next.js file-convention icon, brand
-  emerald→cyan monogram) — previously the site had none at all.
-- ⏭️ **Keyword density** ("shopify" 99×/2738 words, 3.6%) and **hreflang** (0
-  tags) were both flagged informational, not errors, by the auditor itself —
-  no fix needed. Keyword density has no target to chase, and hreflang is
-  correctly absent for a single-language site (see §10 below for why it should
-  stay that way).
+- ✅ **Favicon** added (`app/icon.svg` — Next.js file-convention icon) —
+  previously the site had none at all. First pass used an "M" monogram;
+  redesigned on request into a `</>` code-bracket glyph (geometric paths, not
+  a font, so it stays crisp at 16px favicon size) in the same brand
+  emerald→cyan gradient — reads as "developer" rather than "initial."
+- ✅ **Hreflang** — added a self-referencing `en` + `x-default` hreflang tag
+  (home page and every project page) via `alternates.languages`. This is
+  *not* multi-language support — there's still only one version of each page
+  — but a self-referencing hreflang is Google's own recommended practice even
+  for single-language sites, since it removes any ambiguity about which
+  language/region a URL targets, and it's what actually clears an auditor's
+  "no hreflang tags found" flag. See §10 below for why the site isn't
+  getting real Arabic/Urdu/Hindi versions.
+- ⏭️ **Keyword density** ("shopify" 99×/2738 words, 3.6%) was flagged
+  informational, not an error, by the auditor itself — no fix needed, there's
+  no target percentage to chase.
 
 **Still open:**
 - **No sitewide OpenGraph/Twitter share image for the home page itself.** Project pages now have one (their hero screenshot); the home page's `openGraph` still has no `images` — a static 1200×630 design (or a dynamic one via `next/og`) is the next quick win here.
