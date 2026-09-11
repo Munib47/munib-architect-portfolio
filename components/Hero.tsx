@@ -13,11 +13,15 @@ const TECH_BADGES = [
   { label: 'Tailwind CSS', color: '#38BDF8' },
 ];
 
+// Total professional experience, counted from the actual career start
+// (May 2022) — not from data/experience.ts, whose per-role dates are
+// separate and correct as-is for the timeline itself. Recompute/bump this
+// manually as time passes (next bump to '5+' is due ~May 2027).
 const STATS = [
   { value: '27+', label: 'Live Projects'  },
   { value: '18',  label: 'Shopify Stores' },
   { value: '9',   label: 'GHL Funnels'   },
-  { value: '3+',  label: 'Years Exp.'    },
+  { value: '4+',  label: 'Years Exp.'    },
 ];
 
 export default function Hero() {
