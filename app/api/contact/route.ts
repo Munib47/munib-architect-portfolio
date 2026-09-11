@@ -6,18 +6,14 @@ import { NextResponse } from 'next/server';
 // Validates the payload server-side and returns a JSON result the
 // client form uses to drive its loading / success / error states.
 //
-// EMAIL DELIVERY IS NOT WIRED YET. The validated message is logged
-// server-side and the route returns `{ ok: true }`. To actually send
-// mail, fill in the `sendEmail` TODO below with your provider of
-// choice — both options use `fetch`, so no new npm dependency:
+// Email delivery goes through Resend (https://api.resend.com/emails) via
+// `fetch` — no extra npm dependency. Without RESEND_API_KEY set, the route
+// runs in "scaffold" mode: it validates and logs the message, then returns
+// `{ ok: true }`, so the form stays fully functional with no secrets in dev.
 //
-//   • Resend  → POST https://api.resend.com/emails
-//               headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}` }
-//               body:    { from, to, subject, html }
-//
-//   • SMTP/other transactional API → same shape, swap the URL/headers.
-//
-// Add the secret to `.env.local` (git-ignored):  RESEND_API_KEY=...
+// The key lives in `.env.local` (git-ignored) locally, and must also be set
+// as an environment variable in the Vercel project (Settings → Environment
+// Variables → RESEND_API_KEY) for it to work in production.
 // ───────────────────────────────────────────────────────────────────
 
 export const runtime = 'nodejs';
@@ -119,22 +115,27 @@ async function sendEmail(data: {
     return;
   }
 
-  // Example Resend wiring (uncomment + adjust `from`/`to` to go live):
-  //
-  // const res = await fetch('https://api.resend.com/emails', {
-  //   method: 'POST',
-  //   headers: {
-  //     Authorization: `Bearer ${apiKey}`,
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     from: 'Portfolio Contact <onboarding@resend.dev>',
-  //     to: 'munibahmad47@gmail.com',
-  //     reply_to: data.email,
-  //     subject: `[Portfolio] ${data.subject}`,
-  //     html: `<p><strong>${data.name}</strong> (${data.email}) wrote:</p>`
-  //         + `<p>${data.message.replace(/\n/g, '<br/>')}</p>`,
-  //   }),
-  // });
-  // if (!res.ok) throw new Error(`Resend responded ${res.status}`);
+  const escapeHtml = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      // Resend's shared test sender — works with zero setup, but only delivers
+      // to the account owner's own inbox. Once a domain is verified in Resend,
+      // switch this to e.g. "Portfolio Contact <contact@munibahmad.dev>".
+      from: 'Portfolio Contact <onboarding@resend.dev>',
+      to: 'munibahmad47@gmail.com',
+      reply_to: data.email,
+      subject: `[Portfolio] ${data.subject}`,
+      html: `<p><strong>${escapeHtml(data.name)}</strong> (${escapeHtml(data.email)}) wrote:</p>`
+          + `<p>${escapeHtml(data.message).replace(/\n/g, '<br/>')}</p>`,
+    }),
+  });
+
+  if (!res.ok) throw new Error(`Resend responded ${res.status}`);
 }
