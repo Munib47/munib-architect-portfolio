@@ -406,182 +406,182 @@ export const caseStudies: Record<string, CaseStudy> = {
   // ── GoHighLevel ─────────────────────────────────────────────────
   'strong-refuge-pool-community': {
     seoDescription:
-      'Strong Refuge Pool Community — GoHighLevel recruitment funnel with automated onboarding and webhook notifications.',
-    updatedAt: '2025-08-27',
+      'Strong Refuge Pool Commercial — GoHighLevel B2B quote funnel scoping pool maintenance by facility type and service need.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Onboarding sequence branches on how the member joined, not one path for everyone',
-      'Webhook notifications routed to the right person by enquiry type',
-      'Access tags applied automatically so membership state drives what a member sees',
-      'Form kept short enough to complete on a phone in one sitting',
+      'Facility type and service need captured before the quote, so nothing is priced blind',
+      'Five service lines presented as distinct offers rather than one generic "pool maintenance"',
+      'Accountability framing — licensed, insured, rapid response — placed against the form, not in a footer',
+      'Bot protection on submission so the sales queue stays free of junk',
     ],
     problem:
-      'The community recruitment page was collecting sign-ups into a single undifferentiated list, and everything downstream was manual: someone read each entry, decided who should handle it, and forwarded it. That worked at low volume and broke as the community grew — response times stretched, entries were missed, and the same welcome message went to people arriving through completely different routes.',
+      'Commercial pool work cannot be quoted from a name and a phone number. A 40-room hotel with a rooftop pool and a municipal facility with three basins need different chemical programmes, different inspection cadences and different pricing — but the enquiry form treated them identically. Every lead therefore started with a scoping call before anyone could say what the work would cost, which put a manual step between interest and a number.',
     approach:
-      'I rebuilt the funnel so that the route a member arrives through is captured as data and drives what happens next, rather than being lost at submission. Onboarding branches on that data, so someone joining through a referral gets a different sequence from someone arriving cold. Webhook notifications are routed by enquiry type directly to the person who handles that type, removing the human triage step that had become the bottleneck. Access tags are applied automatically based on the submission, so membership state controls what a member can see without anyone setting it by hand. The form itself was cut back to what is genuinely needed at first contact, on the reasoning that a shorter form completed is worth more than a longer one abandoned.',
+      'I moved the scoping questions into the funnel itself. Facility type and services needed are structured selects rather than free text, so a submission arrives already classified and the quote can be built against a known property profile. The five service lines — cleaning and chemical balancing, scheduled maintenance programmes, safety and health inspections, equipment service and installation, and rapid repair response — are presented as distinct offers, because a facility manager with a failed pump is looking for something different from one shopping annual contracts. The trust framing a commercial buyer actually weighs (licensed and insured, scheduled maintenance, rapid response, financing available) sits beside the form rather than below the fold. Submissions run through bot protection so the sales queue stays clean.',
     outcome:
-      'Sign-ups now reach the right person without passing through a manual triage step, which is what had been determining response time. New members receive a sequence that matches how they arrived rather than a generic welcome. Access state is set by the system at the moment of joining instead of by someone remembering to set it.',
+      'Quotes are now scoped from the submission rather than from a call, which removes a round trip from every enquiry. Because facility type is structured data, enquiries can be routed and prioritised by property profile instead of arriving as an undifferentiated list. Presenting the service lines separately lets urgent repair enquiries identify themselves rather than hiding inside a general contact form.',
     stackRationale:
-      'Keeping routing logic inside GoHighLevel rather than pushing it to an external automation tool meant the client can see and change it in the same place they manage everything else. An external orchestrator would have been more capable and would have put the logic somewhere the client cannot inspect when something looks wrong.',
+      'The selects are deliberately coarse — facility type and service need, not a full property survey. A longer qualification form would produce better-scoped leads and fewer of them; at the top of a B2B funnel, where the goal is to start a conversation with a number attached, that trade runs the wrong way.',
   },
 
   'strong-refuge-pool-funnel': {
     seoDescription:
-      'Strong Refuge Pool — high-converting GoHighLevel lead funnel with booking calendars and SMS follow-up automation.',
-    updatedAt: '2025-07-15',
+      'Strong Refuge Pool covers — GoHighLevel estimate funnel with address autocomplete, cover-type routing and financing prompts.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Booking calendar embedded in the funnel rather than linked out to a separate tool',
-      'SMS follow-up timed against booking state instead of on a fixed schedule',
-      'Form fields reduced to what qualifies a lead, with the rest deferred to the call',
-      'Every step instrumented so drop-off is attributable to a specific point',
+      'Address autocomplete feeding structured city, state and postal fields instead of one free-text line',
+      'Cover type captured on the form, so estimates are scoped before anyone picks up the phone',
+      'Six concrete benefits — evaporation, chemical use, heat retention — carrying the argument instead of adjectives',
+      'Financing surfaced in the flow rather than left to be raised on the call',
     ],
     problem:
-      'The lead funnel was converting below what the traffic quality suggested it should, and there was no instrumentation to say where it was losing people. The form asked for enough information to fully qualify a lead up front, which is a lot to ask before any value has been demonstrated. Booking happened on an external scheduling tool, so the highest-intent moment in the whole funnel involved leaving the page. Follow-up SMS ran on a fixed schedule regardless of whether the lead had already booked.',
+      'A pool cover estimate depends on two things the business could not see from an enquiry: where the pool is and what kind of cover it needs. Addresses arrived as free text, so half needed correcting before anyone could be dispatched to measure, and cover type was not asked at all — every estimate began with a call to establish what was already knowable at submission. Price objection was also arriving late, on the call, after the cost of a site visit had already been spent.',
     approach:
-      'First I instrumented every step, so drop-off could be attributed rather than guessed at — that immediately showed the form and the booking hand-off as the two largest losses. The form was cut to the fields that actually qualify a lead, with everything else deferred to the call where it is a conversation instead of a chore. Booking was embedded directly in the funnel, so the highest-intent moment no longer requires a context switch to another domain. SMS follow-up was rewired to trigger on booking state, so someone who has already booked stops receiving reminders to book — which had been the most common complaint.',
+      'The address field became an autocomplete that resolves into structured city, state and postal code, so what reaches the CRM is dispatchable rather than something to be cleaned up. Cover type moved onto the form as a select, which means an estimate can be scoped from the submission. The page argues for the product before it asks for anything, and does it with specifics rather than adjectives — evaporation reduced by up to 95%, lower chemical consumption, retained heat, longer equipment life — because a cover is a considered purchase and the six concrete benefits do more work than a headline. Financing is raised inside the flow rather than saved for the call, so the people who need it self-identify instead of dropping out silently. Submissions pass through bot protection.',
     outcome:
-      'Drop-off is now attributable to a specific step, which turns funnel improvement from guesswork into a queue of known problems. Booking happens in-page at the moment of intent rather than after a hand-off. Follow-up messaging reflects what the lead has actually done, which removed the sequence that had been messaging people about something they had already completed.',
+      'Submissions now arrive with a usable address and a known cover type, which removes the qualifying call that used to sit in front of every estimate. Raising financing in the funnel surfaces a price objection while it can still be answered, rather than after a measurement visit has been spent on it.',
     stackRationale:
-      'Embedding the calendar rather than linking to the external tool meant accepting GoHighLevel\'s native scheduling and its constraints instead of the more featureful dedicated tool. At the highest-intent step of a funnel, removing a context switch is worth more than the features being given up.',
+      'Address autocomplete costs an extra third-party dependency in the form, which is real. It is worth it here because the alternative failure — a mistyped address that dispatches a technician to the wrong property — costs a wasted visit, and one of those outweighs the dependency many times over.',
   },
 
   'strong-refuge-pool-compliance': {
     seoDescription:
-      'Strong Refuge Pool Compliance — GoHighLevel legal disclosure and evaluation templates built mobile-first.',
-    updatedAt: '2025-06-09',
+      'Strong Refuge Pool Compliance — GoHighLevel B2B assessment funnel built around inspection risk for commercial facilities.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Legal copy typeset for readability rather than compressed to fit above the fold',
-      'Evaluation forms structured in sections so long documents stay navigable',
-      'Mobile-first layout because these are completed on site, on a phone',
-      'Completion state preserved so a long form survives an interruption',
+      'Funnel led by consequence — fines, shutdowns, insurance loss — rather than by service description',
+      'Facility type captured on the form so assessments route by property profile',
+      'Six named risks given equal structural weight instead of one vague compliance pitch',
+      'Documentation support positioned as the deliverable, since that is what survives an inspection',
     ],
     problem:
-      'Compliance and evaluation documents are completed by technicians standing at a pool site, on a phone, often with one hand. The existing templates had been laid out for desktop and shrunk, which produced small text, cramped touch targets, and a single long scroll with no sense of progress. Worse, an interrupted form lost its contents — and interruption is the normal case for someone doing this between tasks.',
+      'Compliance is a service nobody shops for until something goes wrong, which makes it a hard sell to a facility manager whose pool is currently open and apparently fine. The previous positioning described the service — inspections, documentation, evaluations — which answers "what is this" but not "why now". Without a reason to act today, enquiries came almost entirely from facilities already in trouble, after the expensive part had happened.',
     approach:
-      'I rebuilt the templates mobile-first, treating the phone as the primary case rather than the degraded one. Legal copy was typeset for actual readability — line length, size and spacing chosen to be read rather than to fit — on the reasoning that a disclosure nobody can read does not do its job regardless of whether it is technically present. Long evaluation forms were broken into sections with visible progress, so the technician knows how much remains. Completion state is preserved as the form is filled, so an interruption does not mean starting over. Touch targets were sized for use with one hand in the field, not for a mouse.',
+      'I rebuilt the funnel around consequence rather than description. The page opens on what non-compliance costs — regulatory fines, forced shutdowns, liability exposure, loss of insurance eligibility — and only then explains the service that prevents it, because the risk is the thing that makes a manager act while the pool is still open. Six specific risks are given equal structural weight instead of being compressed into one paragraph, so a manager recognises whichever one applies to their facility. Documentation support is positioned as the actual deliverable, since an inspection is passed on paperwork and that is the tangible thing being bought. Facility type is captured on the assessment form so enquiries route by property profile rather than arriving undifferentiated.',
     outcome:
-      'The forms are now usable in the conditions they are actually used in, which was the gap between the previous version working in testing and failing in the field. Preserved state removed the failure that had been causing partial submissions and repeated work. Sectioned progress makes a long form feel finite.',
+      'The funnel now gives a compliant-today facility a reason to act, which is the audience that was previously self-selecting out. Leading on insurance eligibility in particular reaches a decision-maker who may not respond to safety framing but responds immediately to a coverage risk. Assessments arrive scoped to a facility type rather than needing a call to establish one.',
     stackRationale:
-      'Building mobile-first rather than adapting the desktop layout meant redoing work that technically already existed. Adapted-desktop was the reason the small text and cramped targets were there in the first place — inverting the starting assumption was the fix, not a refinement of it.',
+      'Fear-led framing is easy to overdo and reads as manipulative when the stakes are invented. It is the right frame here because the stakes are literally regulatory — the fines and shutdowns are real published consequences, not manufactured urgency, so stating them plainly is information rather than pressure.',
   },
 
   'strong-refuge-pool-equipment': {
     seoDescription:
-      'Strong Refuge Pool Equipment — GoHighLevel operations portal mapping inventory forms to CRM data.',
-    updatedAt: '2025-05-02',
+      'Strong Refuge Pool Equipment — GoHighLevel repair funnel routing by symptom and equipment type to a free diagnostic.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Inventory requests mapped to CRM records so equipment history is queryable',
-      'Procurement forms validated against what is actually orderable',
-      'Internal portal separated from the public-facing funnels',
-      'Request state visible to the requester without an email chase',
+      'Entry point is symptoms, not equipment names — customers describe what they hear, not what failed',
+      'Six equipment categories from pumps to salt systems, each with its own failure modes',
+      'Equipment type captured on the form so the right technician and parts are dispatched',
+      'Three-step repair process stated up front to defuse the "what will this cost me" hesitation',
     ],
     problem:
-      'Equipment procurement was running on email and a spreadsheet. Requests were free-text, which meant they regularly named equipment that was discontinued or specified incompatible combinations, and each one had to be checked by hand. Nobody could answer "what equipment is at this site and when was it last serviced" without reconstructing it from email history, and requesters had no way to see the status of their own request short of asking.',
+      'Equipment repair is an urgent, distressed purchase, and the person making it usually cannot name the failure. They know the pump is grinding, the water is cloudy, or the electricity bill has jumped — not that they need a variable-speed motor replacement. A funnel organised around equipment categories asks the customer to diagnose before they can ask for help, which is backwards, and the ones who cannot self-diagnose simply leave.',
     approach:
-      'I built the procurement flow as structured forms validated against what is genuinely orderable, so unavailable or incompatible requests are caught at entry rather than during review. Each request is mapped onto the CRM record for the site it concerns, which means equipment history accumulates as a queryable property of the site rather than as scattered email. The internal portal was kept architecturally separate from the public-facing funnels, since conflating internal tooling with lead capture is how internal data ends up somewhere it should not be. Request state was made visible to the requester, removing the status-chase email entirely.',
+      'I made symptoms the entry point. The page opens on what the customer actually observes — pump not turning on or grinding, heater not heating, cloudy water, high filter pressure, automation errors, spiking energy bills — and maps those to the six equipment categories the business services: pumps and motors, heaters, filters and circulation, automation and controls, salt chlorination, and electrical and timers. That way the customer arrives at the right category without having to know its name. Equipment type is then captured on the estimate form so the dispatched technician brings the right parts rather than making a diagnostic trip first. The three-step repair process is stated before the form, because the unspoken hesitation in a distressed repair is not whether to fix it but what agreeing to a visit commits you to.',
     outcome:
-      'Procurement requests arrive valid, so the manual checking step that used to precede every order is no longer needed. Equipment history is now a property of the site record and can be answered by looking rather than by reconstruction. Requesters can see their own request status, which removed a recurring category of internal email.',
+      'Customers can now enter the funnel from what they observe rather than from a diagnosis they are not qualified to make, which is the group that was previously dropping out. Capturing equipment type at submission means a technician arrives equipped rather than scheduling a second visit. Stating the process and the free diagnostic up front removes the ambiguity that makes people hesitate before requesting an urgent repair.',
     stackRationale:
-      'Mapping requests onto existing CRM records rather than standing up a separate inventory system meant working within GoHighLevel\'s data model, which is not built for asset tracking. It keeps everything in one system the client already operates — a dedicated tool would model assets better and would be a second system to maintain, license and sync.',
+      'Symptom-first organisation duplicates some content — the same pump appears under a symptom and under a category — and duplication is normally worth avoiding. Here it is the point: it gives two entry paths into the same service, and in a distressed purchase the cost of a customer not finding their way in is far higher than the cost of saying something twice.',
   },
 
   'wingman-aero-uft': {
     seoDescription:
-      'Wingman Aero UFT — GoHighLevel application funnel for aviation training, with multi-step forms and CRM automation.',
-    updatedAt: '2026-01-14',
+      'Wingman Aero — GoHighLevel booking funnel for a $299 discovery flight, sold as logged time toward a pilot licence.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Multi-step application that saves progress between sessions',
-      'Eligibility logic branches the form so candidates only see relevant questions',
-      'Applications routed into CRM pipelines by programme and readiness',
-      'Document upload handled in-flow rather than by follow-up email',
+      'Reframed from sightseeing ride to first logged lesson that counts toward certification',
+      'A single $299 all-inclusive price, stated plainly, with no quote step in the way',
+      'The lesson walked through minute by minute so the buyer knows exactly what they are booking',
+      'A 98% checkride pass rate carrying the credibility instead of generic testimonials',
     ],
     problem:
-      'Aviation training applications are long by necessity — eligibility depends on medical certification, prior hours, licensing status and programme fit. Presenting that as a single form guaranteed abandonment, and presenting the same questions to every applicant meant most people answered a large number of questions irrelevant to their situation. Supporting documents were being collected afterwards by email, which put a manual chase between application and assessment.',
+      'A discovery flight sits in an awkward category. Priced like an experience gift, it competes with sightseeing rides — and loses, because it is less comfortable and more demanding. Sold as flight training, it asks someone who has never touched a yoke to commit to a licence path costing tens of thousands. The offer had been presented as a product with a price, which left the prospect unsure whether they were buying an afternoon out or the first step of a career.',
     approach:
-      'The application was rebuilt as a multi-step flow that saves progress, so a candidate can start it, gather the certificate numbers they do not have to hand, and return without losing their place. Eligibility logic branches the form, so answering an early question about licensing status determines which later sections appear — most applicants now see a substantially shorter form than the full question set. Completed applications route into CRM pipelines segmented by programme and readiness, so assessment starts with applications already sorted. Document upload was moved into the flow itself, so supporting evidence arrives attached to the application rather than through a subsequent email exchange.',
+      'The funnel resolves that ambiguity by refusing the sightseeing framing outright: this is a logged lesson, in the left seat, that counts toward a licence from minute one. That is a harder sell to a casual browser and a much easier one to someone genuinely considering flying, which is the audience worth having. The lesson is then broken down minute by minute — meeting the instructor, ground briefing, the takeoff, taking the controls for turns and climbs — because the real barrier to booking is not price but not knowing what happens when you arrive. The $299 is stated as all-inclusive with no quote step, since a price request on a fixed-price product only adds friction. A 98% checkride pass rate does the credibility work, being a verifiable outcome rather than a testimonial.',
     outcome:
-      'Candidates can complete a genuinely long application across more than one sitting, which removes the abandonment that a single-session form was forcing. Branching means each applicant answers their own questions rather than everyone\'s. Applications arrive complete and pre-sorted, which removed both the document chase and the manual triage that preceded assessment.',
+      'The offer now reads as an entry point to certification rather than a novelty flight, which attracts fewer but far better-qualified bookings — the discovery flight exists to start a training relationship, so a booking that never converts to lessons is close to worthless. Detailing the lesson removes the uncertainty that stops people committing, and the fixed price removes the quote step entirely.',
     stackRationale:
-      'Progress saving inside GoHighLevel\'s form system required working within its state handling rather than building a custom application backend. A bespoke backend would have given finer control over the flow and would have sat outside the CRM the admissions team works in — the sorting and pipeline benefits depend on the application living in the same system as everything downstream of it.',
+      'Naming the price on the page forfeits the lead capture a "request pricing" gate would collect. For a fixed-price entry offer that is the right forfeit: the gate would harvest contact details from people who then discover the price and leave, generating follow-up work that ends in nothing.',
   },
 
   'beyond-remedy-ny-injectables': {
     seoDescription:
-      'Beyond Remedy NY — GoHighLevel promotional funnel for a medical spa, with booking automation and review integration.',
-    updatedAt: '2025-04-03',
+      'Beyond Remedy NY — GoHighLevel consultation funnel for physician-supervised peptide therapy, led by credentials.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Promotional deadline driven by real campaign data, not a resetting timer',
-      'Booking confirmation and reminders automated from the appointment record',
-      'Reviews integrated as evidence next to the specific treatment they concern',
-      'Treatment information presented at the depth the decision requires',
+      'Positioned explicitly against online peptide sellers: real medical guidance, not guesswork',
+      'A named practitioner with a local identity rather than an anonymous clinic',
+      'Compliance signals — HIPAA, A4M certification, 503A compounding pharmacies — treated as primary content',
+      'A free consultation as the ask, not a purchase, matching how a medical decision is actually made',
     ],
     problem:
-      'The promotional page relied on a countdown timer that reset on every page load, which is transparent to anyone who has seen it before and corrosive to trust in a category where trust is the entire purchase decision. Reviews were presented as a generic carousel unconnected to the treatments they discussed. Booking confirmations were sent manually, so confirmation timing depended on whether someone was at a desk.',
+      'Peptide therapy has a credibility problem created by its own market: the category is dominated by grey-market sellers shipping unregulated compounds with no medical oversight, so a legitimate physician-supervised practice is competing against the reputation of its own product name. A prospect arriving at the page is not asking "which provider" but "is any of this real". Conventional aesthetic-clinic marketing — offers, urgency, before-and-afters — actively worsens that, because it is the register the grey market already uses.',
     approach:
-      'The countdown was rebuilt against the actual campaign end date, so it reflects something real and reads as credible because it is. Reviews were re-associated with the specific treatments they discuss and placed next to those treatments, which turns generic social proof into relevant evidence at the point of decision. Booking confirmation and reminder messaging was automated from the appointment record, so confirmation arrives immediately regardless of staffing, and reminders fire against the appointment rather than on a schedule someone maintains. Treatment information was expanded to the depth the decision actually requires in a medical category, rather than the promotional summary it had been.',
+      'The funnel answers the legitimacy question before it asks for anything. It names the opposition directly — not online guesswork, real medical guidance — because a prospect who has been researching has already seen the alternative and needs it distinguished rather than ignored. Credentials are primary content rather than footer badges: physician-supervised, A4M certified, HIPAA compliant, and compounds sourced only from USA-certified 503A pharmacies, which is the specific detail that separates a regulated practice from a reseller. The practice is fronted by a named founder with a local identity rather than a clinic logo, since medical trust attaches to people. The ask is a free consultation, not a purchase, because nobody buys a supervised therapy protocol from a landing page — the realistic conversion is a conversation.',
     outcome:
-      'The urgency on the page is now real, which matters more than whether it is high — a deadline that survives a page refresh is one a returning visitor can believe. Reviews appear as specific evidence rather than decoration. Confirmation is immediate, which closes the window where a booked customer was left uncertain whether their booking had registered.',
+      'The page now competes on the axis that actually decides this category. Leading with 503A sourcing and physician supervision speaks precisely to the informed prospect — the one who knows enough to be sceptical and is also the one most likely to commit. Asking for a consultation rather than a sale matches the real decision process instead of compressing it.',
     stackRationale:
-      'Tying the countdown to real campaign data constrains marketing to actual deadlines instead of perpetual urgency. In a medical category the credibility cost of a visibly fake timer outweighs whatever conversion the false urgency was buying, particularly for returning visitors who are the most likely to convert.',
+      'Leading with compliance detail costs immediacy: certifications are duller than results and a promotional frame would convert more first-time visitors. In a physician-supervised medical category that trade is correct — the visitors a promotional frame converts are disproportionately the ones who should not be converted, and the scepticism being answered is the reasonable response to a market full of bad actors.',
   },
 
   'beyond-remedy-co-main': {
     seoDescription:
-      'Beyond Remedy Co — GoHighLevel lead acquisition funnel with intake forms, email automation and calendar booking.',
-    updatedAt: '2025-03-20',
+      'Beyond Remedy Co — GoHighLevel consultation funnel for a physician-led longevity programme, gated by referral.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Intake form structured around the consultation that follows it',
-      'Email sequences branch on stated interest rather than sending one nurture path',
-      'Calendar availability reflects real staff schedules',
-      'Staff notifications carry enough context to act without opening the CRM',
+      '"This is not a med spa" stated outright, because the category confusion is the main obstacle',
+      'Diagnostics named specifically — blood panel, hormone work, DEXA, full-body MRI — not summarised as "testing"',
+      'Referral gating used as positioning rather than as a hurdle',
+      'A $250/month entry figure published up front to filter on budget before the consultation',
     ],
     problem:
-      'The main acquisition funnel was collecting leads into one pool and sending everyone the same nurture sequence, regardless of what they had come for. Intake questions had been designed around what was easy to ask rather than what the consultation actually needs, so consultations began by re-gathering information the lead had already provided. Calendar availability was maintained separately from staff schedules and drifted, producing double-bookings.',
+      'Concierge longevity medicine is a category most prospects do not know exists. They arrive with the nearest mental model — a med spa, a wellness clinic, a supplement subscription — and price it accordingly, which means a physician-led programme with full diagnostic workup reads as absurdly expensive against a comparison it was never in. The previous positioning sat in general wellness language and did nothing to correct that, so the consultation call was spent explaining what the service was before it could discuss whether it fit.',
     approach:
-      'I restructured the intake form around what the consultation genuinely needs, so the person taking the call starts with useful context instead of a form\'s worth of questions to repeat. Email sequences were branched on stated interest, replacing the single nurture path with content that corresponds to what the lead actually asked about. Calendar availability was connected to real staff schedules rather than maintained as a parallel copy, which is what had been producing the double-bookings. Staff notifications were rewritten to carry enough context that the recipient can act directly, instead of being a prompt to go and look the lead up.',
+      'The funnel does the category work the call was doing. It states the distinction outright — this is not a med spa, this is physician-guided longevity care — because implying it leaves the wrong mental model in place. The diagnostics are then named specifically: comprehensive blood panel, hormone optimisation, gut microbiome testing, DEXA body composition, full-body MRI coordination. That specificity is the argument; "advanced testing" could describe a supplement quiz, whereas an MRI and a DEXA scan obviously cannot, and the list itself establishes the tier. The $250/month entry point is published rather than withheld, so budget filtering happens before anyone spends a consultation slot. Partner referral access is framed as belonging rather than as an obstacle, turning a qualification gate into positioning.',
     outcome:
-      'Consultations now start from what the lead already told the form rather than from scratch. Nurture content matches stated interest, which is the difference between a sequence that reads as relevant and one that reads as a mailing list. Availability reflects reality, so the double-booking failure — the most damaging kind, because it is discovered by the customer — no longer occurs.',
+      'Consultations now begin with a prospect who already understands the category, which is what the call previously had to establish before it could do anything useful. Publishing the entry price removes the mismatch where someone anchored on med-spa pricing books a call and discovers a different order of magnitude. The named diagnostics let the service be evaluated on what it actually includes.',
     stackRationale:
-      'Connecting the calendar to live staff schedules rather than maintaining a curated availability window gave up fine control over which slots get offered. Any manually-maintained copy of a schedule will drift from the real one, and a booking system that drifts is worse than one that offers fewer slots.',
+      'Publishing the price on a concierge service cuts enquiry volume, and for most consultative funnels that is the wrong move. It is right when the gap between expected and actual pricing is this wide: unpriced enquiries here mostly become consultations that end at the number, which costs practitioner time and leaves the prospect feeling misled.',
   },
 
   'swoon-learning-start': {
     seoDescription:
-      'Swoon Learning — GoHighLevel onboarding portal for an EdTech service, with pricing tiers and automated profile setup.',
-    updatedAt: '2025-02-11',
+      'Swoon Learning — GoHighLevel booking funnel for free academic coaching sessions, built around parent objections.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Pricing presented so tiers are comparable rather than listed',
-      'Teacher and student onboarding follow separate paths from the first step',
-      'Profile creation triggered automatically on completed signup',
-      'Onboarding progress visible so an interrupted setup can be resumed',
+      'Four parent frustrations quoted in the parent\'s own words, not described in service language',
+      'Each frustration answered with a reframe rather than a feature',
+      'A free 30-minute session as the ask, with its three takeaways stated in advance',
+      'School endorsements carrying credibility for a decision made on trust in a stranger',
     ],
     problem:
-      'Swoon Learning onboards two distinct audiences — teachers and students — whose needs diverge from the very first step, and both were being pushed through one generic flow that served neither well. Pricing was presented as three separate blocks with no shared axis, so comparing tiers meant reading all three and building the comparison yourself. Profile creation was manual after signup, which inserted a delay between a customer paying and being able to use the thing they paid for.',
+      'The parent arriving at this page is not evaluating tutoring services. They have had another argument about homework and they are worried, and a funnel written in service language — coaching methodology, session structure, pricing tiers — does not meet anyone in that state. Worse, academic support carries an implied accusation: seeking it can feel like conceding your child is behind, or that you have failed to manage it yourself. A page that leads with what it sells asks a defensive parent to self-diagnose before it offers any recognition.',
     approach:
-      'The onboarding flow was split at the first step, so teachers and students follow paths built for them rather than a compromise between the two. Pricing was rebuilt as a comparison structured on shared axes, so the differences between tiers are readable at a glance instead of requiring the visitor to construct the comparison. Profile creation was automated to trigger on completed signup, closing the gap between payment and access. Onboarding progress was made visible and resumable, since setup for either audience spans more than one sitting in practice.',
+      'The funnel opens on recognition rather than services. Four specific frustrations are quoted the way a parent actually phrases them — my child procrastinates and won\'t start, the backpack is a mess and homework gets lost, they finish the work but still don\'t understand it, homework is turning our house into a battleground — so the parent sees their own situation described before anything is asked of them. Each is then answered with a reframe rather than a feature: it is not about homework, it is about believing they can take the first step; they do not need more reminders, they need a system. That shifts the framing away from the child being deficient and toward the approach being wrong, which is both kinder and more accurate. School endorsements carry the credibility, since handing your child to a stranger is a trust decision. The ask is a free 30-minute session with its three takeaways stated in advance, so the parent knows what they get even if they go no further.',
     outcome:
-      'Each audience now follows a flow designed for it, which removes the questions that a generic path made unavoidable. Pricing tiers can be compared directly rather than reconstructed. Access follows payment automatically, eliminating the delay that had been the first experience of the product for every new customer.',
+      'The page now meets the parent in the state they are actually in, which is the difference between a funnel that converts worry into a booking and one that asks a worried parent to translate their situation into service categories first. Naming the takeaways up front makes the session worth booking on its own terms rather than being an obvious sales call.',
     stackRationale:
-      'Splitting the flow means maintaining two onboarding paths rather than one. That is genuinely more surface area, and it is the right cost here because the two audiences diverge immediately and completely — a single path serving both was not a simplification, it was a compromise that served neither.',
+      'This funnel deliberately carries no pricing. For most services that is a mistake — it wastes calls on unqualified budgets. Here the first conversation is diagnostic rather than transactional, and a parent who has not yet accepted that outside help is warranted will not price-shop a decision they have not made; a price at this stage answers a question nobody is asking yet.',
   },
 
   'my-injury-case-help': {
     seoDescription:
-      'My Injury Case Help — GoHighLevel legal intake funnel with qualification logic and instant SMS notification.',
-    updatedAt: '2025-12-19',
+      'My Injury Case Help — GoHighLevel auto-accident intake funnel with staged qualification and SMS consent handling.',
+    updatedAt: '2026-09-12',
     highlights: [
-      'Qualification logic filters cases before they reach a legal representative',
-      'Instant SMS and email notification on qualified submissions',
-      'Intake questions ordered by what determines viability, not by convenience',
-      'Sensitive information handled with disclosure of how it will be used',
+      'Qualification staged one question at a time — accident recency first, since it governs viability',
+      'Four service tracks in one intake: legal, medical, police report and property damage',
+      'Same-day medical care led with, because it is the need that outranks legal representation on day one',
+      'Explicit SMS consent language carrying the TCPA disclosure at the point of collection',
     ],
     problem:
-      'Legal intake has a timing property that most lead capture does not: response speed materially affects whether a case is retained, because a potential client contacting several firms generally goes with whoever responds first. This funnel was capturing every enquiry undifferentiated and notifying by email, so representatives spent their attention on cases that were never viable while the viable ones waited in the same queue.',
+      'Someone injured in a car accident is in pain, dealing with insurers, and possibly without a working vehicle. They are not in a position to work through a long intake form, and they are being contacted by several firms at once. The competing problem is that a large share of enquiries cannot proceed at all — wrong jurisdiction, too long since the accident, no actual injury — so an unfiltered form spends representative attention on cases that were never viable while a viable one waits in the same queue.',
     approach:
-      'I built multi-tier qualification logic into the intake itself, ordered so that the questions determining viability come first — if a case fails on jurisdiction or timing, that is established in the first few answers rather than after a full form. Qualified submissions trigger immediate SMS and email notification to a representative, because the speed advantage only exists if the notification arrives faster than a competitor\'s. Unqualified enquiries are handled with a clear response rather than silence, which is both the decent outcome and avoids the reputational cost of appearing to ignore people. Given the sensitivity of what is being collected, the intake states plainly what happens to the information.',
+      'The intake is staged rather than presented whole: one question at a time, starting with accident recency, because that single answer governs viability more than anything else and establishes it before the claimant has invested any effort. Injury type follows as selectable options — neck and back, head injury, broken bones, whiplash, soft tissue — rather than free text, so submissions arrive already classified. The funnel covers four tracks in one intake — legal representation, medical treatment, police report retrieval and property damage — which reflects that a claimant has several simultaneous problems and does not want to find four providers. Same-day medical care is led with, ahead of legal representation, because on the day after a crash treatment outranks litigation. SMS consent carries explicit TCPA disclosure at the point of collection, since the follow-up depends on text messaging and the consent has to be real to be usable.',
     outcome:
-      'Representative attention now goes to cases that can actually proceed, because the filtering happens before the notification rather than after it. Qualified enquiries generate an immediate SMS, which is what the retention advantage in this category actually depends on. Enquiries that do not qualify receive an answer instead of nothing.',
+      'Non-viable enquiries are now identified in the first question rather than after a full form, so representative attention concentrates on cases that can proceed. Staging keeps the form completable by someone in pain and distracted. Covering all four tracks means the funnel answers the claimant\'s actual situation instead of one slice of it, and the consent language makes the SMS follow-up defensible rather than a liability.',
     stackRationale:
-      'Front-loading the qualifying questions risks losing people who would have completed a gentler form, and that is the correct risk to take here: a longer form completed by a viable case is worth more than a short one completed by a case that cannot proceed. The SMS notification exists because email latency is measured in minutes and the competitive window in this category is shorter than that.',
+      'Staged questions require more state handling than a single form and add steps to abandon at. That is the right trade for a distressed claimant: a wall of fields is abandoned immediately, whereas one question at a time is answerable, and the first question is the one that protects the most expensive resource in the process — a representative\'s time.',
   },
 };
 

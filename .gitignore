@@ -37,3 +37,5 @@ yarn-error.log*
 
 # AI Context Bundles
 repomix-output.xml
+# Temporary production build dir (see distDir in next.config.ts)
+.next-prod/

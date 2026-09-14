@@ -747,3 +747,62 @@ correct for the projects that had none.
 
 These render the AbstractMockup wireframe, which is a deliberate fallback and
 costs no failed request.
+
+---
+
+## All 27 project screenshots + GHL case-study corrections
+
+### Screenshots
+
+All 9 GHL projects were captured from their live sites and wired into
+`data/projects.ts`; `qoffah.jpg` was re-captured to replace a stale 10KB file.
+**27 of 27 projects now have a real screenshot** (was 18), and the
+AbstractMockup wireframe is no longer reached on the homepage grid.
+
+Process is in the previous section. One addition learned here: `waitUntil:
+'networkidle'` times out on every GHL funnel — they hold tracking/polling
+connections open indefinitely — so captures use `waitUntil: 'load'` plus a
+fixed settle.
+
+### Case-study corrections — the descriptions had drifted from reality
+
+Capturing the sites surfaced that most GHL copy described something other than
+what is now live. Each was rewritten against the actual page content (headings,
+form fields and CTAs extracted from the live DOM), not from memory:
+
+- **#18 "Community" was a misreading of the subdomain.** `comm.` is
+  *commercial*. The page is a B2B commercial pool services quote funnel, not a
+  "community recruitment landing page". Display title corrected to
+  "Strong Refuge Pool — Commercial"; **the slug stays
+  `strong-refuge-pool-community`** so the indexed URL keeps resolving. Worth
+  deciding whether to change the slug and add a redirect.
+- **#19 Funnel** — is a residential pool *cover* estimate funnel (address
+  autocomplete, cover type, financing), not generic lead gen with booking
+  calendars.
+- **#20 Compliance** — is a commercial compliance *assessment* funnel led by
+  inspection risk, not "legal disclosure and evaluation templates".
+- **#21 Equipment** — described as an *internal* logistics/procurement portal;
+  it is a public-facing equipment **repair** funnel with symptom-led routing.
+  This was the largest mismatch.
+- **#22 Wingman Aero** — is specifically a $299 discovery-flight booking offer,
+  not a general multi-step application system.
+- **#23 Beyond Remedy NY** — now physician-supervised **peptide therapy**
+  consultation booking, not a med-spa flash sale. URL is still
+  `/brinjectablespromo`.
+- **#24 Beyond Remedy Co** — is a **longevity** programme ($250/mo, blood
+  panel, DEXA, MRI), not general wellness intake.
+- **#25 Swoon Learning** — is a **free 30-minute session** booking funnel built
+  around parent objections; it has no pricing blocks, which the old copy
+  claimed.
+- **#26 My Injury Case Help** — was broadly right; refined with the real
+  staged qualification, four service tracks and TCPA SMS consent.
+
+`role`, `description` and `tags` updated in `data/projects.ts`;
+`seoDescription`, `highlights` and all four narrative sections rewritten in
+`data/case-studies.ts`. `updatedAt` set to 2026-09-12 for the nine, since the
+page content genuinely changed that day.
+
+**Not touched: Qoffah's copy.** Only its screenshot was requested. The live
+site currently renders English/USD, while the description claims RTL and Arabic
+multilingual handling — that may still be true behind a locale switcher, but it
+was not verified, so nothing was rewritten on a guess.
